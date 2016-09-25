@@ -1,0 +1,989 @@
+/**
+ * WHO WILL BE THE FIRST VOTER??
+ * 
+ * Winner: Matthias (Soli Deo gloria) @MatthiasSaihttam.
+ * 
+ * Subscribe to me here: https://www.khanacademy.org/computer-programming/subscribe-to-s-vc-gg/5852696933?qa_expand_key=kaencrypted_9bd31fe0c4500fb7b739588fff6bd89c_2a24c411c346d5426201ba500b26b5dc87330c5a252c6d5569161203ada242d0ff8d40b1b521819812be22f8709526d5d6770de7fcb78f4a9315d6cc8c79a3624866c7831deba1f69a92d1e73becf9e202e6968c42c48f70c4f68e80c7e4bba40854fe9e7c6e630dba7bdcf687d31018fdb0b869595f09df6b691f37e190197c614783c243a600a7eb5a91553900f212c7ad4e8b3f402f97a1c5d9da0441c67f9d26f80857bbeb4a5fd0fbb5bfd3a2f08ba5020db3992a8a428738ac2687154d
+ */
+
+/*
+ * GAME_INFO
+ * Development Stage: Pre-Alpha 0.2.2
+ * Developers: Thomas Li (solo)
+ * Genre: Defense
+ * Type: Top-Down Shooter
+ * Publicity:  [- - =|= - - - -]
+ * Difficulty: [- =|= - - - - -]
+*/
+/** 
+ * 
+ * Changelog
+ * 
+ * PROJECT STARTED <June 6, 2016>.
+ * Pre-Alpha Game Development v0.0.1 - System object made with working keyboard controls.
+ * Pre-Alpha Game Development v0.0.2 - Shaded geometrical shape functions added. (sgsJS)
+ * Pre-Alpha Game Development v0.0.3 - Game state layout added.
+ * Pre-Alpha Game Development v0.0.4 - Arrays laid out.
+ * Pre-Alpha Game Development v0.0.5 - Grass image made.
+ * Pre-Alpha Game Development v0.0.6 - Barrier images made.
+ * Pre-Alpha Game Development v0.0.7 - Turret base images made.
+ * Pre-Alpha Game Development v0.0.8 - AA and Twin AA turret working. No bullets.
+ * Pre-Alpha Game Development v0.0.9 - MG Turret with spinning barrel working. No bullets.
+ * Pre-Alpha Game Development v0.1.0 - @BULLET_UPDATE <June 10, 2016>.
+ * @BULLET_UPDATE Details{
+ *      - AA, Twin AA, MG Turret's bullets made.
+ *      - Bullet Spread added.
+ *      - Slurred Bullets. (Leave a trail.)
+ * }
+ * 
+ * Pre-Alpha Game Development v0.1.1 - BUGFIX AA and Twin AA lock into positions when mouse is 'out of range.'
+ * Pre-Alpha Game Development v0.1.2 - Collisions with a 'dummy' target made.
+ * Pre-Alpha Game Development v0.1.3 - Target Enemy with working collisions made.
+ * Pre-Alpha Game Development v0.1.4 - FPS Meter added.
+ * Pre-Alpha Game Development v0.1.5 - Enemies have explosion death animation.
+ * Pre-Alpha Game Development v0.1.6 - Flak cannon added. High damage AA explosive shells.
+ * Pre-Alpha Game Development v0.1.7 - Rail cannon base art added.
+ * Pre-Alpha Game Development v0.1.8 - Flak cannon barrel graphic made slightly more unique.
+ * Pre-Alpha Game Development v0.1.9 - Crosshair created.
+ * Pre-Alpha Game Development v0.2.0 - @BIG_EXPLOSIONS_UPDATE <June 12, 2016>.
+ * @BIG_EXPLOSIONS_UPDATE Details{
+ *      - Inproper explosion location for target enemy fixed.
+ *      - SAM functional.
+ *      - Balloon Bomber enemy added. WIP
+ *      - Bullets will disappear upon hitting the ground.
+ *      - HP system. (?)
+ *      - Aftershock effect after bombing and explosions.
+ * }
+ * Pre-Alpha Game Development v0.2.1 - Death Animation Added.
+ * Pre-Alpha Game Development v0.2.2 - Bugfix- Balloons DO NOT drop bombs upon click.
+ * 
+ * RELEASED TO SUBS <June 12, 2016>.
+ * 
+ * TODO: RAIL CANNON TURRET. (Long barrel.)
+ */ 
+
+var sys = {
+    kys: [],
+    state: 0,
+    mp: false,
+    mht: 0,
+    mx: 300,
+    my: 250,
+    focus: 0,
+};
+var keyPressed = function(){
+    sys.kys[keyCode] = true;
+};
+var keyReleased = function(){
+    sys.kys[keyCode] = false;
+};
+var mousePressed = function(){
+    sys.mp = true;
+};
+var limitInt = function(x, LOW, HI){
+    if(x < LOW){
+        return LOW;
+    }else if(x > HI){
+        return HI;
+    }else{
+        return x;
+    }
+};
+
+/** #SHADED GEOMETRICAL SHAPES# **/
+/**      Made by: Thomas Li     **/
+//If you want to use this, credit is all that is needed.
+var sgsJS = {
+    rect: function(x, y, l, h){
+        rectMode(CENTER);
+        rect(x, y, l, h);
+        fill(0, 0, 0, 50);
+        noStroke();
+        triangle(x + l/2, y - h/2, x + l/2, y + h/2+1, x - l/2-1, y + h/2+1);
+    },
+    ellipse: function(x, y, l, h){
+        ellipse(x, y, l, h);
+        fill(0, 0, 0, 50);
+        arc(x, y, l, h, -45, 135);
+    },
+    quad: function(x1, y1, x2, y2, x3, y3, x4, y4){
+        quad(x1, y1, x2, y2, x3, y3, x4, y4);
+        fill(0, 0, 0, 50);
+        triangle(x2, y2, x3, y3, x4, y4);
+    },
+    arc: function(x, y, l, h, a, o){
+        arc(x, y, l, h, a, o);
+        fill(0, 0, 0, 50);
+        arc(x, y, l, h, a + (o-a)/2, o);
+    },
+};
+
+var gamedata = [
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+[0, 0, 0, 0, 0, 0, 5, 2, 5, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0],
+[0, 0, 7, 0, 0, 0, 2, 3, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0],
+[0, 0, 3, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
+[0, 0, 4, 0, 0, 2, 4, 4, 4, 2, 0, 0, 0, 3, 0, 9, 0, 0, 0, 0],
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+];
+var game = {
+    hp: 100,
+    max: 100,
+    shake: 0,
+};
+background(0, 0, 0, 0);rectMode(CENTER);
+stroke(255, 0, 0);fill(194, 194, 194);
+rect(15, 15, 27, 27);
+fill(255, 0, 0);textAlign(CENTER, CENTER);
+textSize(7);
+text("error\nimg not\nfound.", 15, 15);
+
+var graphics = {
+    block: {
+        ground: {
+            grass: get(0, 0, 30, 30),
+        },
+        barrier: {
+            light: get(0, 0, 30, 30),
+            medium: get(0, 0, 30, 30),
+            heavy: get(0, 0, 30, 30),
+        },
+        turret: {
+            aa: get(0, 0, 30, 30),
+            daa: get(0, 0, 30, 30),
+            mg: get(0, 0, 30, 30),
+            flak: get(0, 0, 30, 30),
+            sam: get(0, 0, 30, 30),
+            rail: get(0, 0, 30, 30),
+        },
+        barrel: {
+            aa: get(0, 0, 30, 30),
+            daa: get(0, 0, 30, 30),
+            mg: get(0, 0, 30, 30),
+            flak: get(0, 0, 30, 30),
+            sam: get(0, 0, 30, 30),
+            rail: get(0, 0, 30, 30),
+        },
+    },
+    enemy: {
+        target: get(0, 0, 30, 30),
+        balloon: get(0, 0, 30, 30),
+        bomb: get(0, 0, 30, 30),
+    },
+    error: get(0, 0, 30, 30),
+};
+var loadimages = function(step, output){
+    if(output === undefined){
+        output = false;
+    }
+    switch(step){
+        /**Ground & Turret*/
+        case 0:
+            /***/
+            if(output){return "imagedata/block/ground/grass";}
+            background(0, 0, 0, 0);
+            fill(138, 64, 0);
+            noStroke();
+            sgsJS.rect(15, 15, 30, 30);
+            fill(0, 255, 0);
+            rect(15, 2.5, 30, 5);
+            for(var i = 0; i < 30; i += 2){
+                for(var j = 0; j < 30; j += 2){
+                    fill(0, 0, 0, noise(j*0.02+5, i*0.3)*120);
+                    rect(1 + i, 1 + j, 2, 2);
+                }
+            }
+            graphics.block.ground.grass = get(0, 0, 30, 30);
+        break;
+        case 1:
+            /***/
+            if(output){return "imagedata/block/barrier/light";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(79, 79, 79);
+            rect(15, 27.5, 30, 5, 5);
+            rect(15, 2.5, 30, 5, 5);
+            fill(194, 194, 194);
+            rect(5, 15, 5, 20);
+            rect(25, 15, 5, 20);
+            graphics.block.barrier.light = get(0, 0, 30, 30);
+        break;
+        case 2:
+            /***/
+            if(output){return "imagedata/block/barrier/medium";}
+            background(0, 0, 0, 0);
+            strokeWeight(5);
+            stroke(150, 150, 150);
+            line(5, 5, 25, 25);
+            line(25, 5, 5, 25);
+            noStroke();
+            fill(51, 51, 51);
+            rect(15, 27.5, 30, 5, 5);
+            rect(15, 2.5, 30, 5, 5);
+            fill(150, 150, 150);
+            rect(5, 15, 5, 20);
+            rect(25, 15, 5, 20);
+            strokeWeight(1);
+            graphics.block.barrier.medium = get(0, 0, 30, 30);
+        break;
+        case 3:
+            /***/
+            if(output){return "imagedata/block/barrier/heavy";}
+            background(0, 0, 0, 0);
+            stroke(51, 51, 51);
+            strokeWeight(2);
+            fill(191, 191, 191);
+            rect(15, 15, 30, 30);
+            stroke(51, 51, 51);
+            strokeWeight(5);
+            line(2.5, 2.5, 27.5, 27.5);
+            line(27.5, 2.5, 2.5, 27.5);
+            noStroke();
+            fill(0, 0, 0);
+            rect(15, 27.5, 30, 5, 5);
+            rect(15, 2.5, 30, 5, 5);
+            rect(2.5, 15, 5, 30, 5);
+            rect(27.5, 15, 5, 30, 5);
+            for(var i = 5; i < 25; i += 2){
+                for(var j = 5; j < 25; j += 2){
+                    fill(0, 0, 0, noise(j*0.02+5, i*0.3)*155);
+                    rect(1 + i, 1 + j, 2, 2);
+                }
+            }
+            graphics.block.barrier.heavy = get(0, 0, 30, 30);
+        break;
+        case 4:
+            /***/
+            if(output){return "imagedata/block/turret/aa";}
+            background(0, 0, 0, 0);
+            fill(143, 143, 143);
+            sgsJS.arc(15, 30, 30, 30, 180, 360);
+            graphics.block.turret.aa = get(0, 0, 30, 30);
+        break;
+        case 5:
+            /***/
+            if(output){return "imagedata/block/turret/daa";}
+            background(0, 0, 0, 0);
+            fill(107, 107, 107);
+            sgsJS.arc(15, 30, 30, 30, 180, 360);
+            graphics.block.turret.daa = get(0, 0, 30, 30);
+        break;
+        case 6:
+            /***/
+            if(output){return "imagedata/block/turret/mg";}
+            background(0, 0, 0, 0);
+            fill(150, 150, 150);
+            sgsJS.rect(15, 15, 10, 25);
+            fill(112, 112, 112);
+            sgsJS.rect(15, 22.5, 30, 15);
+            graphics.block.turret.mg = get(0, 0, 30, 30);
+        break;
+        case 7:
+            /***/
+            if(output){return "imagedata/block/turret/flak";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(82, 82, 82);
+            sgsJS.rect(15, 25, 25, 5);
+            fill(138, 138, 138);
+            stroke(138, 138, 138);
+            triangle(0, 30, 2.5, 122.5, 2.5, 27.5);
+            fill(92, 92, 92);
+            stroke(92, 92, 92);
+            triangle(30, 30, 27.5, 122.5, 27.5, 27.5);
+            noStroke();
+            fill(0, 0, 0, 150);
+            sgsJS.rect(15, 15, 10, 25);
+            graphics.block.turret.flak = get(0, 0, 30, 30);
+        break;
+        case 8:
+            /***/
+            if(output){return "imagedata/block/turret/sam";}
+            background(0, 0, 0, 0);
+            fill(199, 199, 199);
+            sgsJS.rect(15, 20, 10, 20);
+            fill(199, 199, 199);
+            triangle(10, 10, 20, 10, 15, 5);
+            fill(143, 143, 143);
+            sgsJS.arc(15, 30, 30, 30, 180, 250);
+            fill(99, 99, 99);
+            sgsJS.arc(15, 30, 30, 30, 290, 360);
+            graphics.block.turret.sam = get(0, 0, 30, 30);
+        break;
+        case 9:
+            /***/
+            if(output){return "imagedata/block/turret/rail";}
+            background(0, 0, 0, 0);
+            fill(145, 145, 145);
+            noStroke();
+            sgsJS.rect(15, 17, 5, 10);
+            fill(122, 122, 122);
+            triangle(0, 30, 30, 30, 15, 20);
+            graphics.block.turret.rail = get(0, 0, 30, 30);
+        break;
+        /**Barrel*/
+        case 10:
+            /***/
+            if(output){return "imagedata/block/barrel/aa";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(140, 140, 140);
+            rect(15, 15, 30, 5);
+            stroke(140, 140, 140);
+            strokeWeight(4);
+            triangle(15, 15, 0, 12, 0, 18);
+            graphics.block.barrel.aa = get(0, 0, 30, 30);
+        break;
+        case 11:
+            /***/
+            if(output){return "imagedata/block/barrel/daa";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(140, 140, 140);
+            rect(15, 11, 30, 5);
+            rect(15, 18, 30, 5);
+            stroke(140, 140, 140);
+            rect(5, 15, 10, 4);
+            graphics.block.barrel.daa = get(0, 0, 30, 30);
+        break;
+        case 12:
+            /***/
+            if(output){return "imagedata/block/barrel/mg";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(140, 140, 140);
+            rect(15, 11, 30, 3, 1);
+            rect(15, 15, 30, 3, 1);
+            rect(15, 19, 30, 3, 1);
+            sgsJS.rect(5, 15, 14, 12);
+            stroke(140, 140, 140);
+            graphics.block.barrel.mg = get(0, 0, 30, 30);
+        break;
+        case 13:
+            /***/
+            if(output){return "imagedata/block/barrel/flak";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(92, 92, 92);
+            sgsJS.quad(0, 11, 0, 19, 30, 18, 30, 13);
+            fill(102, 102, 102);
+            sgsJS.rect(5, 15, 10, 10);
+            graphics.block.barrel.flak = get(0, 0, 30, 30);
+        break;
+        case 14:
+            if(output){return "imagedata/block/barrel/sam";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(143, 143, 143);
+            triangle(0, 10, 5, 10, 0, 5);
+            sgsJS.rect(10, 15, 20, 10);
+            fill(117, 117, 117);
+            triangle(0, 20, 5, 20, 0, 25);
+            triangle(20, 10, 20, 20, 30, 15);
+            graphics.block.barrel.sam = get(0, 0, 30, 30);
+        break;
+        //reserve 12- flak, 13-sam, 14-rail, 15-rail.
+        /**Enemy Graphics*/
+        case 16:
+            /***/
+            if(output){return "imagedata/enemy/target";}
+            background(0, 0, 0, 0);
+            noStroke();
+            fill(255, 0, 0);
+            sgsJS.ellipse(15, 15, 30, 30);
+            fill(255, 255, 255);
+            sgsJS.ellipse(15, 15, 25, 25);
+            fill(255, 0, 0);
+            sgsJS.ellipse(15, 15, 12.5, 12.5);
+            fill(255, 255, 255);
+            sgsJS.ellipse(15, 15, 5, 5);
+            graphics.enemy.target = get(0, 0, 30, 30);
+        break;
+        case 17:
+            /***/
+            if(output){return "imagedata/enemy/balloon";}
+            pushMatrix();
+            scale(2);
+            background(0, 0, 0, 0);
+            fill(255, 0, 0);
+            sgsJS.ellipse(15, 10, 12, 12);
+            fill(171, 80, 0);
+            sgsJS.rect(15, 25, 10, 7);
+            stroke(138, 92, 0);
+            strokeWeight(1.5);
+            line(9, 10, 10, 24);
+            line(21, 10, 20, 24);
+            graphics.enemy.balloon = get(0, 0, 60, 60);
+            popMatrix();
+        break;
+        case 18:
+            /***/
+            if(output){return "imagedata/enemy/bomb";}
+            pushMatrix();
+            background(0, 0, 0, 0);
+            fill(0, 0, 0);
+            sgsJS.ellipse(7.5, 7.5, 15, 15);
+            popMatrix();
+            graphics.enemy.bomb = get(0, 0, 15, 15);
+        break;
+        
+        /**DEFAULT*/
+        default:
+        if(output){return "Nothing to load.";}
+    }
+};
+var explosions = [];
+var explosion = function(x, y, s){
+    this.x = x;
+    this.y = y;
+    this.s = s;
+    this.state = 0;
+    this.m = 0.05;
+    this.m2 = 0.05;
+    this.m3 = 0.2;
+};
+explosion.prototype.work = function(){
+    switch(this.state){
+        case 0:
+            playSound(getSound("retro/hit1"));
+            this.state = 1;
+            game.shake += 0.4;
+        break;
+        case 1:
+            if(this.m3 < 1){
+                this.m *= 1.4;
+            }else{
+                this.m *= 1.1;
+            }
+            noFill();
+            stroke(0, 0, 0);
+            strokeWeight(0.2);
+            ellipse(this.x, this.y, this.m * this.s * this.m3, this.m * this.s * this.m3);
+            stroke(255, 150, 0);
+            strokeWeight(5);
+            ellipse(this.x, this.y, this.m * this.s / 2.4 * this.m3, this.m * this.s / 2.4 * this.m3);
+            noStroke();
+            fill(255, 0, 0, 150);
+            ellipse(this.x, this.y, this.m * this.s / 1.7 * this.m3, this.m * this.s / 1.7 * this.m3);
+            fill(255, 150, 0, 150);
+            ellipse(this.x, this.y, this.m * this.s / 3 * this.m3, this.m * this.s / 3 * this.m3);
+            fill(255, 255, 0, 150);
+            ellipse(this.x, this.y, this.m * this.s / 5 * this.m3, this.m * this.s / 5 * this.m3);
+            if(this.m > 1){
+                this.state = 2;
+            }
+        break;
+        case 2:
+        case 3:
+            if(this.m3 < 1){
+                this.m2 *= 1.4;
+            }else{
+                this.m2 *= 1.1;
+            }
+            noFill();
+            stroke(0, 0, 0);
+            strokeWeight(0.2);
+            ellipse(this.x, this.y, (this.m - this.m2) * this.s * this.m3, (this.m - this.m2) * this.s * this.m3);
+            stroke(255, 150, 0);
+            strokeWeight(5);
+            ellipse(this.x, this.y, (this.m - this.m2) * this.s / 2.4 * this.m3, (this.m - this.m2) * this.s / 2.4 * this.m3);
+            noStroke();
+            fill(255, 0, 0, 150 * this.m);
+            ellipse(this.x, this.y, this.m * this.s / 1.7 * this.m3, this.m * this.s / 1.7 * this.m3);
+            fill(255, 150, 0, 150 * this.m);
+            ellipse(this.x, this.y, this.m * this.s / 3 * this.m3, this.m * this.s / 3 * this.m3);
+            fill(255, 255, 0, 150 * this.m);
+            ellipse(this.x, this.y, this.m * this.s / 5 * this.m3, this.m * this.s / 5 * this.m3);
+            if(this.m2 > 1){
+                this.state = 3;
+            }
+            if(this.state === 3){
+                this.m /= 1.1;
+                if(this.m < 0.05){
+                    if(this.m3 > 0.5){
+                        this.state = 4;
+                    }else{
+                        this.state = 1;
+                        this.m3 = 1.2;
+                        this.m = 0.05;
+                        this.m2 = 0.05;
+                    }
+                }
+            }
+        break;
+    }
+};
+var run_explosions = function(){
+    for(var i = 0; i < explosions.length; i ++){
+        explosions[i].work();
+        if(explosions[i].state === 4){
+            explosions.splice(i, 1);
+        }
+    }
+};
+var bullets = [];
+var make_bullet = function(x, y, r, t, s){
+    /**
+     * @TYPE
+     * 1 - Basic Shot.
+     * 2 - MG Rounds.
+     * 3 - Flak Shell.
+     * 4 - [WIP] Surface to Air.
+     * 5 - [WIP] Rail-gun Shot.
+     */ 
+    bullets.push( {x: x, y: y, angle: (r + random(-s, s)), speed: null, type: t} );
+};
+var run_bullets = function(GC, CX, CY, OR){
+    if(GC === undefined){
+        GC = false;
+    }
+    this.noHit = true;
+    for(var i = 0; i < bullets.length; i ++){
+        pushMatrix();
+        translate(bullets[i].x, bullets[i].y);
+        rotate(bullets[i].angle);
+        switch(bullets[i].type){
+            case 1:
+                bullets[i].speed = 6;
+                noStroke();
+                fill(128, 128, 128);
+                rect(0, 0, 10, 8, 5);
+                if(GC || bullets[i].y > 450){
+                    if(dist(CX, CY, bullets[i].x, bullets[i].y) < 5 + OR || bullets[i].y > 450){
+                        //explosions.push(new explosion(bullets[i].x, bullets[i].y, 10));
+                        bullets[i].x = -500;
+                        if(GC){
+                            return 10;
+                        }
+                    }
+                }
+            break;
+            case 2:
+                bullets[i].speed = 10;
+                noStroke();
+                fill(133, 133, 133);
+                rect(0, 0, 10, 4, 2);
+                if(GC || bullets[i].y > 450){
+                    if(dist(CX, CY, bullets[i].x, bullets[i].y) < 3 + OR || bullets[i].y > 450){
+                        //explosions.push(new explosion(bullets[i].x, bullets[i].y, 5));
+                        bullets[i].x = -500;
+                        if(GC){
+                            return 4;
+                        }
+                    }
+                }
+            break;
+            case 3:
+                this.EXPLOSION_SIZE = random(100, 200);
+                bullets[i].speed = 7;
+                stroke(163, 163, 163);
+                strokeWeight(1);
+                line(0, 0, -10, 0);
+                strokeWeight(0.5);
+                line(0, 3.5, -6, 3.5);
+                line(0, -3.5, -6, -3.5);
+                noStroke();
+                fill(143, 143, 143);
+                ellipse(0, 0, 7, 7);
+                if(GC || bullets[i].y > 450){
+                    if(dist(CX, CY, bullets[i].x, bullets[i].y) < 5 + OR || bullets[i].y > 450){
+                        explosions.push(new explosion(bullets[i].x, bullets[i].y, this.EXPLOSION_SIZE));
+                        bullets[i].x = -500;
+                        if(GC){
+                            return this.EXPLOSION_SIZE / 3;
+                        }
+                    }
+                }
+            break;
+            case 4:
+            case 5:
+                bullets[i].speed = 3;
+                if(bullets[i].type === 5){
+                    image(graphics.block.barrel.sam, 0, 0, 15, 15);
+                    this.EXPLOSION_SIZE = random(50, 100);
+                }else{
+                    image(graphics.block.barrel.sam, 0, 0, 30, 30);
+                    bullets[i].angle += cos(frameCount*5) / 10;
+                    this.EXPLOSION_SIZE = random(100, 200);
+                }
+                if(GC || bullets[i].y > 450){
+                    if(dist(CX, CY, bullets[i].x, bullets[i].y) < 15 + OR || bullets[i].y > 450){
+                        explosions.push(new explosion(bullets[i].x, bullets[i].y, this.EXPLOSION_SIZE));
+                        if(bullets[i].y > 450){
+                            bullets[i].y = 450;
+                        }
+                        if(bullets[i].type === 4){
+                            make_bullet(bullets[i].x, bullets[i].y, bullets[i].angle, 5, 0);
+                            make_bullet(bullets[i].x, bullets[i].y, bullets[i].angle + 60, 5, 0);
+                            make_bullet(bullets[i].x, bullets[i].y, bullets[i].angle + 120, 5, 0);
+                            make_bullet(bullets[i].x, bullets[i].y, bullets[i].angle + 180, 5, 0);
+                            make_bullet(bullets[i].x, bullets[i].y, bullets[i].angle + 240, 5, 0);
+                            make_bullet(bullets[i].x, bullets[i].y, bullets[i].angle + 300, 5, 0);
+                        }
+                        bullets[i].x = -500;
+                        return this.EXPLOSION_SIZE;
+                    }
+                }
+            break;
+        }
+        if(!this.noHit && GC){
+            return 0;
+        }
+        if(!GC){
+            bullets[i].x += cos(bullets[i].angle) * bullets[i].speed;
+            bullets[i].y += sin(bullets[i].angle) * bullets[i].speed;
+        }
+        popMatrix();
+        if(bullets[i].x < 0 || bullets[i].x > 600 || bullets[i].y < 0){
+            bullets.splice(i, 1);
+        }
+    }
+};
+
+var tile = {
+    AA: function(x, y){
+        pushMatrix();
+        translate(15 + x, 15 + y);
+        if(atan2(sys.my - y - 15, sys.mx - x - 10) > -50){
+            rotate(-50);
+        }else if(atan2(sys.my - y - 15, sys.mx - x - 10) < -135){
+            rotate(-135);
+        }else{
+            rotate(atan2(sys.my - y - 15, sys.mx - x - 10));
+        }
+        image(graphics.block.barrel.aa, -10, -15);
+        popMatrix();
+        image(graphics.block.turret.aa, x, y);
+    },
+    DAA: function(x, y){
+        pushMatrix();
+        translate(15 + x, 20 + y);
+        if(atan2(sys.my - y - 20, sys.mx - x - 10) > -40){
+            rotate(-40);
+        }else if(atan2(sys.my - y - 20, sys.mx - x - 10) < -140){
+            rotate(-140);
+        }else{
+            rotate(atan2(sys.my - y - 15, sys.mx - x - 10));
+        }
+        translate(-5, 0);
+        image(graphics.block.barrel.daa, -10, -15, 40, 30);
+        popMatrix();
+        image(graphics.block.turret.daa, x, y);
+    },
+    MG: function(x, y, ANIMATED){
+        pushMatrix();
+        if(ANIMATED){
+            translate(x + 15, y + 10);
+            if(atan2(sys.my - y - 15, sys.mx - x - 10) > 0 && sys.mx > x){
+                rotate(0);
+            }else if(atan2(sys.my - y - 15, sys.mx - x - 10) > 0){
+                rotate(180);
+            }else{
+                rotate(atan2(sys.my - y - 15, sys.mx - x - 10));
+            }
+            translate(-7.5, -15);
+            noStroke();
+            fill(140, 140, 140, 150);
+            for(var i = 0; i < 6; i ++){
+                this.datAngle = (frameCount * (3 + sys.mht*7) + i * 60);
+                rect(15 + cos(this.datAngle) * 3, 15 + sin(this.datAngle) * 5, 30, 2);
+            }
+            fill(140, 140, 140);
+            sgsJS.rect(5, 15, 14, 12);stroke(255, 0, 0);
+            
+        }else{
+            translate(15 + x, 10 + y);
+            rotate(atan2(sys.my - y - 15, sys.mx - x - 10));
+            image(graphics.block.barrel.mg, -10, -15);
+        }
+        popMatrix();
+        image(graphics.block.turret.mg, x, y);
+    },
+    FLAK: function(x, y){
+        pushMatrix();
+        translate(x, y);
+        image(graphics.block.turret.flak, 0, 0);
+        translate(15, 5);
+        rotate(atan2(sys.my - y - 15, sys.mx - x - 10));
+        translate(-7.5, -15);
+        image(graphics.block.barrel.flak, 0, 0);
+        popMatrix();
+    },
+    SAM: function(x, y){
+        pushMatrix();
+        translate(x, y);
+        image(graphics.block.turret.sam, 0, 0);
+        translate(15, 5);
+        rotate(atan2(sys.my - y - 15, sys.mx - x - 10));
+        translate(-7.5, -15);
+        image(graphics.block.barrel.sam, 0, 0);
+        popMatrix();
+    },
+};
+
+var enemies = [];
+var add_enemy = function(x, y, t, hp, s){
+    enemies.push( {x: x, y: y, type: t, hp: hp, max: hp, size: s} );
+};
+var run_enemies = function(){
+    for(var i = 0; i < enemies.length; i ++){
+        pushMatrix();
+        switch(enemies[i].type){
+            case 1:
+                noStroke();
+                fill(166, 166, 166);
+                rect(enemies[i].size * 15 + enemies[i].x, enemies[i].y - 30, enemies[i].size * 21, enemies[i].size * 4.5);
+                fill(255, 0, 0);
+                sgsJS.rect(enemies[i].size * 15 + enemies[i].x, enemies[i].y - 30, enemies[i].size * enemies[i].hp/enemies[i].max * 20, enemies[i].size *  3.5);
+                fill(0, 0, 0);
+                image(graphics.enemy.target, enemies[i].x, enemies[i].y, enemies[i].size * 30, enemies[i].size * 30);
+                enemies[i].x += cos(frameCount + 30*i) / 2;
+                enemies[i].y += sin(frameCount + 30*i) / 2;
+                this.damageValue = run_bullets(true, enemies[i].x + enemies[i].size * 15, enemies[i].y + enemies[i].size * 15, enemies[i].size * 15);
+                if(this.damageValue > 0){
+                    enemies[i].hp -= this.damageValue;
+                }
+                if(enemies[i].hp < 0){
+                    explosions.push(new explosion(enemies[i].size * 15 + enemies[i].x, enemies[i].size * 15 + enemies[i].y, enemies[i].size * 30));
+                    enemies.splice(i, 1);
+                }
+            break;
+            case 2:
+                noStroke();
+                fill(166, 166, 166);
+                rect(enemies[i].size * 15 + enemies[i].x, enemies[i].y - 30, enemies[i].size * 21, enemies[i].size * 4.5);
+                fill(255, 0, 0);
+                sgsJS.rect(enemies[i].size * 15 + enemies[i].x, enemies[i].y - 30, enemies[i].size * enemies[i].hp/enemies[i].max * 20, enemies[i].size *  3.5);
+                image(graphics.enemy.balloon, enemies[i].x, enemies[i].y, enemies[i].size * 30, enemies[i].size * 30);
+                enemies[i].y += sin(frameCount + 30*i) / 4;
+                this.damageValue = run_bullets(true, enemies[i].x + enemies[i].size * 15, enemies[i].y + enemies[i].size * 15, enemies[i].size * 15);
+                if(this.damageValue > 0){
+                    enemies[i].hp -= this.damageValue;
+                }
+                if(enemies[i].hp < 0){
+                    explosions.push(new explosion(enemies[i].size * 15 + enemies[i].x, enemies[i].size * 15 + enemies[i].y, enemies[i].size * 30));
+                    enemies.splice(i, 1);
+                }
+                if(round((frameCount+(i*5)) % 500) === 0){
+                    enemies.push({x: enemies[i].x + 22, y: enemies[i].y + 50, type: 3, hp: 10, max: 10, size: 1});
+                }
+            break;
+            case 3:
+                noStroke();
+                fill(166, 166, 166);
+                rect(enemies[i].size * 7.5 + enemies[i].x, enemies[i].y - 30, enemies[i].size * 21, enemies[i].size * 4.5);
+                fill(255, 0, 0);
+                sgsJS.rect(enemies[i].size * 7.5 + enemies[i].x, enemies[i].y - 30, enemies[i].size * enemies[i].hp/enemies[i].max * 20, enemies[i].size *  3.5);
+                image(graphics.enemy.bomb, enemies[i].x, enemies[i].y, enemies[i].size * 15, enemies[i].size * 15);
+                enemies[i].y += 1.5;
+                if(this.damageValue > 0){
+                    enemies[i].hp -= this.damageValue;
+                }
+                if(enemies[i].hp < 0 || enemies[i].y > 450){
+                    if(enemies[i].y > 450){
+                        game.hp --;
+                        game.shake += 4;
+                    }
+                    explosions.push(new explosion(enemies[i].size * 7.5 + enemies[i].x, enemies[i].size * 7.5 + enemies[i].y, enemies[i].size * 50));
+                    enemies.splice(i, 1);
+                }
+            break;
+        }
+        popMatrix();
+    }
+};
+
+for(var i = 0; i < 5; i ++){
+    add_enemy(random(100, 500), random(50, 200), 2, 500, 2);
+}
+add_enemy(random(100, 500), random(50, 150), 1, 50, 1);
+add_enemy(450, 125, 1, 250, 3);add_enemy(200, 50, 2, 500, 2);
+textFont(createFont("monospace"));
+frameCount = 0;
+frameRate(15);
+var draw = function(){if(frameCount % 10 === 0 && frameCount < 100){add_enemy(random(100, 500), random(50, 150), 1, 50, 1);}
+    textSize(12);
+    rectMode(CENTER);
+    textAlign(CENTER, CENTER);
+    switch(sys.state){
+        case 0:
+            /** #LOGO# **/
+            background(0, 0, 0, 0);
+            loadimages(frameCount);
+            background(255, 255, 255);
+            textSize(20);
+            fill(0, 0, 0);
+            text("Rendering images...\nPlease wait", 300, 150);
+            textSize(15);
+            text(loadimages(frameCount, true) + "", 300, 250);
+            textSize(25);
+            text("Initializing game ... (" + ((31 - frameCount)/15).toFixed(1) + "s)", 300, 300);
+            if(frameCount > 30){
+                sys.state = 5;
+            }
+            fill(181, 181, 181);
+            noStroke();
+            rect(300, 400, 700, 50);
+            fill(87, 87, 87);
+            rect(300, 400, 600 * frameCount/30, 48);
+        break;
+        case 1:
+            /** #TITLE_SCREEN# **/
+            
+        break;
+        case 2:
+            /** #HELP# **/
+            
+        break;
+        case 3:
+            /** #CREDITS# **/
+            
+        break;
+        case 4:
+            /** #SAVE/LOAD# **/
+            
+        break;
+        case 5:
+            /** #GAME# **/
+            frameRate(60);
+            resetMatrix();
+            //background(214, 247, 255);
+            fill(214, 247, 255, 100);
+            rect(300, 250, 9999, 9999);
+            translate(random(-game.shake, game.shake), random(-game.shake, game.shake));
+            for(var i = 0; i < gamedata[0].length; i ++){
+                for(var j = 0; j < gamedata.length; j ++){
+                    if(game.hp < 1 && (random(0, 1) > 0.995) && gamedata[j][i] > 1){
+                        gamedata[j][i] = 0;
+                        explosions.push(new explosion(15 + i * 30, 15 + j * 30, random(50, 130)));
+                    }
+                    switch(gamedata[j][i]){
+                        /** PLACEHOLDERS & BARRIERS**/
+                        case 0:
+                            fill(0, 0, 0);
+                            textSize(12);
+                            //text("X", 15 + i * 30, 15 + j * 30);
+                        break;
+                        case 1:
+                            image(graphics.block.ground.grass, i * 30, j * 30);
+                        break;
+                        case 2:
+                            image(graphics.block.barrier.light, i * 30, j * 30);
+                        break;
+                        case 3:
+                            image(graphics.block.barrier.medium, i * 30, j * 30);
+                        break;
+                        case 4:
+                            image(graphics.block.barrier.heavy, i * 30, j * 30);
+                        break;
+                        /** TURRETS **/
+                        case 5:
+                            tile.AA(i * 30, j * 30);
+                            if(mouseIsPressed && frameCount % 50 === 0){
+                                make_bullet(15 + i * 30, 15 + j * 30, limitInt(atan2(sys.my - j * 30 - 15, sys.mx - i * 30 - 15), -135, -50), 1, 3 + sys.focus / 2);
+                            }
+                        break;
+                        case 6:
+                            tile.DAA(i * 30, j * 30);
+                            if(mouseIsPressed && frameCount % 50 === 0){
+                                make_bullet(20 + i * 30, 15 + j * 30, limitInt(atan2(sys.my - j * 30 - 15, sys.mx - i * 30 - 15), -140, -40), 1, 3 + sys.focus / 2);
+                            }
+                            if(mouseIsPressed && (frameCount+25) % 50 === 0){
+                                make_bullet(10 + i * 30, 15 + j * 30, limitInt(atan2(sys.my - j * 30 - 15, sys.mx - i * 30 - 15), -140, -40), 1, 3 + sys.focus / 2);
+                            }
+                        break;
+                        case 7:
+                            tile.MG(i * 30, j * 30, true);
+                            if(mouseIsPressed && frameCount*sys.mht % 5 === 0){
+                                make_bullet(random(13, 17) + i * 30, 15 + j * 30, limitInt(atan2(sys.my - j * 30 - 15, sys.mx - i * 30 - 15), -180, 0), 2, 8 + sys.focus / 10);
+                            }
+                        break;
+                        case 8:
+                            tile.FLAK(i * 30, j * 30);
+                            if(mouseIsPressed && frameCount % 70 === 0){
+                                make_bullet(15 + i * 30, j * 30, atan2(sys.my - j * 30 - 15, sys.mx - i * 30 - 15), 3, 1 + sys.focus / 2);
+                            }
+                        break;
+                        case 9:
+                            tile.SAM(i * 30, j * 30);
+                            if(mouseIsPressed && frameCount % 420 === 0){
+                                make_bullet(i * 30, 15 + j * 30, atan2(sys.my - j * 30 - 15, sys.mx - i * 30 - 15), 4, 0);
+                            }
+                        break;
+                        default:
+                            image(graphics.error, i * 30, j * 30);
+                    }
+                }
+            }
+            resetMatrix();
+            translate(random(-game.shake, game.shake), random(-game.shake, game.shake));
+            run_bullets();
+            resetMatrix();
+            translate(random(-game.shake, game.shake), random(-game.shake, game.shake));
+            run_enemies();
+            resetMatrix();
+            translate(random(-game.shake, game.shake), random(-game.shake, game.shake));
+            run_explosions();
+        break;
+        case 6:
+            /** #wut'shere# **/
+            
+        break;
+        case 7:
+            /** #wut'shere# **/
+            
+        break;
+        case 8:
+            /** #wut'shere# **/
+            
+        break;
+    }
+    sys.mp = false;
+    if(mouseIsPressed){
+        sys.mht += 0.025;
+        if(sys.mht > 1){
+            sys.mht = 1;
+        }
+    }else{
+        sys.mht /= 1.5;
+    }
+    if(sys.state === 5){
+        textSize(12);
+        fill(0, 0, 0);
+        text("HP: " + game.hp + " / " + game.max + " | CLICK AND HOLD TO FIRE | BULLETS ON SCREEN: " + bullets.length, 300, 490);
+        fill(0, 0, 0);
+        textSize(13 + sys.focus/2);
+        text("+", sys.mx, sys.my);
+        noFill();
+        stroke(0, 0, 0);
+        strokeWeight(1);
+        arc(sys.mx - 5, sys.my - 5, 10 + sys.focus, 10 + sys.focus, 180, 270);
+        arc(sys.mx + 5, sys.my - 5, 10 + sys.focus, 10 + sys.focus, 270, 360);
+        arc(sys.mx + 5, sys.my + 5, 10 + sys.focus, 10 + sys.focus, 0, 90);
+        arc(sys.mx - 5, sys.my + 5, 10 + sys.focus, 10 + sys.focus, 90, 180);
+        sys.mx += (mouseX - sys.mx) / 10;
+        sys.my += (mouseY - sys.my) / 10;
+        sys.focus = limitInt((dist(mouseX, mouseY, sys.mx, sys.my) / 5 + sys.mht * 10), 0, 30);
+        cursor("NONE");
+        game.shake /= 1.05;
+        if(enemies.length < 1){
+            textSize(40);
+            text("MISSION COMPLETE\nMore to come.", 300, 250);
+        }
+    }
+    if(game.hp <= 0){
+        textSize(20);
+        fill(0, 0, 0);
+        text("Despite your efforts,\nour base was destroyed in the end.\n\nTry again by clicking restart.", 300, 250);
+    }
+};

@@ -1,0 +1,857 @@
+//Updates:
+/**
+ * v1.0
+ * created game
+ * 
+ * v1.1
+ * added 2D version
+ * 
+ * v1.2
+ * added the "shooter" enimie (big one with 55 hp)
+ * added pause menu
+ * 
+ * v1.25 (current version)
+ * added all that "for"s and arrays
+ * 
+ * v1.3 COMING SOON!!!
+ * TODO: add 2nd shooter...0%
+ * TODO: 2D version- pause menu...0%
+ * 
+ * v1.4 COMING SOON!!!
+ * TODO: shop
+ * 
+ * v1.5 COMING SOON!!!
+ * TODO: 2D version- better "unpredictable" movement
+ * 
+ * v1.6 COMING SOON!!!
+ * TODO: add more enimies
+ * 
+ * */
+
+var hackDaGame = false;
+//Game variables
+var state = 1;
+var mainB = 210;
+var mainBp = 200;
+var mouseClicked = false;
+var mousePressed = function(){
+    mouseClicked = true;
+};
+var mouseReleased = function(){
+    mouseClicked = false;
+};
+//Credit var
+var frame = 400;
+var star = getImage("cute/Star");
+var framers = 0;
+var adding = 1;
+//
+//
+//Game type 1
+//
+//
+var person1hp = 10;
+var person1X = -10;
+var person1Y = 200;
+var person1speed = 1;
+var person2hp = 13;
+var person2X = -50;
+var person2Y = 150;
+var person2speed = 0;
+var shooter1X = -50;
+var shooter1Y = 120;
+var shooter1hp = 55;
+var shooter1speed = 0;
+var addend1 = 0;
+var projectile1X = shooter1X + addend1;
+var projectile1Y = 120;
+var hp = 25;
+var hpmax = 25;
+var money = 0;
+var points = 0;
+var range = 12;
+var energy = 100;
+var energymax = 100;
+var energyrecharge = 1;
+var energyusage = 2;
+var energydrain = false;
+var overheat = false;
+var shootable = true;
+var once = 0;
+var cooldown = 100;
+var energycolor = fill(0, 0, 0);
+var energycolor2 = 0;
+var stage1T = "Nice try. Try harder!";
+var stage1P = 0;
+var stage2T = "Good Job!";
+var stage2P = 35;
+var stage3T = "Great Job!!!";
+var stage3P = 95;
+var stage4T = "Super!!!";
+var stage4P = 265;
+var stage5T = "Epic!";
+var stage5P = 1000;
+var ts = 0;
+var tsi = true;
+var tss = 30;
+//X=x-position, Y=y-position, H=hp, S=speed
+var eX = [];
+var eY = [];
+var eH = [];
+var eMH = [];
+var eS = [];
+var eGS = [];
+var eT = [];
+var eA = [];
+var eLP = [];
+var eLM = [];
+var ePX = [];
+var ePY = [];
+var eD = [];
+var es = 0;
+var f = 0;
+var drawPics = function(){
+    
+};
+var movePics = function(){
+    
+};
+var takeDamage = function(){
+    
+};
+var createWave = function(time, amount){
+    if(f >= time){
+        es = amount;
+    }
+};
+//(x, y, length, height, name, variable, added to v, cost)
+var shopItem = function(x, y, l, h, n, v, a, c){
+    fill(255, 255, 255);
+    stroke(0, 0, 0);
+    strokeWeight(1);
+    rect(x, y, l, h);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text(n + "\n    Cost: $" + c, x * 2, y * 2);
+    if(mouseX >= x && mouseX <= (x + l) && mouseY >= y && mouseY <= (y + h) && points >= c){
+        fill(mainBp);
+        rect(x, y, l, h);
+        text(n + "\n    Cost: $" + c, x * 2, y * 2);
+        if(mouseClicked === true){
+            v = v + a;
+            points = points - c;
+        }
+    }
+};
+//
+//
+//   Game type 2
+//
+//
+var font = createFont("impact", 12);
+var backC = 0;
+var CC = 150;
+var x1 = 0;
+var y1 = 0;
+var x2 = 400;
+var y2 = 0;
+var x3 = 400;
+var y3 = 400;
+var x4 = 0;
+var y4 = 400;
+var indev = false;
+var energy1 = 255;
+var health = 255;
+var regain = 0;
+var radius = 7;
+var points = 0;
+var damage = 3;
+var cooldown1 = 100;
+
+//
+//
+//end text
+//
+//
+var endText = "";
+var draw = function() {
+    endText = "Score: "+money+"\n\nThanks for playing!\nMore Updates Coming Soon!!\n  *More Enimies\n  *A Shop\n  *Extra Teslas\nPlease Vote Up!!\n\nProjectiles and extra eminmie added!\nAuto-Zaps added!\n=)";
+//Repeat Part
+    if(state === 1){
+        background(mainB);
+        fill(255, 255, 255);
+        rect(150, 150, 100, 50);
+        rect(140, 205, 120, 50);
+        rect(110, 260, 200, 50);
+        fill(0, 0, 0);
+        textSize(30);
+        text("Tesla Defense", 100, 50);
+        text("Play", 170, 180);
+        text("Credits", 148, 240);
+        text("How to Play", 120, 300);
+        if(mouseX >= 150 && mouseX <= 250 && mouseY >= 150 && mouseY <= 200){
+            fill(mainBp);
+            rect(150, 150, 100, 50);
+            fill(0, 0, 0);
+            text("Play", 170, 180);
+            if(mouseIsPressed){
+                state = 3;
+            }
+        }
+        if(mouseX >= 140 && mouseX <= 270 && mouseY >= 210 && mouseY <= 260){
+            fill(mainBp);
+            rect(140, 205, 120, 50);
+            fill(0, 0, 0);
+            text("Credits", 148, 240);
+            if(mouseIsPressed){
+                state = 5;
+            }
+        }
+        if(mouseX >= 110 && mouseX <= 310 && mouseY >= 260 && mouseY <= 310){
+            fill(mainBp);
+            rect(110, 260, 200, 50);
+            fill(0, 0, 0);
+            text("How to Play", 120, 300);
+            if(mouseIsPressed){
+                state = 9;
+            }
+        }
+    }
+    if(state === 3){
+        stroke(0, 0, 0);
+        background(mainB);
+        fill(255, 255, 255);
+        rect(150, 200, 100, 50);
+        rect(150, 260, 100, 50);
+        fill(0, 0, 0);
+        textSize(25);
+        text("Tesla Defense - Game Select", 10, 50);
+        text("Play", 170, 230);
+        text("Play", 170, 290);
+        if(mouseX >= 150 && mouseX <= 250 && mouseY >= 200 && mouseY <= 250){
+            fill(mainBp);
+            rect(150, 200, 100, 50);
+            fill(0, 0, 0);
+            text("Orignal", 170, 230);
+            if(mouseIsPressed){
+                state = 2;
+            }
+        }
+        if(mouseX >= 150 && mouseX <= 250 && mouseY >= 260 && mouseY <= 310){
+            fill(mainBp);
+            rect(150, 260, 100, 50);
+            fill(0, 0, 0);
+            text("2D Version", 170, 290);
+            if(mouseIsPressed){
+                state = 4;
+            }
+        }
+    }
+    //
+    //
+    //Game type 1
+    //
+    //
+    if(state === 2){
+        stroke(0, 0, 0);
+        background(mainB);
+        noFill();
+        strokeWeight(1);
+        stroke(0, 0, 0);
+        ellipse(mouseX, mouseY, 10, 10);
+        line(mouseX - 7.5, mouseY, mouseX + 7.5, mouseY);
+        line(mouseX, mouseY - 7.5, mouseX, mouseY + 7.5);
+        stroke(255, 0, 0);
+        fill(255, 0, 0);
+        person1X = person1X + person1speed;
+        person2X = person2X + person2speed;
+        shooter1X = shooter1X + shooter1speed;
+        strokeWeight(10);
+        stroke(109, 227, 170);
+        fill(133, 131, 133);
+        rect(280, 100, 50, 200);
+        rect(250, 300, 110, 1);
+        fill(173, 173, 173);
+        ellipse(305, 80, 100, 100);
+        fill(0, 0, 0);
+        text("Press P to pause. Press O to open Shop.", 20, 20);
+        text("Hp: "+hp+"/"+hpmax, 205, 270);
+        text("Points: "+money+"", 205, 330);
+        text("Money: "+points+"", 205, 350);
+        text("Frame #"+f, 205, 370);
+        textSize(12);
+        fill(energycolor2,  energycolor, energycolor);
+        text("Energy : "+energy+"/"+energymax, 205, 290);
+        //Hp showing (might be replaced with rects)
+        fill(255, 0, 0);
+        text("   hp\n"+person1hp+"/10", person1X - 5, person1Y + 5);
+        text("   hp\n"+person2hp+"/13", person2X - 5, person2Y + 5);
+        text("   hp\n"+shooter1hp+"/55", shooter1X - 5, shooter1Y + 5);
+        drawPics();
+        fill(59, 129, 130);
+        text("Cooldown: "+cooldown+"%", 205, 310);
+        fill(random(1,255), random(200, 255), random(1,10));
+        ellipse(person1X, person1Y, 10, 10);
+        ellipse(person2X, person2Y, 10, 10);
+        ellipse(shooter1X, shooter1Y, 14, 14);
+        ellipse(projectile1X, projectile1Y, 3, 3);
+        if(keyPressed && keyCode === 79){
+            state = "paused";
+        }
+        if(keyPressed && keyCode === 80){
+            state = "paused";
+        }
+        if(es > 0){
+            eX.push(round(random(0, -100)));
+            eY.push(round(random(100, 330)));
+            eH.push(round(random(10, 250)));
+            eMH.push(0);
+            eS.push(0);
+            eGS.push(round(random(0.8, 1.5)));
+            eT.push(round(random(1, 4)));
+            eLP.push(0);
+            eLM.push(0);
+            eD.push(0);
+            es --;
+        }
+        if(energydrain === false && energy < energymax){
+            energy = energy + energyrecharge;
+        }for(var i=0;i<eX.length;i++){
+        
+        if(eT[i] === 1){
+            eGS[i] = 1;
+            eH[i] = 10;
+            eA[i] = round(random(0, 30));
+            eMH[i] = 10;
+            eLP[i] = 5;
+            eLM[i] = round(random(1, 2));
+            eD = 1;
+        }
+        if(eT[i] === 2){
+            eGS[i] = 1.5;
+            eH[i] = 13;
+            eMH[i] = 13;
+            eA[i] = round(random(35, 95));
+            eLP[i] = round(random(7, 9));
+            eLM[i] = round(random(1, 3));
+            eD = 1;
+        }
+        if(eT[i] === 3){
+            eGS[i] = 0.8;
+            eH[i] = 55;
+            eMH[i] = 55;
+            eA[i] = round(random(100, 155));
+            eLP[i] = round(random(50, 60));
+            eLM[i] = round(random(8, 12));
+            eD = 12;
+        }
+        if(eT[i] === 4){
+            eGS[i] = 1;
+            eH[i] = 250;
+            eMH[i] = 250;
+            eA[i] = round(random(200, 1000));
+            eLP[i] = round(random(50, 150));
+            eLM[i] = round(random(15, 17));
+            eD = 19;
+        }}
+    for(var i=0; i<eX.length; i++){
+        if(points >= eA[i]){
+            eS[i] = eGS[i];
+        }
+        eX[i] = eX[i] + eS[i];
+    }
+    for(var i=0; i<eX.length; i++){
+        if(eX[i] >= 270){
+            eH[i] = eMH[i];
+            eX[i] = round(random(0, -100));
+            stroke(255, 0, 0);
+            fill(133, 131, 133);
+            rect(280, 100, 50, 200);
+            hp = hp - eD[i];
+        }
+    }
+    
+    for(var i=0; i<eX.length; i++){
+        energydrain = false;
+        if(mouseIsPressed && shootable === true && energy > 0){
+            strokeWeight(1);
+            stroke(0, random(0, 255), random(0, 255));
+            fill(0, 0, random(220, 255));
+            line(mouseX, mouseY, 305, 80);
+            energy --;
+            fill(25, random(150, 255), random(220, 255));
+            ellipse(305, 80, 100, 100);
+            energydrain = true;
+            if(energy < round((energymax/10))){
+                energycolor2 = 255;
+                energycolor = 0;
+            }
+            if(mouseIsPressed && energy < 1){
+                overheat = true;
+            }
+        }
+        if(dist(mouseX, mouseY, eX[i], eY[i]) <= range && mouseIsPressed && shootable === true){
+            eS[i] = (eGS/1.2);
+            eH[i] --;
+            line(mouseX, mouseY, eX[i], eY[i]);
+            if(eH[i] < 0){
+                points = points + eLP;
+                money = money + eLM;
+                eH[i] = eMH[i];
+                eX[i] = round(random(0, -100));
+            }
+        }
+    }for(var i=0; i<eX.length; i++){
+        stroke(109, 227, 170);
+        strokeWeight(10);
+        switch(eT[i]){
+            case 1:
+                ellipse(eX[i], eY[i], 10, 10);
+                break;
+            case 2:
+                ellipse(eX[i], eY[i], 10, 10);
+                break;
+            case 3:
+                ellipse(eX[i], eY[i], 14, 14);
+                fill(random(1, 255), random(200, 255), random(1, 10));
+                ellipse(eX[i], eY[i], 3, 3);
+                break;
+            case 4:
+                ellipse(eX[i], eY[i], 15, 15);
+                fill(random(1, 255), random(200, 255), random(1, 10));
+                ellipse(eX[i], eY[i], 3, 3);
+                fill(random(0, 255));
+                rect((eX[i]-5), (eY+5), 5, 2.5);
+                break;
+            
+        }
+        fill(255, 0, 0);
+        text("    hp: "+eH[i]+"/"+eMH[i], eX[i] - 5, eY[i] + 5);
+    }
+        if(mouseX >= 0){energydrain = false;if(mouseIsPressed && energy > 0 && shootable === true){strokeWeight(1);stroke(0, random(0, 255), random(0, 255));fill(0, 0, random(100, 255));line(mouseX, mouseY, 305, 80);energy = energy - 1;fill(25, random(150, 255), random(220, 255));ellipse(305, 80, 100, 100);energydrain = true;if(energy < 11){energycolor2 = 255;energycolor = 0;}if(mouseIsPressed && energy < 1){overheat = true;}}}if(energy > 10){energycolor2 = 0;energycolor = 0;}
+        if(dist(mouseX, mouseY, person1X, person1Y) <= range && mouseIsPressed && shootable === true){
+            person1speed = 0.5;
+            person1hp = person1hp - 1;
+            line(person1X, person1Y, mouseX, mouseY);
+            if(person1hp < 1){
+                money = money + 5;
+                points ++;
+                person1hp = 10;
+                person1X = -10;
+            }
+        }
+        if(dist(mouseX, mouseY, person2X, person2Y) <= range && mouseIsPressed && shootable === true){
+            person2speed = 1;
+            person2hp = person2hp - 1;
+            line(person2X, person2Y, mouseX, mouseY);
+            if(person2hp < 1){
+                money = money + 7;
+                points = points + 2;
+                person2hp = 13;
+                person2X = -23;
+            }
+        }
+        if(dist(mouseX, mouseY, shooter1X, shooter1Y) <= range && mouseIsPressed && shootable === true){
+            shooter1speed = 0.6;
+            shooter1hp = shooter1hp - 1;
+            line(shooter1X, shooter1Y, mouseX, mouseY);
+            if(shooter1hp <= 0){
+                money = money + 55;
+                points = points + 5;
+                shooter1hp = 55;
+                shooter1X = -100;
+                projectile1X = -100;
+                shooter1speed = 1;
+            }
+        }
+        takeDamage();
+        if(person1X > 270){
+                stroke(255, 0, 0);
+                fill(133, 131, 133);
+                rect(280, 100, 50, 200);
+                hp = hp - 1;
+                person1X = -10;
+                person1hp = 10;
+        }
+        if(person2X > 270){
+                stroke(255, 0, 0);
+                fill(133, 131, 133);
+                rect(280, 100, 50, 200);
+                hp = hp - 1;
+                person2X = -50;
+                person2hp = 13;
+        }
+        if(shooter1X >= 150){
+                shooter1speed = 0;
+                shooter1speed = shooter1speed - 0.7;
+                addend1 ++;
+                projectile1X = projectile1X + addend1;
+                if(shooter1X >= 270){
+                   hp = hp - 12;
+                   shooter1X = -100;
+                   shooter1hp = 55;
+                }
+        }
+        if(projectile1X >= 270){
+                    hp = hp - 2;
+                    projectile1X = shooter1X;
+                    addend1 = -10;
+                    stroke(255, 0, 0);
+                    fill(133, 131, 133);
+                    rect(280, 100, 50, 200);
+                }
+        if(overheat === true && once === 0){
+            cooldown = 0;
+            once = 1;
+            energyrecharge = 0;
+            shootable = false;
+        }
+        if(cooldown < 100){
+            cooldown = cooldown + 1;
+        }
+        if(cooldown >= 100){
+            overheat = false;
+        }
+        if(overheat === false){
+            once = 0;
+            energyrecharge = 1;
+            if(energy >= 60){
+                shootable = true;
+            }
+        }
+        if(money >= 35){
+            person2speed = 0.9;
+        }
+        if(money >= 100){
+            shooter1speed = 0.7;
+        }
+        if(hp <= 0){
+            state = "game_over";
+        }
+        //create wave of enemies
+        //f++;
+        //createWave(100, 5);
+    }
+    if(state === "game_over"){
+        background(mainB);
+        fill(0, 0, 0);
+        textSize(20);
+        text("Game Over!\n\n\n"+endText, 20, 30);
+        if(money >= stage1P && money < stage2P){
+            text(stage1T, 20, 70);
+        }
+        if(money >= stage2P && money < stage3P){
+            text(stage2T, 20, 70);
+        }
+        if(money >= stage3P && money < stage4P){
+            text(stage3T, 20, 70);
+        }
+        if(money >= stage4P && money < stage5P){
+            text(stage4T, 20, 70);
+        }
+        if(money >= stage5P){
+            text(stage5T, 20, 70);
+        }
+    }
+    //
+    //
+    //Game type 2 code
+    //
+    //
+    if(state === 4){
+        stroke(0, 0, 0);
+        textFont(font, 12);
+        if(health > 0){
+            if(health <= 250){
+                regain = regain + 1;
+            }
+        points = points + 1;
+    }
+    if(energy1 < 255){
+        energy1 = energy1 + 1;
+    }
+    stroke(255, 255, 255);
+    background(backC);
+    //Evan's Code
+    fill (173, 171, 171);
+    rect (0,0,25,25);
+
+    rect (374,374,25,25);
+
+    rect (0,374,25,25);
+
+    rect (374,0,25,25);
+
+    fill (backC + 42, backC + 42, backC + 100);
+    //42, 42, 100
+    rect (80,80,250,250);
+                                    //Orignal Colors
+    fill (backC , backC + 64, 255); //0, 64, 255
+    ellipse (200,200,150,150);
+    //End of Evan's Code
+    fill(CC / 5, CC / 2, CC);
+    ellipse (200,200,50,50);
+    if(backC < 255){
+        backC = backC + 5;
+    }
+    if(backC >= 255){
+        backC = 0;
+    }
+    if(CC < 255){
+        CC = backC + 5;
+    }
+    if(CC >= 255){
+        CC = 0;
+    }
+    fill(255, 0, 0);
+    stroke(255, 255, 255);
+    strokeWeight(2);
+    x1 = x1 + 1;
+    y1 = y1 + 1;
+    x2 = x2 - 1;
+    y2 = y2 + 1;
+    x3 = x3 - 1;
+    y3 = y3 - 1;
+    x4 = x4 + 1;
+    y4 = y4 - 1;
+    ellipse(x1, y1, radius, radius);
+    ellipse(x2, y2, radius, radius);
+    ellipse(x3, y3, radius, radius);
+    ellipse(x4, y4, radius, radius);
+    fill(255, 255, 255);
+    if(energy1 > 0){
+        if(mouseIsPressed && cooldown1 >= 100){
+            line(mouseX, mouseY, 200, 200);
+            energy1 = energy1 - 2;
+        }
+        if(cooldown1 < 100){
+            cooldown1 = cooldown1 + 1;
+        }
+    }
+    fill(0, 0, 0);
+    noFill();
+    strokeWeight(1);
+    stroke(0, 0, 0);
+    ellipse(mouseX, mouseY, 10, 10);
+    line(mouseX - 7.5, mouseY, mouseX + 7.5, mouseY);
+    line(mouseX, mouseY - 7.5, mouseX, mouseY + 7.5);
+    fill(energy1, energy1, 0);
+    rect(62, 372.5, energy1, 20);
+    fill(0, health, 0);
+    rect(62, 347.5, health, 20);
+    fill(255 - points/50, points/50, 0);
+    rect(62, 37.25, points/50, 20);
+    fill(0, regain* 2.55, 0);
+    rect(62, 15.25, regain * 2.55, 20);
+    fill(cooldown1/2.5, cooldown*2.5, 255);
+    rect(62, 59.25, cooldown1*2.55, 20);
+    textSize(12);
+    fill(0, 0, 0);
+    text("\nHealth: "+health+"/255", 72, 350);
+    text("\nEnergy: "+energy1+"/255", 72, 375);
+    text("\nPoints: "+points, 72, 35);
+    text("\nHealing: "+regain+"%", 72, 13);
+    text("\nCooldown:"+cooldown1+"%", 72, 57);
+    fill(255, 255, 0);
+    if(mouseIsPressed){
+        line(mouseX, mouseY, 200, 200);
+        if(dist(200, 200, mouseX, mouseY) <= 50/2){
+            energy --;
+            energy --;
+            regain --;
+            points --;
+            health --;
+            fill(random(0, 255), 0, 0);
+            ellipse(200, 200, 50, 50);
+        }
+        if(mouseX >= x1 - radius/2 && mouseX <= x1 + radius/2 && mouseY >= y1 - radius/2 && mouseY <= y1 + radius/2){
+            x1 = 0;
+            y1 = 0;
+        }
+        if(mouseX >= x2 - radius/2 && mouseX <= x2 + radius/2 && mouseY >= y2 - radius/2 && mouseY <= y2 + radius/2){
+            x2 = 400;
+            y2 = 0;
+        }
+        if(mouseX >= x3 - radius/2 && mouseX <= x3 + radius/2 && mouseY >= y3 - radius/2 && mouseY <= y3 + radius/2){
+            x3 = 400;
+            y3 = 400;
+        }
+        if(mouseX >= x4 - radius/2 && mouseX <= x4 + radius/2 && mouseY >= y4 - radius/2 && mouseY <= y4 + radius/2){
+            x4 = 0;
+            y4 = 400;
+        }
+    }
+    if(x1 === 200 && y1 === 200){
+        x1 = 0;
+        y1 = 0;
+        health = health - damage;
+        fill(255, 0, 0);
+        ellipse (200,200,50,50);
+    }
+    if(x2 === 200 && y2 === 200){
+        x2 = 400;
+        y2 = 0;
+        health = health - damage;
+        fill(255, 0, 0);
+        ellipse (200,200,50,50);
+    }
+    if(x3 === 200 && y3 === 200){
+        x3 = 400;
+        y3 = 400;
+        health = health - damage;
+        fill(255, 0, 0);
+        ellipse (200,200,50,50);
+    }
+    if(x4 === 200 && y4 === 200){
+        x4 = 0;
+        y4 = 400;
+        health = health - damage;
+        fill(255, 0, 0);
+        ellipse (200,200,50,50);
+    }
+    if(regain >= 100){
+        health = health + 5;
+        regain = 0;
+    }
+    if(energy1 <= 0){
+        cooldown1 = 0;
+    }
+    if(points >= 1000){
+        radius = 8;
+        damage = 4;
+        if(points >= 5000){
+            radius = 10;
+            damage = 6;
+            if(points >= 7800){
+                radius = 9;
+                damage = 10;
+                if(points >= 10000){
+                    radius = 12;
+                    damage = 15;
+                    if(points >= 12000){
+                        radius = 3;
+                        damage = 30;
+                        if(points >= 12750){
+                            health = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(indev === true){
+        points = points + round(random(-1, 6));
+    }
+    if(health <= 0){
+        background(backC);
+        if(points < 12750){
+        textSize(20);
+        fill(random(0, 255), random(0, 255), random(0, 255));
+        text("Game Over.", 200, CC);
+        text("Game Over.", 20, CC);
+        text("Game Over.\n\n\n     Vote Up and\n Thank you for playing!\n\nYour Score:\n"+points+"\nTry harder next time! \nYou need 12750 points to win!", 100, CC - 20);
+        }
+            if(points >= 12750){
+            textSize(20);
+            fill(random(0, 255), random(0, 255), random(0, 255));
+            text("You Win!", 200, CC);
+            text("You Win!", 20, CC);
+            text("You Win!\n\n\n     Vote Up and\n Thank you for playing!\n\nYour Score:\n"+points, 130, CC - 20);
+            }
+        }
+    }
+    //
+    //
+    //Credits
+    //
+    //
+    if(state === 5){
+        noStroke();
+        background(mainB);
+        fill(0, 0, 0);
+        textSize(30);
+        text("  Credits", 140, frame);
+        textSize(15);
+        text("\n\n \nMain Programmer\nThomas Li\n\nGraphics\nevatan175 (Evan Tan)\n\n\nHelp\nTheUberKid (on explaining\n\"for\")\n\ncharkittycat (for reporting a\ncopy, flag it\nlink in comments below.\n\n\nThank you \nfor watching\n the Credits\n you will \nhave double hp\n the next\ngame you \nplay!! Enjoy!!!", 140, frame);
+        frame = frame - 0.8;
+        fill(mainB);
+        rect(-1, 299, 402, 102);
+        rect(-1, -1, 402, 102);
+        image(star, 20, framers);
+        image(star, 280, framers);
+        framers = framers + adding;
+        
+        //fill(0, 0, 0);
+        //text(frame, 20, 300); // To show what frame (not needed)
+        
+        if(framers >= 250){
+            adding = -1;
+        }
+        if(framers <= 0){
+            adding = 1;
+        }
+        if(frame < -340){
+            state = 3;
+            hp = 50;
+            hpmax = 50;
+            health = 510;
+        }
+    }
+    if(state === 9){
+        background(mainB);
+        textSize(14);
+        text("Press any key to exit to menu.\n\nHOW TO PLAY\n      -Orignal version\nClick (and hold) to use your tesla. Warning do not\nuse your telsa too long or else your telsa will\noverheat and you will have to wait about 160\nframes before you can use it again. If a enimie\ngets to your tesla you will take about 1 to 2\ndamage. If your hp reaches 0 you die.\n\n       -2D version (orginally created by evatan175)\nClick and hold to use your telsa. Warning do not\nuse your telsa too long or else your tesla will\noverheat and you will have to wait about 100\nframes before you can use it again. Enimies come\nfrom the corners and the damage and size\nvaries on your score. If you click on a enimie they\ndie and respawn in one of the 4 corners. Also, if you\nuse you tesla too close to your tesla you will take\ndamage (and more negative effects).\n                                                                      ~Good Luck!", 30, 30);
+        if(keyIsPressed){
+            state = 1;
+        }
+    }
+    if(state === "paused"){
+        fill(255, 255, 255);
+        strokeWeight(10);
+        rect(70, 70, (230+(ts-30))+ts, (230+(ts-30))+ts);
+        textSize(ts);
+        fill(0, 0, 0);
+        text("PAUSED\n\nPress\nSPACEBAR\nto unpause.", 90, (75 + ts));
+        if(tsi === true){
+            ts++;
+            if(ts >= tss){
+                tsi = false;
+            }
+        }
+        if(tsi === false){
+            ts--;
+            if(ts <= 1){
+                tsi = true;
+            }
+            tss = round(random(30, 40));
+        }
+        if(keyCode === 32){
+            state = 2;
+        }
+    }
+};
+if(hackDaGame !== false){
+    hp = "NAN";
+    energy = "NAN";
+    cooldown = "NAN";
+    money = "NAN";
+    throw( "https://www.khanacademy.org/cs/tesla-defense/2485480345 is not responding");
+    
+}
+//
+//
+//Indev stuff
+//
+//Developer Tools when making.
+//
+//
+if(indev === true){
+    energy = 99999;
+    energy1 = 99999;
+    energymax = 99999;
+    energyrecharge = 99999;
+    energyusage = 0;
+    range = 999;
+    hp = 999;
+    hpmax = 999;
+}

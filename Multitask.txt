@@ -1,0 +1,1611 @@
+//KEYBOARD REQUIRED!!!
+
+//Most recent update: Changed text from normal to same as orginal game's text (directions).
+
+//Orginal game: http://www.kongregate.com/games/IcyLime/multitask =D
+//NOTICE: This program is somewhat MORE DIFFICULT than orginal game.
+
+var hardcore = false; //Just for a challenge. (its called Hardcore for a reason) NOTE: You must toggle HARDCORE MODE from help, click on the text below BACK.
+var CURVYFLIGHT =   false;//OPTIONAL
+var FLIGHTBORDERS = true; //OPTIONAL
+//Bottom numbers are (mouseX:mouseY:tilt(on padddle):row(stick):#ofspikes)
+
+
+/***don't lie to me***
+ * HARDCORE HISCORES * PROOF REQUIRED
+ * 
+ * 1st: Thomas Li - 59 seconds
+ * 2nd: Evan Tan - 57 seconds
+ * 3rd: Candoran - 45 seconds
+ * 
+ * CLASSIC HISCORES *
+ * 
+ * 1st: Thomas Li - 91 seconds
+ * 2nd: Benjamin Xie - 60 seconds
+ * 3rd: Evan Tan - 59 seconds
+ * 
+***don't cheat***/
+
+
+var state = 0;
+var mp = false;
+var checked = false;
+var keys = [];
+var Game = {
+    game: 0,
+    games: 0,
+    paddle: {
+        d: 0,
+        f: 0,
+        x1: 0,
+        y1: 0,
+        x2: 0,
+        y2: 0,
+        bx: 0,
+        by: 0,
+        xs: 0,
+    },
+    stick: {
+        row: 2,
+        lag: 0,
+        maxlag: 15,
+        rand: 0,
+        spike:{
+            x: [],
+            r: [],
+            s: [],
+        },
+    },
+    square: {
+        x: 0,
+        y: 0,
+        r: 0,
+        s: 3,
+        point: {
+            x: [],
+            y: [],
+            t: [],
+        },
+    },
+    triangle: {
+        x: 0,
+        y: 0,
+        d: 0,
+        wall: {
+            x: [],
+            y: [],
+            
+        }
+    },
+    HARDCORE: false,
+};
+var time = {
+    end: 0,
+    start: 0,
+    score: 0,
+    hiscore: 0,
+};
+var graphix = {
+    x1: -650,
+    x3: 0,
+    y1: -150,
+    y2: -250,
+    y3: 0,
+    s1: 10,
+    t1: 0,
+    v1: 2,
+    v2: 0,
+    m1: false,
+    o1: false,
+};
+var keyPressed = function(){
+    keys[keyCode] = true;
+};
+var keyReleased = function(){
+    keys[keyCode] = false;
+};
+var mousePressed = function(){
+    mp = true;
+};
+var drawbg = function(speed){
+    fill(255, 255, 255, speed);
+    rect(-100*5, -100*5, width+100*5, height+100*5);
+};
+//^game variables.
+var delay20 = 10;
+var frames2 = 0;
+var amount = 1;
+var zoom2 = 25;
+var zoomed = false;
+var dropmove = [];
+var begin = function(){
+    frames2 ++;
+    for(var i = 1; i < 74; i++){
+        if(dropmove.length < 74){
+            dropmove.push(400);
+        }
+    }
+};
+var pixel = function(x, y){
+    stroke(0, 0, 0);
+    fill(0, 0, 0);
+    rect((x * zoom2 - (zoom2 / 2)), (y-dropmove[amount]) * zoom2, zoom2, zoom2, 1);
+    if((amount * delay20) <= frames2){
+        dropmove[amount] /= 2;
+        if(dropmove[amount] < 0.5){
+            delay20 /= 1.0001;
+        }
+    }
+    amount ++;
+};
+var drawLetter = function(letter, x, y, size) {
+    letter = letter.toUpperCase();
+    
+    pushMatrix();
+    translate(x, y);
+    scale(size, size);
+    translate(-x, -y);
+    
+    noStroke();
+    switch(letter) {
+        case "A":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 8, y + 4, 4, 11);
+            rect(x + 6, y + 7, 3, 2);
+            break;
+        case "B":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 9, y, 4, 15);
+            break;
+        case "C":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "D":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x + 8, y + 4, 4, 5);
+            break;
+        case "E":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 6, 4, 3);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "F":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 4, 3);
+            break;
+        case "G":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 8, y + 5, 4, 6);
+            break;
+        case "H":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "I":
+            rect(x, y, 12, 4);
+            rect(x + 3, y + 4, 6, 8);
+            rect(x, y + 11, 12, 4);
+            break;
+        case "J":
+            rect(x, y, 12, 4);
+            rect(x + 6, y + 4, 6, 11);
+            rect(x, y + 12, 6, 3);
+            rect(x, y + 9, 3, 3);
+            break;
+        case "K":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 9, y + 2, 3, 4);
+            rect(x + 9, y + 9, 3, 6);
+            break;
+        case "L":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "M":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 2, 3, 6);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "N":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "0":
+        case "O":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "P":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 5, 3, 3);
+            rect(x + 8, y, 4, 8);
+            break;
+        case "Q":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            rect(x + 6, y + 15, 3, 2);
+            break;
+        case "R":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 8, y, 4, 7);
+            rect(x + 9, y + 9, 3, 6);
+            break;
+        case "S":
+            rect(x, y, 3, 6);
+            rect(x + 3, y, 9, 3);
+            rect(x, y + 6, 12, 3);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "T":
+            rect(x, y, 12, 5);
+            rect(x + 4, y + 5, 4, 10);
+            break;
+        case "U":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "V":
+            rect(x, y, 6, 12);
+            rect(x + 4, y + 10, 8, 5);
+            rect(x + 9, y, 3, 10);
+            break;
+        case "W":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 7, 3, 6);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "X":
+            rect(x, y, 6, 6);
+            rect(x + 3, y + 6, 6, 3);
+            rect(x, y + 9, 3, 6);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x + 9, y, 3, 6);
+            break;
+        case "Y":
+            rect(x, y, 6, 8);
+            rect(x + 6, y + 5, 6, 3);
+            rect(x + 9, y, 3, 5);
+            rect(x + 3, y + 8, 6, 7);
+            break;
+        case "Z":
+            rect(x, y, 12, 3);
+            rect(x + 6, y + 3, 6, 6);
+            rect(x, y + 6, 6, 3);
+            rect(x, y + 9, 6, 6);
+            rect(x + 6, y + 12, 6, 3);
+            break;
+        case ":":
+            rect(x + 3, y, 6, 6);
+            rect(x + 3, y + 9, 6, 6);
+            break;
+        case ".":
+            rect(x + 3, y + 9, 6, 6);
+            break;
+        case ",":
+            rect(x + 3, y + 9, 6, 9);
+            break;
+        case "1":
+            rect(x + 6, y, 6, 15);
+            break;
+        case "2":
+            rect(x, y, 12, 3);
+            rect(x, y + 3, 4, 3);
+            rect(x + 8, y + 3, 4, 3);
+            rect(x + 4, y + 6, 6, 3);
+            rect(x, y + 9, 6, 3);
+            rect(x, y + 11, 12, 4);
+            break;
+        case "3":
+            rect(x + 6, y, 6, 15);
+            rect(x, y, 6, 4);
+            rect(x + 1, y + 6, 5, 3);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "4":
+            rect(x + 6, y, 6, 15);
+            rect(x, y + 6, 6, 3);
+            rect(x, y, 3, 6);
+            break;
+        case "5":
+            rect(x, y, 3, 6);
+            rect(x + 3, y, 9, 3);
+            rect(x, y + 5, 12, 4);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "6":
+            rect(x, y, 12, 3);
+            rect(x, y + 3, 3, 12);
+            rect(x + 3, y + 12, 9, 3);
+            rect(x + 3, y + 6, 9, 3);
+            rect(x + 6, y + 9, 6, 3);
+            break;
+        case "7":
+            rect(x, y, 12, 3);
+            rect(x + 6, y + 3, 6, 6);
+            rect(x + 3, y + 6, 6, 8);
+            break;
+        case "8":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 8, y, 5, 15);
+            break;
+        case "9":
+            rect(x + 6, y, 6, 15);
+            rect(x, y, 6, 3);
+            rect(x, y + 3, 3, 6);
+            rect(x + 3, y + 6, 3, 3);
+            break;
+    }
+    popMatrix();
+};//Function copied from Virus™'s Super Hexagon
+var drawWord = function(text, x, y, size, alignment) {
+    var offset = 0;
+    if(alignment !== undefined) {
+        if(alignment === CENTER) {
+            offset = (14 * size) * text.length / 2;
+        } else if(alignment === RIGHT) {
+            offset = (14 * size) * text.length;
+        }
+    }
+   
+    for(var i = 0; i < text.length; i++) {
+        var character = text.charAt(i) + "";
+        drawLetter(character, (x + ((14 * size) * i)) - offset, y, size);
+    }
+};//Function copied from Virus™'s Super Hexagon
+var pixelpicture = function(){
+    pixel(-6, 9);
+    pixel(-5, 9);
+    pixel(-4, 9);
+    pixel(-3, 9);
+    pixel(-2, 9);
+    pixel(-1, 9);
+    pixel(0, 9);
+    pixel(1, 9);
+    pixel(2, 9);
+    pixel(3, 9);
+    pixel(4, 9);
+    pixel(5, 9);
+    pixel(6, 9);
+    pixel(-7, 8);
+    pixel(7, 8);
+    pixel(-7, 7);
+    pixel(7, 7);
+    pixel(-5, 7);
+    pixel(-2, 7);
+    pixel(1, 7);
+    pixel(-7, 6);
+    pixel(-5, 6);
+    pixel(-3, 6);
+    pixel(-1, 6);
+    pixel(1, 6);
+    pixel(2, 6);
+    pixel(3, 6);
+    pixel(4, 6);
+    pixel(7, 6);
+    pixel(-7, 5);
+    pixel(-5, 5);
+    pixel(-3, 5);
+    pixel(-1, 5);
+    pixel(1, 5);
+    pixel(5, 5);
+    pixel(7, 5);
+    pixel(-7, 4);
+    pixel(-5, 4);
+    pixel(-3, 4);
+    pixel(-1, 4);
+    pixel(1, 4);
+    pixel(5, 4);
+    pixel(7, 4);
+    pixel(-7, 3);
+    pixel(-5, 3);
+    pixel(-3, 3);
+    pixel(-1, 3);
+    pixel(1, 3);
+    pixel(5, 3);
+    pixel(7, 3);
+    pixel(-7, 2);
+    pixel(-4, 2);
+    pixel(-1, 2);
+    pixel(2, 2);
+    pixel(3, 2);
+    pixel(4, 2);
+    pixel(7, 2);
+    pixel(-7, 1);
+    pixel(7, 1);
+    pixel(-6, 0);
+    pixel(-5, 0);
+    pixel(-4, 0);
+    pixel(-3, 0);
+    pixel(-2, 0);
+    pixel(-1, 0);
+    pixel(0, 0);
+    pixel(1, 0);
+    pixel(2, 0);
+    pixel(3, 0);
+    pixel(4, 0);
+    pixel(5, 0);
+    pixel(6, 0);
+};
+var pixeltext = function(){
+    if(frames2 >= 351){
+        if(zoom2 >= 10 && !zoomed){
+            zoom2 /= 1.05;
+        }else{
+            zoom2 = 10;
+            zoomed = true;
+            fill(0, 0, 0, (frames2 - 370) * 5);
+            drawWord("Novice Programming", -120, 140, 1, 0);
+            if(frames2 >= 600){
+                state = 1;
+            }
+        }
+    }
+};
+//Function copied from Infiltration's Explorer
+//^Logo variables.
+{
+var storage = (function() {
+    return this.localStorage;
+})();
+var changeHiscore = function(){
+    for (var m in storage) {
+        storage.setItem("Multitask-highscore", time.score);
+        break;
+    }
+    
+};
+var updateHiscore = function(){
+    for (var m in storage) {
+        time.hiscore = storage.getItem("Multitask-highscore");
+        break;
+    }
+};
+} //Function modified and copied from: https://www.khanacademy.org/computer-programming/local-storage/2770597954
+var draw = function(){
+    textFont(createFont('monospace'));
+    updateHiscore();
+    if(width !== 600 || height !== 500){
+        if(!checked){
+            println("Play at https://www.khanacademy.org/computer-programming/multitask/6688732229664768?width=600&height=500 for required canvas size");
+            checked = true;
+        }
+    }
+    switch(state){
+        case 0:
+            resetMatrix();
+            translate(200, 100);
+            background(255, 255, 255);
+            pixelpicture();
+            begin();
+            pixeltext();
+            amount = 1;
+            resetMatrix();
+        break;
+        case 1://scale(0.5);
+            background(200);
+            strokeWeight(5);
+            stroke(255, 255, 255, 150);
+            translate(graphix.x1 + graphix.s1 - 10, 0);
+            fill(255, 0, 0);
+            rect(0, 50, 150, 100, 5);
+            fill(0, 255, 255);
+            rect(150, 50, 150, 100, 5);
+            fill(0, 255, 0);
+            rect(300, 50, 150, 100, 5);
+            fill(255, 0, 255);
+            rect(450, 50, 150, 100, 5);
+            fill(0, 0, 0);
+            textSize(75);
+            translate(graphix.x1 - graphix.x1 * 2 - 1, graphix.y1);
+            text("Multitask", 300, 100);
+            textSize(10);
+            text("Idea by IcyLime Javascript version coded by Thomas Li (Novice Programming)", 300, 175);
+            if(graphix.x1 < 0){
+                graphix.x1 += 10;
+            }else{
+                if(graphix.y1 < 0){
+                    graphix.y1 += 5;
+                }else{
+                    strokeWeight(1);
+                    fill(255, 255, 255, 100);
+                    textSize(45);
+                    if(mouseX > 0 && mouseY >= 300 && mouseY <= 350){
+                        textSize(50);
+                        if(mp){
+                            state = 2;
+                            time.start = millis();
+                        }
+                    }
+                    rect(0, 300, 600, 50, 10);
+                    fill(0, 0, 0);
+                    text("PLAY", 300, 325);
+                    textSize(45);
+                    if(graphix.o1 === false && mouseY >= 375 && mouseY <= 425){
+                        textSize(50);
+                        if(mp){
+                            graphix.m1 = true;
+                            graphix.o1 = true;
+                        }
+                    }
+                    fill(0, 0, 0);
+                    text("HELP", 300, 400);
+                    fill(255, 255, 255, 100);
+                    rect(0, 375, 600, 50, 10);
+                    if(mouseY >= 425 && mouseY <= 475){
+                        textSize(50);
+                        if(mp){
+                            graphix.m1 = true;
+                            graphix.o1 = false;
+                        }
+                    }
+                    fill(0, 0, 0);
+                    translate(-600, 20);
+                    text("BACK",300, 430);
+                    fill(255, 255, 255, 100);
+                    rect(0, 405, 600, 50, 10);
+                    translate(0, -20);
+                    strokeWeight(5);
+                    fill(255, 0, 0);
+                    rect(0, 50, 150, 100, 5);
+                    fill(0, 255, 255);
+                    rect(150, 50, 150, 100, 5);
+                    fill(0, 255, 0);
+                    rect(300, 50, 150, 100, 5);
+                    fill(255, 0, 255);
+                    rect(450, 50, 150, 100, 5);
+                    fill(0, 0, 0);
+                    textSize(50);
+                    text("Instructions", 300, 100);
+                    textSize(18);
+                    text("Multitask is a test of your ability to play multiple\ngames at the same time. At first you will be playing\nonly 1 simple minigame. As time passes, however,\nnew games will be introduced. One error in any game\nwill cause you lose, so stay alert! Good luck!\n\nSpecific instructions for each minigame will be\nprovided as they are introduced to you.\nHiscore: "+time.hiscore, 300, 275);
+                    textSize(7);
+                    fill(random(0, 255));
+                    if(mouseX >= 125 && mouseX <= 270 && mouseY >= 485 && mouseY <= 492 && graphix.s1 >= 600){
+                        textSize(10);
+                        fill(255, 255, 255);
+                        if(mouseIsPressed){
+                            textSize(9);
+                        }
+                        if(mp){
+                            if(Game.HARDCORE){
+                                Game.HARDCORE = false;
+                            }else{
+                                Game.HARDCORE = true;
+                            }
+                        }
+                    }
+                    text("Click to toggle HARDCORE/Classic Mode", 200, 490);
+                }
+            }
+            if(graphix.m1 === true){
+                if(graphix.s1 < 610 && graphix.o1 === true){
+                    graphix.s1 *= 1.1;
+                    if(graphix.s1 >= 610){
+                        graphix.s1 = 610;
+                    }
+                }
+                if(graphix.s1 > 0 && graphix.o1 === false){
+                    graphix.s1 /= 1.1;
+                    if(graphix. s1 <= 10){
+                        graphix.s1 = 10;
+                    }
+                }
+            }
+        break;
+        case 2:
+            if(focused !== true){
+                time.start = millis();
+            }
+            noStroke();
+            fill(255, 255, 255, 50);
+            if(Game.game !== "FAIL"){
+                rect(-1000, -1000, 3000, 3000);
+            }
+            fill(220);
+            rect(0, -10, 600, 60, 10);
+            fill(0, 0, 0);
+var varA = time.score + "";
+            textSize((50 / varA.length));
+            text(time.score, 50, 25);
+            switch(Game.game){
+                case 0: 
+                    Game.game = "h1";
+                    Game.paddle.d = 0;
+                    Game.paddle.bx = 300;
+                    background(255, 255, 255);
+                break;//help 4 needs to show the spikes/squares (todo)
+                case "h1": //Help 1
+                    {
+                    strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    line(200, 250, 400, 250);
+                    noStroke();
+                    fill(255, 0, 0);
+                    ellipse(300, 235, 15, 15);
+                    stroke(0, 0, 0);
+                    strokeWeight(3);
+                    fill(255, 255, 255);
+                    rect(190, 45, 220, 80, 10);
+                    fill(0, 0, 0);
+                    textSize(12);
+                    text("Keep the ball balanced to the\nplatform. Use the RIGHT and\nLEFT arrow keys to tilt.\n(press any key to continue)", 300, 85);
+                    if(keyIsPressed){
+                        Game.game = 1;
+                        time.start = millis();
+                        Game.games = 1;
+                    }
+                    }
+                break;
+                case "h2": //Help 2
+                    {
+                    if(graphix.v1 > 1){
+                        graphix.v1 -= 0.01;
+                    }
+                    translate(-300*graphix.v1, 0);
+                    strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    translate(150*graphix.v1, 0);
+                    line(Game.paddle.x1, Game.paddle.y1, Game.paddle.x2, Game.paddle.y2);
+                    noStroke();
+                    fill(255, 0, 0);
+                    ellipse(Game.paddle.bx, Game.paddle.by + 1, 15, 15);
+                    stroke(0, 0, 0);
+                    strokeWeight(3);
+                    fill(255, 255, 255);
+                    rect(485, 45, 230, 80, 10);
+                    fill(0, 0, 0);
+                    textSize(12);
+                    text("Avoid the spikes by moving\nvertically with the UP and\nDOWN keys.\n(press any key to continue)", 600, 85);
+                    translate(450*graphix.v1, 0);
+                    noStroke();
+                    fill(0, 0, 255, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(3);
+                    stroke(0, 0, 0);
+                    rect(145, 175, 15, 175);
+                    strokeWeight(2);
+                    for(var i = 0; i < 5; i++){
+                        rect(145, 175+(175/5*i), 15, 175/5);
+                    }
+                    fill(0, 0, 255);
+                    rect(145, 175+(175/5*Game.stick.row), 15, 175/5);
+                    if(keyIsPressed && graphix.v1 <= 1){
+                        Game.game = 2;
+                        time.start = millis();
+                        Game.games = 2;
+                        graphix.v1 = 2;
+                    }
+                    }
+                break;
+                case "h3": //Help 3
+                    {
+                    if(graphix.v1 > 1){
+                        graphix.v1 -= 0.01;
+                    }
+                    translate(-300*graphix.v1, 0);
+                    strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    translate(150*graphix.v1, 0);
+                    line(Game.paddle.x1, Game.paddle.y1, Game.paddle.x2, Game.paddle.y2);
+                    noStroke();
+                    fill(255, 0, 0);
+                    ellipse(Game.paddle.bx, Game.paddle.by + 1, 15, 15);
+                    stroke(0, 0, 0);
+                    strokeWeight(3);
+                    fill(255, 255, 255);
+                    rect(335, 245, 230, 80, 10);
+                    fill(0, 0, 0);
+                    textSize(12);
+                    text("Touch the squares before any of\nthem disappear! Move around\nwith the WASD letter keys.\n(press any key to continue)", 450, 285);
+                    translate(450*graphix.v1, -150*graphix.v1);
+                    noStroke();
+                    fill(0, 0, 255, 20);
+                    rect(0, 200*graphix.v1, 600, 250);
+                    strokeWeight(3);
+                    stroke(0, 0, 0);
+                    translate(0, 50*graphix.v1);
+                    rect(145, 175, 15, 175);
+                    strokeWeight(2);
+                    for(var i = 0; i < 5; i++){
+                        rect(145, 175+(175/5*i), 15, 175/5);
+                    }
+                    for(var i = 0; i < Game.stick.spike.x.length; i++){
+                        fill(0, 0, 0);
+                        triangle(Game.stick.spike.x[i], 195+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 190+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 200+(175/5*Game.stick.spike.r[i]));
+                    }
+                    fill(0, 0, 255);
+                    rect(145, 175+(175/5*Game.stick.row), 15, 175/5);
+                    fill(0, 255, 0, 30);
+                    noStroke();
+                    rect(0, 400*graphix.v1, 300, 250);
+                    strokeWeight(2);
+                    stroke(0, 0, 0);
+                    rect(142, 490, 20, 20);
+                    if(keyIsPressed && graphix.v1 <= 1){
+                        Game.square.x = 142;
+                        Game.square.y = 110;
+                        Game.square.r = 10;
+                        Game.game = 3;
+                        time.start = millis();
+                        Game.games = 2;
+                        graphix.v1 = 2;
+                    }
+                    }
+                break;
+                case "h4": //Help 4 (congrats on getting this far)
+                    {
+                    if(graphix.v1 > 1){
+                        graphix.v1 -= 0.01;
+                    }
+                    translate(-300*graphix.v1, 0);
+                    strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 240);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    translate(150*graphix.v1, -75);
+                    line(Game.paddle.x1, Game.paddle.y1, Game.paddle.x2, Game.paddle.y2);
+                    noStroke();
+                    fill(255, 0, 0);
+                    ellipse(Game.paddle.bx, Game.paddle.by + 1, 15, 15);
+                    stroke(0, 0, 0);
+                    strokeWeight(3);
+                    translate(0, 75);
+                    fill(255, 255, 255);
+                    rect(335, 245, 230, 80, 10);
+                    fill(0, 0, 0);
+                    textSize(12);
+                    text("Use SPACEBAR to maneuver\nthrough the obstacles.\nDon't hit them!\n(press any key to continue)", 450, 285);
+                    translate(450*graphix.v1, -150*graphix.v1);
+                    noStroke();
+                    fill(0, 0, 255, 20);
+                    rect(0, 200*graphix.v1, 600, 250);
+                    strokeWeight(3);
+                    stroke(0, 0, 0);
+                    translate(0, 50*graphix.v1);
+                    rect(145, 175, 15, 175);
+                    strokeWeight(2);
+                    for(var i = 0; i < 5; i++){
+                        rect(145, 175+(175/5*i), 15, 175/5);
+                    }
+                    for(var i = 0; i < Game.stick.spike.x.length; i++){
+                        fill(0, 0, 0);
+                        triangle(Game.stick.spike.x[i], 195+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 190+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 200+(175/5*Game.stick.spike.r[i]));
+                    }
+                    fill(0, 0, 255);
+                    rect(145, 175+(175/5*Game.stick.row), 15, 175/5);
+                    fill(0, 255, 0, 30);
+                    noStroke();
+                    rect(0, 400*graphix.v1, 300, 250);
+                    strokeWeight(2);
+                    stroke(0, 0, 0);
+                    rect(142, 490, 20, 20);
+                    fill(255, 0, 255, 20);
+                    translate(-300, 390);
+                    noStroke();
+                    rect(0, 0, 300, 250);
+                    if(keyIsPressed && graphix.v1 <= 1){
+                        Game.game = 4;
+                        time.start = millis();
+                        Game.games = 3;
+                        graphix.v1 = 2;
+                        Game.triangle.x = 40;
+                        Game.triangle.y = 100;
+                        Game.triangle.wall.x = [];
+                        Game.triangle.wall.y = [];
+                    }
+                    }
+                break;
+                case 1:
+                    {strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    line(Game.paddle.x1, Game.paddle.y1, Game.paddle.x2, Game.paddle.y2);
+                    stroke(0, 255, 0);
+                    strokeWeight(1);
+                    //line(190, 150, 190, 400);
+                    //line(410, 150, 410, 400);
+                    var pl = 100;
+                    if(hardcore){
+                        stroke(255, 0, 0);
+                        //line(190 + time.score, 150, 190 + time.score, 400);
+                        //line(410 - time.score, 150, 410 - time.score, 400);
+                        pl = (100 - time.score);
+                        if(time.score >= 75){
+                            pl = 25;
+                        }
+                    }
+                    noStroke();
+                    fill(255, 0, 0);
+                    Game.paddle.x1 = 300+cos(Game.paddle.d)*pl;
+                    Game.paddle.y1 = 250+sin(Game.paddle.d)*pl;
+                    Game.paddle.x2 = 300+cos(Game.paddle.d)*pl*-1;
+                    Game.paddle.y2 = 250+sin(Game.paddle.d)*pl*-1;
+                    Game.paddle.f = 250+sin(Game.paddle.d)*(300-Game.paddle.bx);
+                    Game.paddle.by = 235 + (250 - Game.paddle.f);
+                    Game.paddle.bx += Game.paddle.xs;
+                    Game.paddle.xs = Game.paddle.d/5;
+                    ellipse(Game.paddle.bx, Game.paddle.by + 1, 15, 15);
+                    if(Game.paddle.bx > 250){
+                        Game.paddle.d += dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }else{
+                        Game.paddle.d -= dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }
+                    if(keys[LEFT] && Game.paddle.d > -30){
+                        Game.paddle.d -= 1.22;
+                    }
+                    if(keys[RIGHT] && Game.paddle.d < 30){
+                        Game.paddle.d += 1.23;
+                    }
+                    if(Game.paddle.bx <= 190 || Game.paddle.bx >= 410){
+                        
+                        Game.game = "FAIL";
+                        playSound(getSound("retro/boom2"));
+                    }
+                    if(hardcore){
+                        if(Game.paddle.bx <= (190 + time.score) || Game.paddle.bx >= (410 - time.score)){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                            
+                        }
+                    }
+                    }
+                    if(time.score >= 15 && Game.games <= 1){
+                        Game.game = 2;
+                        Game.game = "h2";
+                        time.start = millis();
+                        playSound(getSound("retro/coin"));
+                    }
+                break;
+                case 2:
+                    {
+                    translate(-300, 0);
+                    strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    translate(150, 0);
+                    line(Game.paddle.x1, Game.paddle.y1, Game.paddle.x2, Game.paddle.y2);
+                    stroke(0, 255, 0);
+                    strokeWeight(1);
+                    //line(190, 150, 190, 400);
+                    //line(410, 150, 410, 400);
+                    var pl = 100;
+                    if(hardcore){
+                        stroke(255, 0, 0);
+                        //line(190 + time.score, 150, 190 + time.score, 400);
+                        //line(410 - time.score, 150, 410 - time.score, 400);
+                        pl = (100 - time.score);
+                        if(time.score >= 75){
+                            pl = 25;
+                        }
+                    }
+                    noStroke();
+                    fill(255, 0, 0);
+                    Game.paddle.x1 = 300+cos(Game.paddle.d)*pl;
+                    Game.paddle.y1 = 250+sin(Game.paddle.d)*pl;
+                    Game.paddle.x2 = 300+cos(Game.paddle.d)*pl*-1;
+                    Game.paddle.y2 = 250+sin(Game.paddle.d)*pl*-1;
+                    Game.paddle.f = 250+sin(Game.paddle.d)*(300-Game.paddle.bx);
+                    Game.paddle.by = 235 + (250 - Game.paddle.f);
+                    Game.paddle.bx += Game.paddle.xs;
+                    Game.paddle.xs = Game.paddle.d/5;
+                    ellipse(Game.paddle.bx, Game.paddle.by + 1, 15, 15);
+                    if(Game.paddle.bx > 250){
+                        Game.paddle.d += dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }else{
+                        Game.paddle.d -= dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }
+                    if(keys[LEFT] && Game.paddle.d > -30){
+                        Game.paddle.d -= 1.22;
+                    }
+                    if(keys[RIGHT] && Game.paddle.d < 30){
+                        Game.paddle.d += 1.23;
+                    }
+                    if(Game.paddle.bx <= 190 || Game.paddle.bx >= 410){
+                        
+                        Game.game = "FAIL";
+                        playSound(getSound("retro/boom2"));
+                    }
+                    if(hardcore){
+                        if(Game.paddle.bx <= (190 + time.score) || Game.paddle.bx >= (410 - time.score)){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                            
+                        }
+                    }
+                    translate(450, 0);
+                    }
+                    {
+                    noStroke();
+                    fill(0, 0, 255, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(3);
+                    stroke(0, 0, 0);
+                    rect(145, 175, 15, 175);
+                    strokeWeight(2);
+                    for(var i = 0; i < 5; i++){
+                        rect(145, 175+(175/5*i), 15, 175/5);
+                    }
+                    fill(0, 0, 255);
+                    rect(145, 175+(175/5*Game.stick.row), 15, 175/5);
+                    Game.stick.rand = random(0, 1000);
+                    if(hardcore){
+                        Game.stick.rand = random(0, (1000-(time.score * 2)));
+                    }
+                    if(Game.stick.rand <= 10 && Game.stick.spike.x.length < 20){
+                        Game.stick.spike.x.push(random(200, 350));
+                        Game.stick.spike.r.push(round(random(0, 4)));
+                        Game.stick.spike.s.push(random(0.1, 2));
+                        if(hardcore){
+                            Game.stick.spike.x.push(random(200, 350 - time.score));
+                            Game.stick.spike.r.push(round(random(0, 4)));
+                            Game.stick.spike.s.push(random(0.1 * time.score / 40, 2 * time.score / 30));
+                        }
+                    }
+                    for(var i = 0; i < Game.stick.spike.x.length; i++){
+                        fill(0, 0, 0);
+                        triangle(Game.stick.spike.x[i], 195+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 190+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 200+(175/5*Game.stick.spike.r[i]));
+                        Game.stick.spike.x[i] -= Game.stick.spike.s[i];
+                        if(Game.stick.spike.x[i] <= 160 && Game.stick.spike.x[i] >= 145 && Game.stick.row === Game.stick.spike.r[i]){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                        }
+                        if(Game.stick.spike.x[i] <= 0){
+                            Game.stick.spike.s[i] = 0;
+                            if(Game.stick.spike.x.length >= 20 && Game.stick.spike.x[i] <= 0){
+                                Game.stick.spike.x = [];
+                                Game.stick.spike.s = [];
+                                Game.stick.spike.r = [];
+                            }
+                        }
+                    }
+                    Game.stick.lag += 1;
+                    if(keys[UP] && Game.stick.row >= 1){
+                        Game.stick.lag ++;
+                        if(Game.stick.lag >= 10){
+                            Game.stick.row -= 1;
+                            Game.stick.lag = 0;
+                        }
+                    }
+                    if(keys[DOWN] && Game.stick.row <= 3){
+                        Game.stick.lag ++;
+                        if(Game.stick.lag >= 10){
+                            Game.stick.row += 1;
+                            Game.stick.lag = 0;
+                        }
+                    }
+                    }
+                    if(time.score >= 40 && Game.games <= 2){
+                        Game.game = 3;
+                        Game.game = "h3";
+                        time.start = millis();
+                        Game.square.r = 10;
+                        playSound(getSound("retro/coin"));
+                    }
+                break;
+                case 3:
+                    {
+                    translate(-300, 0);
+                    strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 450);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    translate(150, 0);
+                    line(Game.paddle.x1, Game.paddle.y1, Game.paddle.x2, Game.paddle.y2);
+                    stroke(0, 255, 0);
+                    strokeWeight(1);
+                    //line(190, 150, 190, 400);
+                    //line(410, 150, 410, 400);
+                    var pl = 100;
+                    if(hardcore){
+                        stroke(255, 0, 0);
+                        //line(190 + time.score, 150, 190 + time.score, 400);
+                        //line(410 - time.score, 150, 410 - time.score, 400);
+                        pl = (100 - time.score);
+                        if(time.score >= 75){
+                            pl = 25;
+                        }
+                    }
+                    noStroke();
+                    fill(255, 0, 0);
+                    Game.paddle.x1 = 300+cos(Game.paddle.d)*pl;
+                    Game.paddle.y1 = 250+sin(Game.paddle.d)*pl;
+                    Game.paddle.x2 = 300+cos(Game.paddle.d)*pl*-1;
+                    Game.paddle.y2 = 250+sin(Game.paddle.d)*pl*-1;
+                    Game.paddle.f = 250+sin(Game.paddle.d)*(300-Game.paddle.bx);
+                    Game.paddle.by = 235 + (250 - Game.paddle.f);
+                    Game.paddle.bx += Game.paddle.xs;
+                    Game.paddle.xs = Game.paddle.d/5;
+                    ellipse(Game.paddle.bx, Game.paddle.by + 1, 15, 15);
+                    if(Game.paddle.bx > 250){
+                        Game.paddle.d += dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }else{
+                        Game.paddle.d -= dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }
+                    if(keys[LEFT] && Game.paddle.d > -30){
+                        Game.paddle.d -= 1.22;
+                    }
+                    if(keys[RIGHT] && Game.paddle.d < 30){
+                        Game.paddle.d += 1.23;
+                    }
+                    if(Game.paddle.bx <= 190 || Game.paddle.bx >= 410){
+                        
+                        Game.game = "FAIL";
+                        playSound(getSound("retro/boom2"));
+                    }
+                    if(hardcore){
+                        if(Game.paddle.bx <= (190 + time.score) || Game.paddle.bx >= (410 - time.score)){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                            
+                        }
+                    }
+                    translate(450, 0);
+                    }
+                    {
+                    noStroke();
+                    fill(0, 0, 255, 20);
+                    rect(0, 50, 600, 240);
+                    strokeWeight(3);
+                    stroke(0, 0, 0);
+                    translate(0, -90);
+                    rect(145, 175, 15, 175);
+                    strokeWeight(2);
+                    for(var i = 0; i < 5; i++){
+                        rect(145, 175+(175/5*i), 15, 175/5);
+                    }
+                    fill(0, 0, 255);
+                    rect(145, 175+(175/5*Game.stick.row), 15, 175/5);
+                    Game.stick.rand = random(0, 1000);
+                    if(hardcore){
+                        Game.stick.rand = random(0, (1000-(time.score * 2)));
+                    }
+                    if(Game.stick.rand <= 10 && Game.stick.spike.x.length < 20){
+                        Game.stick.spike.x.push(random(200, 350));
+                        Game.stick.spike.r.push(round(random(0, 4)));
+                        Game.stick.spike.s.push(random(0.1, 2));
+                        if(hardcore){
+                            Game.stick.spike.x.push(random(200, 350 - time.score));
+                            Game.stick.spike.r.push(round(random(0, 4)));
+                            Game.stick.spike.s.push(random(0.1 * time.score / 40, 2 * time.score / 30));
+                        }
+                    }
+                    for(var i = 0; i < Game.stick.spike.x.length; i++){
+                        fill(0, 0, 0);
+                        triangle(Game.stick.spike.x[i], 195+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 190+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 200+(175/5*Game.stick.spike.r[i]));
+                        Game.stick.spike.x[i] -= Game.stick.spike.s[i];
+                        if(Game.stick.spike.x[i] <= 160 && Game.stick.spike.x[i] >= 145 && Game.stick.row === Game.stick.spike.r[i]){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                        }
+                        if(Game.stick.spike.x[i] <= 0){
+                            Game.stick.spike.s[i] = 0;
+                            if(Game.stick.spike.x.length >= 20 && Game.stick.spike.x[i] <= 0){
+                                Game.stick.spike.x = [];
+                                Game.stick.spike.s = [];
+                                Game.stick.spike.r = [];
+                            }
+                        }
+                    }
+                    Game.stick.lag += 1;
+                    if(keys[UP] && Game.stick.row >= 1){
+                        Game.stick.lag ++;
+                        if(Game.stick.lag >= 10){
+                            Game.stick.row -= 1;
+                            Game.stick.lag = 0;
+                        }
+                    }
+                    if(keys[DOWN] && Game.stick.row <= 3){
+                        Game.stick.lag ++;
+                        if(Game.stick.lag >= 10){
+                            Game.stick.row += 1;
+                            Game.stick.lag = 0;
+                        }
+                    }
+                    }
+                    {noStroke();
+                    translate(0, 380);
+                    fill(0, 255, 0, 20);
+                    rect(0, 0, 600, 600);
+                    fill(0, 255, 0);
+                    strokeWeight(2);
+                    stroke(0, 0, 0);
+                    rect(Game.square.x, Game.square.y, 20, 20);
+                    if(keys[65] && Game.square.x > 0){
+                        Game.square.x -= Game.square.s;
+                    }
+                    if(keys[68] && Game.square.x < 280){
+                        Game.square.x += Game.square.s;
+                    }
+                    if(keys[87] && Game.square.y > 0){
+                        Game.square.y -= Game.square.s;
+                    }
+                    if(keys[83] && Game.square.y < 190){
+                        Game.square.y += Game.square.s;
+                    }
+var a = 1000;
+                    if(hardcore){
+                        Game.square.s = (3 - (time.score/75));
+                        a = 1000-time.score;
+                    }
+                    if(Game.square.r >= (random(0, a)) && Game.square.point.x.length < 30){
+                        Game.square.point.x.push(random(0, 280));
+                        Game.square.point.y.push(random(0, 190));
+                        Game.square.point.t.push(millis()+10000);
+                    }
+                    for(var i = 0; i < Game.square.point.x.length; i++){
+                        stroke(200, 255, 145);
+                        fill(0, 255, 145);
+                        rect(Game.square.point.x[i], Game.square.point.y[i], 40, 40);
+                        fill(0, 0, 0);
+                        textSize(15);
+                        if((round((Game.square.point.t[i]-millis())/1000) <= 3)){
+                            fill(255*random(0, 1), 0, 0);
+                            textSize(20);
+                            if((round((Game.square.point.t[i]-millis())/1000) === 0)){
+                                fill(255, 0, 0);
+                                textSize(35);
+                            }
+                        }
+                        text(round((Game.square.point.t[i]-millis())/1000), Game.square.point.x[i] + 20, Game.square.point.y[i] + 20);
+                        if(dist(Game.square.x + 10, Game.square.y + 10, Game.square.point.x[i]+20, Game.square.point.y[i]+20) <= 20){
+                            Game.square.point.x[i] = 1000;
+                            Game.square.point.y[i] = 1000;
+                            Game.square.point.t[i] = null;
+                            if(Game.square.point.x.length >= 30){
+                                Game.square.point.x = [];
+                                Game.square.point.y = [];
+                                Game.square.point.t = [];
+                            }
+                        }
+                        if((round((Game.square.point.t[i]-millis())/1000) === 0)){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                        }
+                    }
+                    }
+                    if(time.score >= 80 && Game.games <= 3){
+                        Game.game = 4;
+                        Game.game = "h4";
+                        time.start = millis();
+                        Game.triangle.x = 150;
+                        playSound(getSound("retro/coin"));
+                    }
+                break;
+                case 4: //DUN DUN DUN DUNNNNNNNNNNNN
+                    {
+                    translate(-300, 0);
+                    strokeWeight(2);
+                    fill(255, 0, 0, 20);
+                    rect(0, 50, 600, 240);
+                    strokeWeight(12);
+                    stroke(255, 255, 255);
+                    translate(150, -75);
+                    line(Game.paddle.x1, Game.paddle.y1, Game.paddle.x2, Game.paddle.y2);
+                    stroke(0, 255, 0);
+                    strokeWeight(1);
+                    //line(190, 150, 190, 400);
+                    //line(410, 150, 410, 400);
+                    var pl = 100;
+                    if(hardcore){
+                        stroke(255, 0, 0);
+                        //line(190 + time.score, 150, 190 + time.score, 400);
+                        //line(410 - time.score, 150, 410 - time.score, 400);
+                        pl = (100 - time.score);
+                        if(time.score >= 75){
+                            pl = 25;
+                        }
+                    }
+                    noStroke();
+                    fill(255, 0, 0);
+                    Game.paddle.x1 = 300+cos(Game.paddle.d)*pl;
+                    Game.paddle.y1 = 250+sin(Game.paddle.d)*pl;
+                    Game.paddle.x2 = 300+cos(Game.paddle.d)*pl*-1;
+                    Game.paddle.y2 = 250+sin(Game.paddle.d)*pl*-1;
+                    Game.paddle.f = 250+sin(Game.paddle.d)*(300-Game.paddle.bx);
+                    Game.paddle.by = 235 + (250 - Game.paddle.f);
+                    Game.paddle.bx += Game.paddle.xs;
+                    Game.paddle.xs = Game.paddle.d/5;
+                    ellipse(Game.paddle.bx, Game.paddle.by + 1, 15, 15);
+                    if(Game.paddle.bx > 250){
+                        Game.paddle.d += dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }else{
+                        Game.paddle.d -= dist(Game.paddle.bx, 0, 250, 0)/700;
+                    }
+                    if(keys[LEFT] && Game.paddle.d > -30){
+                        Game.paddle.d -= 1.22;
+                    }
+                    if(keys[RIGHT] && Game.paddle.d < 30){
+                        Game.paddle.d += 1.23;
+                    }
+                    if(Game.paddle.bx <= 190 || Game.paddle.bx >= 410){
+                        
+                        Game.game = "FAIL";
+                        playSound(getSound("retro/boom2"));
+                    }
+                    if(hardcore){
+                        if(Game.paddle.bx <= (190 + time.score) || Game.paddle.bx >= (410 - time.score)){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                            
+                        }
+                    }
+                    translate(450, 75);
+                    }
+                    {
+                    noStroke();
+                    fill(0, 0, 255, 20);
+                    rect(0, 50, 600, 240);
+                    strokeWeight(3);
+                    stroke(0, 0, 0);
+                    translate(0, -90);
+                    rect(145, 175, 15, 175);
+                    strokeWeight(2);
+                    for(var i = 0; i < 5; i++){
+                        rect(145, 175+(175/5*i), 15, 175/5);
+                    }
+                    fill(0, 0, 255);
+                    rect(145, 175+(175/5*Game.stick.row), 15, 175/5);
+                    Game.stick.rand = random(0, 1000);
+                    if(hardcore){
+                        Game.stick.rand = random(0, (1000-(time.score * 2)));
+                    }
+                    if(Game.stick.rand <= 10 && Game.stick.spike.x.length < 20){
+                        Game.stick.spike.x.push(random(200, 350));
+                        Game.stick.spike.r.push(round(random(0, 4)));
+                        Game.stick.spike.s.push(random(0.1, 2));
+                        if(hardcore){
+                            Game.stick.spike.x.push(random(200, 350 - time.score));
+                            Game.stick.spike.r.push(round(random(0, 4)));
+                            Game.stick.spike.s.push(random(0.1 * time.score / 40, 2 * time.score / 30));
+                        }
+                    }
+                    for(var i = 0; i < Game.stick.spike.x.length; i++){
+                        fill(0, 0, 0);
+                        triangle(Game.stick.spike.x[i], 195+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 190+(175/5*Game.stick.spike.r[i]), Game.stick.spike.x[i]+10, 200+(175/5*Game.stick.spike.r[i]));
+                        Game.stick.spike.x[i] -= Game.stick.spike.s[i];
+                        if(Game.stick.spike.x[i] <= 160 && Game.stick.spike.x[i] >= 145 && Game.stick.row === Game.stick.spike.r[i]){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                        }
+                        if(Game.stick.spike.x[i] <= 0){
+                            Game.stick.spike.s[i] = 0;
+                            if(Game.stick.spike.x.length >= 20 && Game.stick.spike.x[i] <= 0){
+                                Game.stick.spike.x = [];
+                                Game.stick.spike.s = [];
+                                Game.stick.spike.r = [];
+                            }
+                        }
+                    }
+                    Game.stick.lag += 1;
+                    if(keys[UP] && Game.stick.row >= 1){
+                        Game.stick.lag ++;
+                        if(Game.stick.lag >= 10){
+                            Game.stick.row -= 1;
+                            Game.stick.lag = 0;
+                        }
+                    }
+                    if(keys[DOWN] && Game.stick.row <= 3){
+                        Game.stick.lag ++;
+                        if(Game.stick.lag >= 10){
+                            Game.stick.row += 1;
+                            Game.stick.lag = 0;
+                        }
+                    }
+                    }
+                    {noStroke();
+                    translate(0, 380);
+                    fill(0, 255, 0, 20);
+                    rect(0, 0, 600, 600);
+                    fill(0, 255, 0);
+                    strokeWeight(2);
+                    stroke(0, 0, 0);
+                    rect(Game.square.x, Game.square.y, 20, 20);
+                    if(keys[65] && Game.square.x > 0){
+                        Game.square.x -= Game.square.s;
+                    }
+                    if(keys[68] && Game.square.x < 280){
+                        Game.square.x += Game.square.s;
+                    }
+                    if(keys[87] && Game.square.y > 0){
+                        Game.square.y -= Game.square.s;
+                    }
+                    if(keys[83] && Game.square.y < 190){
+                        Game.square.y += Game.square.s;
+                    }
+var a = 1000;
+                    if(hardcore){
+                        Game.square.s = (3 - (time.score/75));
+                        a = 1000-time.score;
+                    }
+                    if(Game.square.r >= (random(0, a)) && Game.square.point.x.length < 30){
+                        Game.square.point.x.push(random(0, 280));
+                        Game.square.point.y.push(random(0, 190));
+                        Game.square.point.t.push(millis()+10000);
+                    }
+                    for(var i = 0; i < Game.square.point.x.length; i++){
+                        stroke(200, 255, 145);
+                        fill(0, 255, 145);
+                        rect(Game.square.point.x[i], Game.square.point.y[i], 40, 40);
+                        fill(0, 0, 0);
+                        textSize(15);
+                        if((round((Game.square.point.t[i]-millis())/1000) <= 3)){
+                            fill(255*random(0, 1), 0, 0);
+                            textSize(20);
+                            if((round((Game.square.point.t[i]-millis())/1000) === 0)){
+                                fill(255, 0, 0);
+                                textSize(35);
+                            }
+                        }
+                        text(round((Game.square.point.t[i]-millis())/1000), Game.square.point.x[i] + 20, Game.square.point.y[i] + 20);
+                        if(dist(Game.square.x + 10, Game.square.y + 10, Game.square.point.x[i]+20, Game.square.point.y[i]+20) <= 20){
+                            Game.square.point.x[i] = 1000;
+                            Game.square.point.y[i] = 1000;
+                            Game.square.point.t[i] = null;
+                            if(Game.square.point.x.length >= 30){
+                                Game.square.point.x = [];
+                                Game.square.point.y = [];
+                                Game.square.point.t = [];
+                            }
+                        }
+                        if((round((Game.square.point.t[i]-millis())/1000) === 0)){
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                        }
+                    }
+                    }
+                    {translate(-300, 0);
+                    noStroke();
+                    fill(255, 0, 255, 20);
+                    rect(0, 0, 300, 250);
+                    if(FLIGHTBORDERS){
+                        fill(0, 0, 0);
+                        translate(0, 5);
+                        rect(0, 185, 300, 30);
+                        rect(0, 20, 300, -25);
+                    }
+                    fill(155, 0, 155, 20);
+                    strokeWeight(1);
+                    stroke(155, 0, 155, 50);
+                    if(Game.triangle.y <= 30){
+                        Game.triangle.y = 30;
+                        Game.triangle.d = 0;
+                    }
+                    if(Game.triangle.y >= 175){
+                        Game.triangle.y = 175;
+                        Game.triangle.d = 0;
+                    }
+                    if(CURVYFLIGHT){
+                        rotate((Game.triangle.y - 100)/10-10);
+                    }
+                    triangle(Game.triangle.x, Game.triangle.y, Game.triangle.x - 20, Game.triangle.y - 10, Game.triangle.x - 20, Game.triangle.y + 10);
+                    if(keys[32]){
+                        Game.triangle.d --;
+                    }else{
+                        Game.triangle.d ++;
+                    }
+                    Game.triangle.y += Game.triangle.d/25;
+var b = 1;
+                    if(hardcore){
+                        b = ((1+time.score-80)/2);
+                        if(b >= 5){
+                            b = 5;
+                        }
+                    }
+                    if(random(0, 1000) <= 7 && Game.triangle.wall.x.length <= 35){
+                        Game.triangle.wall.x.push(280);
+                        Game.triangle.wall.y.push(random(0, 175));
+                    }
+                    for(var i = 0; i < Game.triangle.wall.x.length; i++){
+                        Game.triangle.wall.x[i] -= b;
+                        fill(0, 0, 0);
+                        rect(Game.triangle.wall.x[i], Game.triangle.wall.y[i], 5, 40);
+                        if(Game.triangle.wall.x.length >= 35){
+                            if(Game.triangle.wall.x[35] <= 0){
+                                Game.triangle.wall.x = [];
+                                Game.triangle.wall.y = [];
+                            }
+                        }
+                        if(Game.triangle.wall.y[i] <= Game.triangle.y && (Game.triangle.wall.y[i] + 40) >= Game.triangle.y && (Game.triangle.wall.x[i] + 5) >= (Game.triangle.x - 20) && (Game.triangle.wall.x[i] + 5) <= Game.triangle.x){
+                            fill(255, 255, 255);
+                            rect(Game.triangle.wall.x[i], Game.triangle.wall.y[i], 5, 40);
+                            fill(133, 133, 133);
+                            textSize(15);
+                            text("BANG!", Game.triangle.wall.x[i], Game.triangle.wall.y[i]);
+                            Game.game = "FAIL";
+                            playSound(getSound("retro/boom2"));
+                            
+                        }
+                    }
+                    }
+                break;
+                case "FAIL":
+                    resetMatrix();
+                    strokeWeight(15);
+                    fill(255, 0, 0);
+                    line(200, 200, 400, 400);
+                    line(200, 400, 400, 200);
+                    if(millis() >= time.end + 5000){
+                        state = 3;
+                    }
+                break;
+            }
+            switch(Game.game){
+                case 1:
+                    time.score = round((time.end - time.start) / 1000);
+                    time.end = millis();
+                    graphix.v2 = 150 * (time.score / 15);
+                break;
+                case 2:
+                    time.score = 15 + round((time.end - time.start) / 1000);
+                    time.end = millis();
+                    graphix.v2 = 150 + 150 * ((time.score / 25) / 40);
+                break;
+                case 3:
+                    time.score = 40 + round((time.end - time.start) / 1000);
+                    time.end = millis();
+                    graphix.v2 = 300 + 150 * ((time.score - 40) / 80);
+                break;
+                case 4:
+                    time.score = 80 + round((time.end - time.start) / 1000);
+                    time.end = millis();
+                    graphix.v2 = 450 + 75;
+                break;
+            }
+        break;
+        case 3:
+            if(graphix.t1 < 1 && graphix.y2 >= 150){
+                graphix.t1 += 0.1/time.score;
+                if(random(0, 10) <= 1){
+                    playSound(getSound("retro/coin"));
+                }
+            }
+            if(graphix.t1 > 1){
+                graphix.t1 = 1;
+            }
+            drawbg(50);
+            translate(0, graphix.y2);
+            fill(255, 0, 0);
+            rect(0, 50, 150, 100, 5);
+            fill(0, 255, 255);
+            rect(150, 50, 150, 100, 5);
+            fill(0, 255, 0);
+            rect(300, 50, 150, 100, 5);
+            fill(255, 0, 255);
+            rect(450, 50, 150, 100, 5);
+            fill(0, 0, 0);
+            textSize(graphix.y2/2);
+            text("GAME OVER", 300, 100);
+            if(graphix.y2 >= 150){
+                resetMatrix();
+                graphix.y2 = 150;
+                strokeWeight(1);
+                fill(255, 255, 255, 100);
+                textSize(45);
+                if(mouseX > 0 && mouseY >= 300 && mouseY <= 350){
+                    textSize(50);
+                    if(mp){
+                        state = 1;
+                        if(time.score >= time.hiscore){
+                            time.hiscore = time.score;
+                            changeHiscore();
+                        }
+                        time.score = 0;
+                        graphix.v1 = 2;
+                        Game.paddle.d = 0;
+                        Game.paddle.f = 0;
+                        Game.paddle.x1 = 0;
+                        Game.paddle.y1 = 0;
+                        Game.paddle.x2 = 0;
+                        Game.paddle.y2 = 0;
+                        Game.paddle.bx = 0;
+                        Game.paddle.by = 0;
+                        Game.paddle.xs = 0;
+                        Game.stick.lag = 0;
+                        Game.stick.row = 2;
+                        Game.stick.spike.x = [];
+                        Game.stick.spike.s = [];
+                        Game.stick.spike.r = [];
+                        Game.square.point.x = [];
+                        Game.square.point.y = [];
+                        Game.square.point.t = [];
+                        Game.game = 0;
+                        graphix.y2 = -250;
+                        graphix.t1 = 0;
+                        graphix.v2 = 0;
+                    }
+                }
+                rect(0, 300, 600, 50, 10);
+                fill(0, 0, 0);
+                text("-main menu-", 300, 325);
+                textSize(25);
+                text("Hi-score: " + time.hiscore + "\n\nYour score:\n"+time.score+" seconds", 300, 120);
+                fill(255, 255, 255);
+                rect(graphix.x3-50, graphix.y3-25, 100, 25);
+                stroke(0, 0, 0);
+                graphix.x3 = graphix.t1 * graphix.v2;
+                graphix.y3 = 200;
+                triangle(graphix.x3, graphix.y3, graphix.x3 - 5, graphix.y3 - 5, graphix.x3 + 5, graphix.y3 - 5);
+                fill(0, 0, 0);
+                textSize(8);
+                if(time.score <= time.hiscore || round(graphix.t1 * (time.score - time.hiscore) < 1)){
+                    text(round((time.score*graphix.t1 - time.hiscore)*-1) + " more seconds\nto hi-score", graphix.x3, graphix.y3 - 15);
+                }else{
+                    text("BEAT HI-SCORE\nBY " + round(graphix.t1 * (time.score - time.hiscore)) + " seconds!", graphix.x3, graphix.y3 - 15);
+                    noStroke();
+                }
+                noStroke();
+            }else{
+                graphix.y2 += 2.5;
+            }
+        break;
+    }
+    textAlign(CENTER, CENTER);
+    mp = false;
+    resetMatrix();
+    textSize(10);
+    fill(0, 0, 0);
+    if(FLIGHTBORDERS && Game.game === 4 && state === 2){
+        fill(255, 255, 255);
+    }
+    var txt = mouseX + ":" +  mouseY + ":" + round(Game.paddle.d) + ":" + Game.stick.row + ":" + Game.stick.spike.x.length + ":(" + round(Game.square.x) + ":" + round(Game.square.y) + "):" + Game.square.point.x.length + ":("+ Game.triangle.x + ":" + round(Game.triangle.y) + "):" + Game.triangle.d + ":" + Game.triangle.wall.x.length;
+    text(txt, txt.length *10 / 3 , 490);
+    hardcore = Game.HARDCORE;
+    if(hardcore){
+        fill(255*random(0,1), 0, 0);
+        if(width === 600 || height === 500){
+            text("HARDCORE DIFFICULTY ACTIVATED", 500, 490);
+        }else{
+            text("HARDCORE DIFFICULTY ACTIVATED", 300, 390);
+        }
+    }else{
+        fill(0, 255*random(0,1), 0);
+        if(width === 600 || height === 500){
+            text("CLASSIC MODE", 550, 490);
+        }else{
+            text("CLASSIC MODE", 350, 390);
+        }
+    }
+};

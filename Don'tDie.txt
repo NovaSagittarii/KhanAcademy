@@ -1,0 +1,688 @@
+/**
+ * Don't Die! (aka intense doge 2016)
+ * - a HEX programming project (and probably only one)
+ * Use arrow keys to move and spacebar for slow-motion.
+ * 
+ * Highscores! (spin-off for proof, yada yada yada)
+ * 1. [Complete] 𝒞𝒶𝒾 @caihy
+ * 2. 562 --- @CODE.Hunter16
+ * 3. 562 --- @JPReader
+ * 4. 298 --- @StarGazerKA (via Discord)
+ * 5. 207 --- @kaboomp
+ * 
+ * Links to profiles
+ * Captain. @callmecap
+ * KιngKhαn007. @KhanKhan007
+ * mine... uh... look at the author. :I
+ * 
+ * And I just had to put some Easter eggs... kinda. (they got found too fast D:)
+ * EE #1 (INTENSE DOGE). Cαptαιn™ @callmecap
+ * EE #2 (Line 513). 5ˆ14! @MatthewAllgood
+ * 
+ * First comment'er: Fallen Star @StarGazerKA
+ */ 
+ 
+if(true){//logo thingy
+    var HEX_LOGO = function(x, y, size, animateDuration, fadeDuration, holdDuration, outDuration) {
+    animateDuration = animateDuration && animateDuration > 0 ? animateDuration : 0;
+    fadeDuration = fadeDuration && fadeDuration > 0 ? fadeDuration : 0;
+    holdDuration = holdDuration && holdDuration > 0 ? holdDuration : Infinity;
+    outDuration = outDuration && outDuration > 0 ? outDuration : 0;
+    
+    var startAnimation = millis();
+    var endAnimation = startAnimation + animateDuration;
+    var endFade = endAnimation + fadeDuration;
+    var endHold = endFade + holdDuration;
+    var endOut = endHold + outDuration;
+    var cols = [color(255, 0, 0, 60), color(0, 255, 0, 60), color(0, 0, 255, 60)];
+    var maxDistance = (max)(x, y, width - x, height - y) + size;
+    
+    var drawRegularHexagon = function(x, y, size, rot) {
+        beginShape();
+        for (var r = rot; r < 360 + rot; r += 60) {
+            vertex(
+                size/2 * cos(r - 90) + x,
+                size/2 * sin(r - 90) + y
+            );
+        }
+        endShape(CLOSE);
+    };
+    
+    return function() {
+        pushMatrix();
+        translate(x, y);
+        scale(size / 200);
+
+        // Animate hexagons
+        var distance = constrain(map(millis(), startAnimation, endAnimation, -maxDistance, 20), -Infinity, 20);
+        for (var r = 90; r < 450; r += 120) {
+            noStroke();
+            fill(cols[(r - 90)/120]);
+            drawRegularHexagon(distance * cos(r), distance * sin(r), 200, 0);
+        }
+        
+        // Fade in text
+        var opacity = peg(map(millis(), endAnimation, endFade, 0, 255));
+        textAlign(CENTER, CENTER);
+        strokeWeight(2);
+        (stroke)(255, opacity);
+        (fill)(255, opacity);
+        textFont(createFont('Verdana Bold'), 36);
+        text('HEX', 0, -10);
+        textFont(createFont('Tahoma Bold'), 14);
+        text('s ᴛ ᴜ ᴅ ɪ ᴏ s', 0, 24);
+        line(-40, 13, 40, 13);
+
+        // Fade out
+        opacity = peg(map(millis(), endHold, endOut, 0, 255));        
+        noStroke();
+        (fill)(255, opacity);
+        drawRegularHexagon(0, 0, 241, 0);
+        
+        popMatrix();
+        
+        return millis() >= endOut;
+    };
+};
+
+var logo = HEX_LOGO(300, 250, 200, 750, 750, 1250, 750);
+}
+
+var sys = {
+    keys: [], 
+};
+var keyPressed = function(){
+    sys.keys[keyCode] = true;
+};
+var keyReleased = function(){
+    sys.keys[keyCode] = false;
+};
+var attempts = 1;
+var game = {
+    score: 0, //Don't touch me. >:(
+    px: 300, 
+    py: 250, 
+    pvx: 0, 
+    pvy: 0, 
+    txt: " are alive.",
+    smA: 200, 
+    smB: 0,
+    snapshot: get(0, 0),
+};
+var player = function(){
+    if(game.txt !== " died."){
+        if(sys.keys[UP]){
+            game.pvy -= 1 / (constrain(game.smB, 20, 50)/20);
+        }
+        if(sys.keys[DOWN]){
+            game.pvy += 1 / (constrain(game.smB, 20, 50)/20);
+        }
+        if(sys.keys[LEFT]){
+            game.pvx -= 1 / (constrain(game.smB, 20, 50)/20);
+        }
+        if(sys.keys[RIGHT]){
+            game.pvx += 1 / (constrain(game.smB, 20, 50)/20);
+        }
+        if(sys.keys[32] && game.smA > 0){
+            game.smA -= 0.1 + game.smB/50;
+            game.smB += 0.6;
+            if(game.smB > 50){
+                game.smB = 50;
+            }
+        }else{
+            if(game.smB > 0){
+                game.smB -= 2;
+            }
+            if(game.smA < 200){
+                game.smA += constrain((3 - game.smB/5), 0, 3);
+            }
+        }
+    }
+    game.px += game.pvx/2;
+    game.py += game.pvy/2;
+    game.pvx /= 1.05;
+    game.pvy /= 1.05;
+    fill(28, 166, 37);
+    if(game.txt !== " are alive."){
+        fill(148, 148, 148);
+    }
+    ellipse(game.px, game.py, 15, 15);
+    fill(28, 166, 37);
+    if(game.txt === " died."){
+        fill(87, 87, 87);
+    }
+    text("You" + game.txt, game.px, game.py - 13);
+    if(game.px < 7.5 || game.px > width - 7.5){
+        game.pvx *= -1.2;
+    }
+    if(game.py < 7.5 || game.py > height - 7.5){
+        game.pvy *= -1.2;
+    }
+};
+
+var bullets = [];
+var make_bullet = function(x, y, a, s, SIZE, time){
+    if(time === undefined){
+        time = 255; //Set to default.
+    }
+    bullets.push({x: x, y: y, angle: a, speed: s, size: SIZE, time: time});
+};
+var run_bullets = function(){
+    if(bullets.length < 1){
+        return;
+    }
+    for(var i = 0; i < bullets.length; i ++){
+        fill(255, 0, 0, bullets[i].time);
+        bullets[i].x += cos(bullets[i].angle) * bullets[i].speed / (constrain(game.smB, 20, 50)/20);
+        bullets[i].y += sin(bullets[i].angle) * bullets[i].speed / (constrain(game.smB, 20, 50)/20);
+        if(dist(game.px, game.py, bullets[i].x, bullets[i].y) < (bullets[i].size / 2 + 7.5) && game.txt === " are alive."){
+            // GAME_STATE_CHANGE [YOU DIED]
+            fill(28, 166, 37);
+            ellipse(game.px, game.py, 15, 15);
+            fill(28, 166, 37);
+            text("You" + game.txt, game.px, game.py - 13);
+            fill(255, 0, 0);
+            if(bullets[i].speed === 15.427 && bullets[i].size === 15.538){
+                translate(bullets[i].x, bullets[i].y);
+                rotate(atan2(sin(bullets[i].angle) * bullets[i].speed, cos(bullets[i].angle) * bullets[i].speed));
+                rect(0, 0, bullets[i].size, bullets[i].size);
+                resetMatrix();
+            }else{
+                ellipse(bullets[i].x, bullets[i].y, bullets[i].size, bullets[i].size);
+            }
+            game.snapshot = get(game.px - 100, game.py - 100, 200, 200);
+            game.txt = " died.";
+            game.score = round((frameCount-200)/10);
+            fill(71, 71, 71);
+        }
+        if(bullets[i].speed === 15.427 && bullets[i].size === 15.538){
+            translate(bullets[i].x, bullets[i].y);
+            rotate(atan2(sin(bullets[i].angle) * bullets[i].speed, cos(bullets[i].angle) * bullets[i].speed));
+            rect(0, 0, bullets[i].size, bullets[i].size);
+            resetMatrix();
+        }else{
+            ellipse(bullets[i].x, bullets[i].y, bullets[i].size, bullets[i].size);
+        }
+        if(bullets[i].time < 0){
+            bullets.splice(i, 1);
+        }
+        bullets[i].time -= 1.7 / (constrain(game.smB, 20, 50)/20);
+    }
+};
+
+var enemies = {
+    turret1: function(x, y, size, r, reloadTime, placement, removal) {
+        var opacity = 255;
+        if(frameCount < placement){
+            return;
+        }else if(frameCount < (placement + 80)){
+            opacity = (frameCount - placement)*(frameCount - placement)/25;
+        }else if(frameCount > removal){
+            opacity = 255 - ((frameCount - removal)*(frameCount - removal)/25);
+        }
+        if(r[0] === ""){
+            r = atan2(game.py - y, game.px - x) + r[1];
+        }
+        pushMatrix();
+        translate(x, y);
+        scale(size * (255-opacity)/200+1);
+        rectMode(CENTER);
+        noStroke();
+        fill(140, 140, 140, opacity);
+        ellipse(0, 0, 50, 50);
+        fill(0, 0, 0, opacity/5);
+        arc(0, 0, 50, 50, 49, 223);
+        rotate(r);
+        fill(100, 100, 100, opacity);
+        rect(0, 0, 20, 20, 8);
+        fill(89, 89, 89, opacity);
+        rect(29, 0, 41, 10, 3);
+        popMatrix();
+        if(frameCount % reloadTime === 0 && frameCount > (placement + 50) && frameCount < (removal + 40)){
+            make_bullet(x, y, r, 4, 10);
+        }
+    }, 
+    turret2: function(x, y, size, r, reloadTime, placement, removal) { //multi direction "fan" turret
+        var opacity = 255;
+        if(frameCount < placement){
+            return;
+        }else if(frameCount < (placement + 80)){
+            opacity = (frameCount - placement)*(frameCount - placement)/25;
+        }else if(frameCount > removal){
+            opacity = 255 - ((frameCount - removal)*(frameCount - removal)/25);
+        }
+        if(r[0] === ""){
+            r = frameCount + r[1];
+        }
+        pushMatrix();
+        translate(x, y);
+        scale(size * (255-opacity)/200+1);
+        rectMode(CENTER);
+        noFill();
+        strokeWeight(10);
+        stroke(150, 150, 150, opacity);
+        ellipse(0, 0, 50, 50);
+        stroke(0, 0, 0, opacity/5);
+        strokeWeight(4);
+        arc(0, 0, 55, 55, 0, 360);
+        fill(70, 70, 70, opacity);
+        rect(-27, -1, 15, 15, 5);
+        rect(+26, -1, 15, 15, 5);
+        rect(-1, -27, 15, 15, 5);
+        rect(-1, 26, 15, 15, 5);
+        ellipse(0, 0, 10, 10);
+        stroke(0, 0, 0, opacity);
+        line(0, 0, 0, -25);
+        line(0, 0, 25, 0);
+        line(0, 0, 0, 25);
+        line(0, 0, -25, 0);
+        rotate(r);
+        line(0, 0, -30, -30);
+        line(0, 0, +30, +30);
+        popMatrix();
+        if(frameCount % reloadTime === 0 && frameCount > (placement + 50) && frameCount < (removal + 40)){
+            make_bullet(x, y, 60 + r, 3, 5);
+            make_bullet(x, y, 240 + r, 3, 5);
+        }
+    }, 
+    turret3: function(x, y, size, r, reloadTime, placement, removal){
+        var opacity = 255;
+        if(frameCount < placement){
+            return;
+        }else if(frameCount < (placement + 80)){
+            opacity = (frameCount - placement)*(frameCount - placement)/25;
+        }else if(frameCount > removal){
+            opacity = 255 - ((frameCount - removal)*(frameCount - removal)/25);
+            if(frameCount > (removal + 100)){
+                return;
+            }
+        }
+        if(r[0] === ""){
+            r = atan2(game.py - y, game.px - x) + r[1];
+        }
+        pushMatrix();
+        translate(x, y);
+        scale(size * (255-opacity)/200+1);
+        rectMode(CENTER);
+        noStroke();
+        fill(200, 200, 200, opacity);
+        ellipse(0, 0, 50, 50);
+        fill(0, 0, 0, opacity/5);
+        ellipse(0, 0, 40, 40);
+        rotate(r);
+        fill(50, 50, 50, opacity);
+        rect(-20, 0, 10, 40, 5);
+        noFill();
+        stroke(50, 50, 50, opacity);
+        arc(-14, +20, 10, 10, 0, 180);
+        arc(-6, +20, 29, 10, 0, 180);
+        line(-9, +18, -9, +10);
+        line(+9, +20, +9, +10);
+        noStroke();
+        fill(100, 100, 100, opacity);
+        rect(-9, 0, 10, 20, 5);
+        rect(9, 0, 10, 20, 5);
+        fill(200, 200, 200, opacity);
+        rect(-9, -11, 10, 5);
+        rect(9, -11, 10, 5);
+        fill(230, 230, 230, opacity);
+        rect(9,  -23, 7, 20);
+        rect(-9, -23, 7, 20);
+        popMatrix();
+        if(frameCount % reloadTime === 0 && frameCount > (placement + 50) && frameCount < (removal + 40)){
+            make_bullet(x, y, r - random(80, 100), 2, 7, 140);
+        }
+    }, 
+    turret4: function(x, y, size, r, reloadTime, placement, removal) {
+        var opacity = 255;
+        if(frameCount < placement){
+            return;
+        }else if(frameCount < (placement + 80)){
+            opacity = (frameCount - placement)*(frameCount - placement)/25;
+        }else if(frameCount > removal){
+            opacity = 255 - ((frameCount - removal)*(frameCount - removal)/25);
+            if(frameCount > (removal + 100)){
+                return;
+            }
+        }
+        if(r[0] === ""){
+            r = atan2(game.py - y, game.px - x) + r[1];
+        }
+        pushMatrix();
+        translate(x, y);
+        scale(size * (255-opacity)/200+1);
+        noStroke();
+        fill(140, 140, 140, opacity);
+        ellipse(0, 0, 50, 50);
+        fill(0, 0, 0, opacity/5);
+        arc(0, 0, 50, 50, 49, 223);
+        rotate(r);
+        fill(100, 100, 100, opacity);
+        rect(0, 0, 30, 30, 8);
+        fill(200, 200, 200, opacity);
+        rect(15, 0, 42, 14, 6);
+        fill(150, 150, 150, opacity);
+        rect(7, 0, 10, 18, 7);
+        rect(25, 0, 10, 18, 7);
+        strokeWeight(2);
+        stroke(0, 0, 0, opacity);
+        strokeCap(SQUARE);
+        line(2, -5, 12, -5);
+        line(2, 0, 12, 0);
+        line(2, 5, 12, 5);
+        line(42, 5, 35, 5);
+        line(39, 0, 35, 0);
+        line(42, -5, 35, -5);
+        popMatrix();
+        if(frameCount % reloadTime < reloadTime / 10 && frameCount > (placement + 50) && frameCount < (removal + 40)){
+            make_bullet(x, y, r, 15.427, 15.538, 140);
+        }
+        strokeCap(ROUND);
+    },
+};
+
+{
+var deathMessage = "You have died...";
+var i2 = 0;
+var flash = 1;//Cap's code. :3 (here and down)
+var bg = function() {
+    noStroke();
+    fill(180, 0, 0, constrain(flash/5, 1, 150));
+    rect(0, 0, 99999, 9999);
+    fill(0, 0, 0, constrain(flash/5, 1, 50));
+    quad(0, 0, 0, height, 250, height, 350, 0);
+    fill(0, 0, 0, constrain(flash/5, 1, 30));
+    quad(0, 0, 0, height, 50, height, 150, 0);
+};
+} 
+
+
+var mouse = {
+    clicked: false,
+    overButton: false,
+};
+var system = {
+    scene: 'menu',
+   
+    button: function(x, y, sz, txt, next){
+        noStroke();
+        fill(0, 0, 0, 30);
+        ellipse(x, y + 10, sz, sz);
+        stroke(255, 255, 255);
+        strokeWeight(5);
+        fill(224, 0, 0, 50);
+        if(dist(x, y, mouseX, mouseY) < sz/2) {
+            mouse.overButton = true;
+            fill(255, 0, 0, 70);
+            if(mouse.clicked){
+                system.scene = next;
+                frameCount = 0;
+            }
+        }
+        ellipse(x, y, sz, sz);
+        fill(255, 255, 255);
+        textSize(sz/5);
+        text(txt, x, y);
+    },
+};
+
+var mouseClicked = function() {
+    mouse.clicked = true;
+};
+
+var Game = function(){
+    // Functions
+    this.hexagon = function(xPos, yPos, size, rot, fillCol, strokeCol, strokeSize) {
+        fill(fillCol);
+        stroke(strokeCol);
+        strokeWeight(strokeSize);
+        beginShape();
+        for (var r = 0 + rot; r < 360 + rot; r += 60) {
+            var x = size/2 * cos(r) + xPos;
+            var y = size/2 * sin(r) + yPos;
+            vertex(x, y);
+        }
+        endShape(CLOSE);
+    };
+    this.logo = function(xPos, yPos, size, programming) {
+        pushMatrix();
+        translate(xPos, yPos);
+        scale(size / 200);
+        textFont(createFont('verdana-bold'), 35);
+        for (var i = -1; i <= 1; i++) {
+            this.hexagon(i * 70, 0, 80, 30, color(255, 255, 255, 60), color(255), 5);
+            fill(255);
+            
+            text('HEX'[i + 1], i * 70, 2);
+        }
+        if (programming) {
+            textFont(createFont('verdana-bold'), 19);
+            text('p r o g r a m m i n g', 0, 60);
+            textFont(createFont('HelveticaNeue-CondensedBold'));
+        }
+        popMatrix();
+    };
+    this.bg = function(){
+        noStroke();
+        background(180,0,0);
+        fill(0, 0, 0, 30);
+        quad(0, 0, 0, height, 250, height, 350, 0);
+        this.logo(533,35,72,true);
+    };
+    
+    this.credit = function(whoItIs, whatTheyDid, theirAvatar){
+        this.whoItIs = whoItIs;
+        this.whatTheyDid = whatTheyDid;
+        this.theirAvatar = theirAvatar;
+    };
+    this.credits = [
+        new this.credit('Cαptαιn', 'Most of menu and turret graphics', getImage("avatars/leaf-yellow")),
+        new this.credit('Thomas Li', 'All basic gameplay code', getImage("avatars/leaf-green")),
+        new this.credit('KιngKhαn007', 'Logo design and management.', getImage("creatures/Winston")),
+        new this.credit('Chester Banks', 'This credits screen.', getImage("avatars/robot_male_2")),
+    ];
+    this.credit.prototype.draw = function() {
+        strokeWeight(3);
+        for(var i = this.y + 5, j = 100; i < this.y + 100, j > 0; i += 3, j -= 3){
+            stroke(0, 0, 0, j);
+            line(51, i, 549, i);
+        }
+        
+        noStroke();
+        fill(245);
+        rect(50, this.y, 500, 80);
+        image(this.theirAvatar, 60, this.y+10, 60, 60);
+        fill(180, 0, 0);
+        textSize(30);
+        textAlign(LEFT, CENTER);
+        text(this.whoItIs, 120, this.y + 40);
+        textAlign(RIGHT, CENTER);
+        textSize(15);
+        text(this.whatTheyDid, 520, this.y + 40);
+        textAlign(CENTER, CENTER);
+    };
+};
+Game.prototype.setup = function(){
+    textAlign(CENTER, CENTER);
+    textFont(createFont('HelveticaNeue-CondensedBold'));
+};
+system.scene = 'logooooololdismightbeaneasterEgg;p';
+Game.prototype.draw = function() {
+    
+    
+    switch(system.scene){
+        case 'logooooololdismightbeaneasterEgg;p':
+            background(255);
+            logo();
+            if(frameCount >= 250){
+                system.scene='menu';
+            }
+        break;
+        case 'menu':this.bg();
+            textSize(110);
+            for(var i = 0; i < 360; i += 30){
+                fill(255, 255, 255, i%80);
+                text('DON\'T DIE', 300 + sin(i)*5, 204 + cos(i)*5);
+            }
+            fill(245);
+            text('DON\'T DIE', 300, 200+sin(frameCount*3)*3);
+            textSize(10);
+            text("much intense doge 2016", 300, 590 - constrain(frameCount/20, 0, 100));
+            system.button(300, 350 , 150, 'PLAY', 'game');
+            system.button(460, 350, 120, 'HOW', 'how');
+            system.button(140, 350, 120, 'CREDITS', 'credits');
+        break;
+        case 'how':this.bg();
+            textFont(createFont("Avenir Bold"));
+            textSize(40);
+            fill(255, 255, 255);
+            text("HOW TO PLAY", 300, 100);
+            textSize(25);
+            text("-Arrow Keys-\n\n\n\n\n-Spacebar-", 300, 260);
+            textSize(14);
+            text("Movement\n\n\n\n\n\n\n\n\nSlow-motion", 300, 300);
+            system.button(50,50,50,"BACK","menu");
+            break;
+        case 'credits':this.bg();
+            for(var i in this.credits){
+                if(this.credits[i].y === undefined){
+                    this.credits[i].y = 100 + i * 100;
+                }
+                this.credits[i].draw();
+            }
+            
+            system.button(50,50,50,"BACK","menu");
+        break;
+        case 'game':
+            //my chunk in the game part. ;p
+            textAlign(CENTER, CENTER);
+rectMode(CENTER);
+textFont(createFont("serif"));
+fill(255, 255, 255, 150);
+    rect(300, 250, 9999, 9999);
+    fill(0, 0, 0);
+    if(frameCount < 200){
+        if(frameCount < 50){
+            textSize(50-frameCount);
+            text('3', 300, 150);
+        }else if(frameCount < 100){
+            textSize(100-frameCount);
+            text('2', 300, 150);
+        }else if(frameCount < 150){
+            textSize(150-frameCount);
+            text('1', 300, 150);
+        }else{
+            textSize(200-frameCount);
+            text("BEGIN", 300, 150);
+        }
+    }
+    textSize(12);
+    noStroke();
+    run_bullets();
+    player();
+    enemies.turret1(50, 50, 1, ["", 0], 25, 500, 1100);
+    enemies.turret1(550, 50, 1, ["", 0], 40, 450, 1050);
+    enemies.turret1(300, 500, 1, ["", 0], 40, 200, 700);
+    enemies.turret2(300, 200, 1, ["", 0], 2, 750, 2500);
+    enemies.turret2(300, 200, 1, ["", 90], 2, 950, 2500);
+    enemies.turret4(300, 200, 0.5, ["", 0], 200, 1000, 2500);  
+    for(var i = -10; i < 10; i += 2){
+        enemies.turret1(100, 250, 1, ["", i], 35, 2650+i*10, 5000+i*20);
+    } 
+    for(var i = -10; i < 10; i += 2){
+        enemies.turret1(500, 250, 1, ["", i], 35, 2950+i*10, 5400+i*20);
+    }
+    for(var i = 0; i <= 90; i += 20){
+        enemies.turret2(300, 200, 1, ["", i], 2, 5200+i*10, 7500+i*10);
+    }
+    enemies.turret4(300, 500, 1, ["", 0], 200, 5300, 8500);
+    enemies.turret4(300, 0, 1, ["", 0], 200, 5600, 8500);
+    for(var i = -10; i <= 10; i += 4){
+        enemies.turret4(300, 250, 2, ["", i], 40, 6900+i*20, 9000+i*5);
+    }
+    enemies.turret4(300, 250, 2, ["", 0], 40, 7000, 9000);
+    enemies.turret2(300, 250, 2, ["", 0], 4, 8050, pow(999999, 99999));
+    if(frameCount > 9000 && game.txt !== " died."){
+        game.txt = " won!";
+        noStroke();
+        fill(9, 179, 0, constrain(flash/5, 1, 150));
+        rect(0, 0, 99999, 9999);
+        fill(0, 0, 0, constrain(flash/5, 1, 50));
+        quad(0, 0, 0, height, 250, height, 350, 0);
+        fill(0, 0, 0, constrain(flash/5, 1, 30));
+        quad(0, 0, 0, height, 50, height, 150, 0);
+        fill(255, 255, 255, constrain(flash/5, 1, 150));
+        textAlign(CENTER, CENTER);
+        textFont(createFont("DIN Condensed"), 70);
+        text("You have won!".substring(round(i2), 0), 300, 200);
+        textSize(25);
+        text(("After " + attempts + " attempt(s) ! GG!").substring(round(i2)-15, 0), 300, 250);
+        i2 += 0.1;
+        textSize(16);
+        text("Save as a Spin-off\nto submit your score.\nEntries with modified code\nwill not be accepted.", 300, 380);
+        flash += 20;
+    }
+    if(game.txt === " died."){
+        bg();
+        fill(255, 255, 255, constrain(flash/5, 1, 150));
+        textAlign(CENTER, CENTER);
+        textFont(createFont("DIN Condensed"), 70);
+        text(deathMessage.substring(round(i2), 0), 300, 200);
+        textSize(25);
+        text(("With a score of " + game.score + ".").substring(round(i2)-15, 0), 300, 250);
+        i2 += 0.1;
+        textSize(16);
+        text("Restarting in " + round(30-i2/10) + "\n\nSave as a Spin-off\nto submit your score.\nEntries with modified code\nwill not be accepted.\n\nClick and hold to override\ncountdown.", 300, 380);
+        image(game.snapshot, 450, 350, 150, 150);
+        if(flash < 1000){
+            flash += 20;
+        }
+        if(i2/10 > 30 || mouseIsPressed){
+            if(flash < 0){
+                attempts ++;
+                game = {
+                    score: 0, //Don't touch me. >:(
+                    px: 300, 
+                    py: 250, 
+                    pvx: 0, 
+                    pvy: 0, 
+                    txt: " are alive.",
+                    smA: 200, 
+                    smB: 0,
+                    snapshot: get(0, 0),
+                };
+                i2 = 0;
+                flash = 1;
+                frameCount = 0;
+                bullets = [];
+                sys.keys = [];
+            }else{
+                flash -= 40;
+            }
+        }
+    }
+    if(game.txt !== " died."){
+        fill(0, 255, 255, game.smB);
+        rect(0, 0, 99999, 99999);
+        stroke(0, 0, 0, game.smB+20);
+        noFill();
+        strokeWeight(5);
+        rect(300, 450, 420, 60);
+        noStroke();
+        fill(0, 0, 255, game.smB+20);
+        rect(300, 450, 2 * game.smA, 40);
+    }//NOT an easter egg. i'm not hiding comment-based EE anymore... okee?
+        break;
+    }
+};
+var gameA = new Game();
+
+gameA.setup();
+draw = function() {
+    gameA.draw();
+    
+    // [Re]set mouse
+    cursor(mouse.overButton ? 'pointer' : 'default');
+    mouse.clicked = false;
+    mouse.overButton = false;
+};

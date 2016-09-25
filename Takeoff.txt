@@ -1,0 +1,2050 @@
+/****************************\
+ * DA TODO LIST!            *
+ *                          *
+ * TODO: Improved Rendering *
+ * DONE: Da Shoppe!         *
+ * TODO: Improved GUI       *
+ * TODO: NO MORE TEXT SHIP! *
+ * DONE: Wind               *
+ * DONE: Bkgd/Foreground    *
+ * TODO: Help with graphics *
+ * USE ARROW KEYS TO MOVE.
+*///**********************\\\*
+var renderSpeed = 50; //Don't turn it too high otherwise you may crash.
+var frameSpeed = 60; //I hope you are running at, at least 30-ish frames per second!
+var confirmationSpeed = 180;
+frameRate(frameSpeed);
+/**
+ * *Changelog* *
+ * 
+ * Pre-Alpha Game Development v0.0.0 - Constructor function with basic drawing made.
+ * Pre-Alpha Game Development v0.0.1 - Controls and lazy text-image for ship made.
+ * Pre-Alpha Game Development v0.0.2 - Background, foreground set up.
+ * Pre-Alpha Game Development v0.0.3 - Camera function (From Thomas L. [@voidx]) used.
+ * Pre-Alpha Game Development v0.0.3.1 - Camera function modified.
+ * Pre-Alpha Game Development v0.0.4 - Preloader screen for background generation made.
+ * Pre-Alpha Game Development v0.0.5 - Mountain-like Background made. A bit crazy though.
+ * Pre-Alpha Game Development v0.0.5.1 - Foreground and mid-background added!
+ * Pre-Alpha Game Development v0.0.6 - Health and fuel added. (Not functional)
+ * Pre-Alpha Game Development v0.0.6.1 - Added GUI for Health and fuel.
+ * Pre-Alpha Game Development v0.0.6.2 - Some consumption rate of fuel.
+ * Pre-Alpha Game Development v0.0.6.3 - Made solid ground out of KA images.
+ * Pre-Alpha Game Development v0.0.6.4 - Changed ground to move more realistic.
+ * Pre-Alpha Game Development v0.0.7 - Collision (w/damage) with ground! SO INSANELY BUGGY!
+ * Pre-Alpha Game Development v0.0.8 - Added a Second Stage. Sloppy ejection made.
+ * Pre-Alpha Game Development v0.0.8.1 - Smoother ejection, fancier rocket with 'probe thrusters.'
+ * Pre-Alpha Game Development v0.0.8.2 - Fixed 'slow-falling stage-1 thrusters' animation.
+ * Pre-Alpha Game Development v0.0.8.3 - Fixed 'crazy spinny ejected stage-1 thrusters' spirite.
+ * Pre-Alpha Game Development v0.0.9 - Better visuals when stage-1 is depleted.
+ * Pre-Alpha Game Development v0.1.0 - No more spinny probe and fixed-rotation base. (:3)
+ * Pre-Alpha Game Development v0.1.1 - Functionized GUI.
+ * Pre-Alpha Game Development v0.1.2 - Speedometer added to GUI.
+ * Pre-Alpha Game Development v0.1.3 - Altitometer added to GUI.
+ * Pre-Alpha Game Development v0.1.4 - Dinking sounds if damaged.
+ * Pre-Alpha Game Development v0.1.5 - Lightened weight upon ejection.
+ * Pre-Alpha Game Development v0.1.6 - Numerical Display of Fuel in GUI.
+ * Pre-Alpha Game Development v0.1.7 - Numerical Display for Altitometer.
+ * Pre-Alpha Game Development v0.1.8 - Left and Right Borders added to prevent falling outside rendered areas. (Don't hug them.)
+ * Pre-Alpha Game Development v0.1.9 - CLOUDS! (only fog right now)
+ * Pre-Alpha Game Development v0.2.0 - Death screen added.
+ * Pre-Alpha Game Development v0.2.1 - Changed ship image.
+ * Pre-Alpha Game Development v0.2.2 - Wind! Movement for clouds at the moment.
+ * Pre-Alpha Game Development v0.2.2.1 - Okay, ACTUAL WIND. (Note to self: Don't put translate without resetMatrix in a for loop.)
+ * Pre-Alpha Game Development v0.2.3 - Lag control screen for those who cannot run large for loops.
+ * Pre-Alpha Game Development v0.2.4 - Tons of Clouds! :3
+ * Pre-Alpha Game Development v0.2.5 - Running into borders will teleport you across.
+ * Pre-Alpha Game Development v0.2.5.1 - Fps Meter added.
+ * Pre-Alpha Game Development v0.2.5.2 - Running into border will damage you now. (Glitchy if teleporting.)
+ * Pre-Alpha Game Development v0.2.5.3 - Game area greatly reduced to prevent lag.
+ * Pre-Alpha Game Development v0.2.6 - Bouncier physics!
+ * Pre-Alpha Game Development v0.2.6.1 - Reduced clouds for less lag.
+ * Pre-Alpha Game Development v0.2.7 - Gravity nerfed (?) to prevent 'sinking' into the ground if the weight is over 100-ish.
+ * Pre-Alpha Game Development v0.2.8 - Death also occurs if you are out of fuel.
+ * Pre-Alpha Game Development v0.2.8 - End of Pre-Alpha. Behind the Scenes Coding Continues
+ * 
+ * Alpha Game Development v0.2.9 - Basic reward interface implemented.
+ * Alpha Game Development v0.3.0 - Resetting and value altering functions added to the reward 'object.'
+ * Alpha Game Development v0.3.0.1 - Hooray! Logo added!
+ * Alpha Game Development v0.3.0.2 - Smooth transition to the logo from 'lag control' screen.
+ * Alpha Game Develpoment v0.3.1 - Cannot reset 'death' animation after 're-dying.'
+ * Alpha Game Development v0.3.2 - Wind affects player movement.
+ * Alpha Game Development v0.3.3 - NUMBERS FOR THE BARS ADDED! THEY LOOK AMAZING!!!
+ * Alpha Game Development v0.3.4 - Flight Overview for 'End of Day' added.*/ /*(Just wondering, does anyone read the update log? Tell me in comments.)*/ /**
+ * Alpha Game Development v0.3.5 - Bug fixes and made Health Interface Fancier
+ * Alpha Game Development v0.3.6 - Made clouds only display when on screen. Increased FPS (on my PC) from 18-24 to 30-50. Usually runs at 60+ FPS without graphics.
+ * Alpha Game Development v0.3.6.1 - Apparently simplistic designs are a lot less process-heavy then complex ones.
+ * Alpha Game Development v0.3.7 - Reward Calculation added.
+ * Alpha Game Development v0.3.8 - Shop 'game state' added.
+ * Alpha Game Development v0.3.9 - Many new buttons added in shop.
+ * Alpha Game Development v0.3.9.1 - Ready for next day button added.
+ * Alpha Game Development v0.3.9.2 - Topic switching buttons added.
+ * Alpha Game Development v0.3.9.3 - Scroll slider added.
+ * Alpha Game Development v0.4.0 - Shop item object function added.
+ * Alpha Game Development v0.4.0.1 - Data for all Probes added.
+ * Alpha Game Development v0.4.1 - Dat pop-up added and purchasing/equipping added.
+ * Alpha Game Development v0.4.2 - The NaN money bug fixed.
+ * Alpha Game Development v0.4.3 - A pop-up notif for stuff added.
+ * Alpha Game Development v0.4.3.1 - Day notif. Instruction notif. Not much more added.
+ * Alpha Game Development v0.4.4 - Thruster section of shop added.
+ * Alpha Game Development v0.4.4 - ALPHA LAUNCH! 6/17/16
+ * Alpha Game Development v0.4.5 - Wind Display and Varying Wind Conditions added!
+ * 
+ * Planned Update: v0.4.X - Complex Shop
+ */ 
+ 
+/**
+ * @Credits
+ * 
+ * This Picture: https://www.niwa.co.nz/sites/niwa.co.nz/files/styles/large/public/512px-Atmospheric_Layers.svg_.png?itok=HUgcKNKQ
+ * 
+ * Those Pictures: https://www.google.com/search?q=clouds+altitude&safe=active&espv=2&biw=1920&bih=971&tbm=isch&imgil=__WcG34r9M_oCM%253A%253BawnhK5K5DuMXeM%253Bhttp%25253A%25252F%25252Fteemss2.concord.org%25252Fartwork%25252Fskywatching%25252Fsunlight_basic_name.htm&source=iu&pf=m&fir=__WcG34r9M_oCM%253A%252CawnhK5K5DuMXeM%252C_&usg=__92FcmxALYVD7R65zKA0xyVXaZLE%3D&ved=0ahUKEwjh-7ahgLzLAhVH52MKHRCqA_MQyjcINg&ei=CX7kVqHTI8fOjwOQ1I6YDw#imgrc=xS21aC3PLHxw9M%3A
+ * 
+ * For the Camera: Thomas Li (@voidx) (Not me)
+ */ 
+var state = -1;
+var shopState = 1;
+var groundLevel = 300;
+var leftBorder = -400;
+var rightBorder = 600;
+var mp = false;
+var skipLoading = false;
+var negateWind = false;
+var dayAdded = false;
+var daysPassed = 0;
+var wind = 4; //Use a number line. Negatives are left and positives are right.
+var keys = [];
+var money = 0;
+var fuelCost = 0.3;
+var fuelExpended = 0;
+
+var ground = [];
+var foreground = [];
+var clouds = {
+    x: [], //x location
+    y: [], //y location
+    w: [], //width
+    h: [], //height
+    a: [], //alpha of color
+    b: [], //wind
+};
+
+var generate = {
+    ground: {
+        amt: 0,
+        last: height-150,
+        fluc: 50,
+        start: leftBorder,
+        end: rightBorder,
+        foregroundLast: height,
+    },
+    clouds: {
+        amt: 0,
+        type: 0,
+        start: 0,
+        end: groundLevel - 6000,
+    },
+};
+
+var mousePressed = function(){
+    mp = true;
+};
+
+var keyPressed = function(){
+    keys[keyCode] = true;
+};
+var keyReleased = function(){
+    keys[keyCode] = false;
+};
+
+var ifTrue = function(disTrue, then, ifnotdodis){
+    if(disTrue){
+        return then;
+    }else{
+        return ifnotdodis;
+    }
+};
+var maxOut = function(Num, max){
+    return ifTrue( (Num > max), max, Num);
+};
+
+var rect2 = function(x, y, l, h){
+    rectMode(CENTER);
+    rect(x, y, l, h);
+    fill(0, 0, 0, 50*(maxOut(frameCount, 255)/255));
+    noStroke();
+    triangle(x + l/2, y - h/2, x + l/2, y + h/2+1, x - l/2-1, y + h/2+1);
+};
+var ellipse2 = function(x, y, l, h){
+    ellipse(x, y, l, h);
+    fill(0, 0, 0, 50);
+    arc(x, y, l, h, -45, 135);
+};
+var quad2 = function(x1, y1, x2, y2, x3, y3, x4, y4){
+    quad(x1, y1, x2, y2, x3, y3, x4, y4);
+    fill(0, 0, 0, 50);
+    triangle(x2, y2, x3, y3, x4, y4);
+};
+
+var displayMessage = function(text){
+    this.text = text;
+    this.state = 1;
+    this.x = 1;
+};
+displayMessage.prototype.draw = function() {
+    textSize(20);
+    translate(0, 100);
+    switch(this.state){
+        case 1:
+            this.x += 0.5;
+            fill(184, 184, 184);
+            rect2(300, 300, 600, this.x);
+            pushMatrix();
+            translate(300, 300);
+            scale(this.x/25);
+            fill(255, 255, 255);
+            text(this.text, 0, 0);
+            popMatrix();
+            if(this.x > 25){
+                this.state = 2;
+                this.x = 0;
+            }
+        break;
+        case 2:
+            this.x ++;
+            fill(184, 184, 184);
+            rect2(300, 300, 600, 25);
+            pushMatrix();
+            translate(300, 300);
+            fill(255, 255, 255);
+            text(this.text, 0, 0);
+            popMatrix();
+            if(this.x > 100){
+                this.x = 25;
+                this.state = 3;
+            }
+        break;
+        case 3:
+            this.x -= 0.5;
+            fill(184, 184, 184);
+            rect2(300, 300, 600, this.x);
+            pushMatrix();
+            translate(300, 300);
+            scale(this.x/25);
+            fill(255, 255, 255);
+            text(this.text, 0, 0);
+            popMatrix();
+            if(this.x < 1){
+                this.state = 5;
+            }
+        break;
+    }
+};
+displayMessage.prototype.reset = function(text){
+    this.text = text;
+    this.state = 1;
+    this.x = 1;
+};
+
+var notif = new displayMessage("Use the arrow keys to fly.");
+
+var showNum = function(x, y, l, h, total, tColor, bColor){
+    this.x = x;
+    this.y = y;
+    this.l = l;
+    this.h = h;
+    this.total = total;
+    this.amt = 0;
+    this.scaled = 1;
+    this.tColor = tColor;
+    this.bColor = bColor;
+    this.done = false;
+    this._prefix = "";
+};
+showNum.prototype.draw = function(){
+    translate(this.x, this.y);
+    scale(this.scaled);
+    fill(this.bColor);
+    rect(0, 0, this.l, this.h);
+    fill(this.tColor);
+    text(this._prefix + round(this.amt), 0, 0);
+    if(this.scaled > 1){
+        this.scaled /= 1.02;
+    }
+};
+showNum.prototype.work = function(){
+    if(this.amt < this.total){
+        this.amt += (this.total-this.amt)/400;
+    }
+    
+    if(frameCount % 10 === 0){
+        if(this.amt === daysPassed){
+            return;
+        }else if(this.amt < this.total){
+            this.amt += this.total/40;
+            this.scaled *= 1.2;
+        }else if(this.amt === this.total){
+            this.scaled *= 1;
+            this.done = true;
+        }else{
+            this.amt -= this.amt - this.total;
+            this.scaled *= 1.2;
+        }
+        
+    }
+    if(this.total === fuelExpended*fuelCost){
+        //For negatives.
+        this._prefix = "-";
+        this.total *= -1;
+    }
+};
+showNum.prototype.checkStatus = function(){
+    return this.done;
+};
+var bar = function(y, context, bColor, tColor, amt){
+    this.state = 0;
+    this.x = 0;
+    this.y = y;
+    this.xs = 0;
+    this.context = context;
+    this.bColor = bColor;
+    this.tColor = tColor;
+    this.amount = amt;
+    
+    this.ORGINAL_y = y;
+    this.ORGINAL_context = context;
+    
+    this.num = new showNum(475, this.y, 100, 50, this.amount, tColor, bColor, amt);
+};
+bar.prototype.reset = function(){
+    this.y = this.ORGINAL_y;
+    this.context = this.ORGINAL_context;
+    this.amount = 0;
+    this.state = 0;
+    this.xs = 0;
+};
+bar.prototype.draw = function(dist) {
+    pushMatrix();
+    translate(this.x - dist + 300, this.y);
+    switch(this.state){
+        case 0:
+            this.xs ++;
+            this.x += this.xs;
+            if(this.x > (dist/3*2.175)){
+                this.state = 1;
+            }
+        break;
+        case 1:
+            this.xs -= 2;
+            this.x += this.xs;
+            if(this.x >= dist+50){
+                this.state = 2;
+                this.xs = 0;
+                this.x = dist+50;
+            }
+        break;
+        case 2:
+            this.xs ++;
+            this.x -= this.xs;
+            if(this.x < dist){
+                this.state = 3;
+                this.xs = 1;
+                this.x = dist;
+            }
+        break;
+        case 3:
+            this.num.work();
+            if(this.num.checkStatus){
+                //this.state = 4;
+            }
+        break;
+        case 4:
+            this.xs --;
+            this.x += this.xs;
+            if(this.x < dist-50){
+                this.state = 5;
+                this.xs = 1;
+                this.x = dist-50;
+            }
+        break;
+        case 5:
+            this.xs += 2;
+            this.x += this.xs;
+            if(this.x > dist+600){
+                //Suddenly... ALMOST NOTHING HAPPENED
+                this.state = "STAPH";
+            }
+        break;
+    }
+    fill(this.bColor);
+    noStroke();
+    rect2(0, 0, 450, 50);
+    fill(this.tColor);
+    textSize(15);
+    popMatrix();
+    resetMatrix();
+    pushMatrix();
+    textAlign(LEFT, CENTER);
+    textSize(20);
+    translate(this.x - dist + 100, this.y);
+    text(this.context, 0, 0);
+    textAlign(CENTER, CENTER);
+    popMatrix();
+    pushMatrix();
+    resetMatrix();
+    translate(this.x - dist, 0);
+    this.num.draw();
+    popMatrix();
+};
+var Graphics = {
+    transToGame: 0,
+    transToShop: 0,
+    tankSlider: 1,
+    tankSliding: false,
+    tankSlideMax: 600,
+    bars: {
+        bar1: new bar(150, "End of Day", color(0, 0, 0, 150), color(255, 255, 255), 0),
+        bar2: new bar(201, "Altitude", color(255, 0, 0, 150), color(255, 255, 255), 0),
+        bar3: new bar(252, "Top Speed", color(0, 255, 0, 150), color(255, 255, 255), 0),
+        bar4: new bar(303, "Remaining Health", color(0, 217, 255, 150), color(255, 255, 255), 0),
+        bar5: new bar(354, "Fuel Spent", color(0, 50, 255, 150), color(255, 255, 255), 0),
+        bar6: new bar(405, "Total Earned", color(0, 255, 140, 150), color(255, 255, 255), 0),
+    },
+};
+var Camera = function() {
+    this.x = 0;
+    this.y = 0;
+    this.width = width*2;
+    this.height = height*2;
+    this.yv = 0;
+    this.xv = 0;
+    this.midpointX = width/2;
+    this.midpointY = height/2;
+    this.draw = function(follow) {
+        var x = -follow.x+this.midpointX;
+        var y = -follow.y+this.midpointY;
+        
+        this.x += (-follow.x-this.x+this.midpointX)/5;
+        this.y += (-follow.y-this.y+this.midpointY)/1.01;
+    };
+    this.view = function(obj) {
+        var x = this.x+obj.x;
+        var y = this.y+obj.y;
+        return {x: x, y: y};
+    };
+}; //Camera function by Thomas L. (NOT ME. @voidx). Modified a bit.
+var cam = new Camera();
+var shipSpecs = {
+    //DON'T YOU DARE BE A CHEATER!!! >:#
+    tankSize: 100,
+    probeFuel: 50,
+    probeHealth: 30,
+    thrusterHealth: 60,
+    health: 90,
+    thrust: 0.1,
+    probeThrust: 0.1,
+    rocketWeight: 0.03,
+    probeWeight: 0.05,
+};
+var player = function(x, y){
+    this.x = x;
+    this.y = y;
+    this.baseX = 0;
+    this.baseY = 0;
+    this.baseR = 0;
+    this.r = 0;
+    this.xs = 0;
+    this.ys = 0;
+    this.rs = 0;
+    
+    shipSpecs.health = shipSpecs.probeHealth + shipSpecs.thrusterHealth;
+    
+    this.consump = 0.3;
+    this.fuel = shipSpecs.tankSize;
+    this.tankSize = shipSpecs.tankSize;
+    this.FIRST_tankSize = this.tankSize;
+    this.fuel2 = shipSpecs.probeFuel;
+    this.tankSize2 = shipSpecs.probeFuel;
+    this.ejected = false;
+    this.hp = shipSpecs.health;
+    this.hp_BACKUP = shipSpecs.health;
+    this.maxhp = shipSpecs.health;
+    
+    this.power = shipSpecs.thrust;
+    this.probePower = shipSpecs.probeThrust;
+    this.rocketWeight = shipSpecs.rocketWeight;
+    this.probeWeight = shipSpecs.probeWeight;
+    this.weight = this.rocketWeight + this.probeWeight;
+    
+    this.altitude = 0;
+    this.topSpeed = 0;
+    this.remainingHealth = 0;
+    
+    this.deathTime = 0;
+    
+    this.invincible = false;
+    this.controlsDisabled = false;
+    this.exploded = false;
+    this.outOfFuel = false;
+    this.engine = false;
+    this.retro = false;
+};
+player.prototype.draw = function() {//println(cam.y-this.y+groundLevel);
+    textSize(12);
+    cam.draw(this);
+    translate(cam.x, cam.y);
+    pushMatrix();
+    translate(this.x, this.y);
+    translate(0, -22);
+    scale(1);
+    if(this.ejected){
+        pushMatrix();
+    }
+    rotate(this.r);
+    noFill();
+    stroke(0, 0, 0);
+    strokeWeight(1.2);
+    if(this.ejected){
+        translate(0, 22);
+        if(this.engine && round(millis()%300) <= 100){
+            triangle(-5, 7, 0, 7, -2.5, 12);
+            triangle(5, 7, 0, 7, 2.5, 12);
+        }
+    }
+    
+    line(0, -20, -5, -12);
+    line(0, -20, 5, -12);
+    line(-5, -12, -5, 7);
+    line(5, -12, 5, 7);
+    line(-5, 7, 5, 7);
+    
+    rotate(ifTrue(this.ejected, -1, 0)*this.r);
+    if(this.ejected){
+        popMatrix();
+    }
+    translate(this.baseX, this.baseY+ifTrue(this.ejected, 22, 0));
+    rotate(this.baseR);
+    
+    line(-5, -5, -10, 5);
+    line(5, -5, 10, 5);
+    line(-10, 13, 10, 13);
+    line(-10, 13, -10, 5);
+    line(10, 13, 10, 5);
+
+    if(this.engine && round(millis()%1000) <= 500 && !this.ejected){
+        triangle(10, 13, 0, 13, 5, 20);
+        triangle(-10, 13, 0, 13, -5, 20);
+    }
+    if(this.ejected){
+        var xs = this.xs/2;
+        var ys = 4+abs(this.ys*1.4+6);
+        var rs = 1+this.rs*3;
+        this.baseX += xs;
+        this.baseY += ys;
+        this.baseR += rs;
+    }
+    popMatrix();
+};
+player.prototype.endDay = function() {
+    this.remainingHealth = this.hp/this.maxhp;
+    if(this.remainingHealth < 0){
+        this.remainingHealth = 0;
+        //No negative effects for 'overkill.'
+    }
+};
+player.prototype.explode = function(){
+    if(this.controlsDisabled){
+        return;
+    }
+    playSound(getSound("retro/boom1"));
+    background(255, 0, 0);
+    this.exploded = true;
+    this.deathTime = frameCount;
+    this.endDay();
+};
+player.prototype.damage = function() {
+    var velocity = abs(this.xs) + abs(this.ys);
+    var dmg = (this.weight * velocity);
+    if(!this.exploded && !(this.outOfFuel && this.ejected)){
+        this.hp_BACKUP -= abs(dmg) * 100;
+    }
+    if(!this.invincible){
+        this.hp -= abs(dmg) * 100;
+    }
+    this.xs *= -0.7;
+    this.ys *= -0.6;
+    this.rs *= -abs(5 + this.r / 4);
+    
+    //Check if dead.
+    if(this.hp <= 0){
+        if(this.ejected){
+            this.explode();
+        }else{
+            this.ejected = true;
+            this.tankSize = this.tankSize2;
+            this.fuel = this.fuel2;
+            Graphics.tankSliding = true;
+            this.hp = shipSpecs.probeHealth;
+            notif.reset("Escape Pod Activated!");
+        }
+    }
+    if(!this.controlsDisabled && !this.invincible){
+        playSound(getSound("rpg/metal-clink"));
+    }
+};
+player.prototype.move = function() {
+    
+    if(abs(this.y) > this.altitude){
+        this.altitude = abs(this.y);
+    }
+    if(-this.ys > this.topSpeed){
+        this.topSpeed = -this.ys;
+    }
+    
+    var enoughFuel = true;
+    if(this.fuel > this.tankSize){
+        this.fuel = this.tankSize;
+    }else if(this.fuel <= 0){
+        enoughFuel = false;
+    }
+    if(!enoughFuel && !this.ejected){
+        this.ejected = true;
+        this.tankSize = this.tankSize2;
+        this.fuel = this.fuel2;
+        Graphics.tankSliding = true;
+        notif.reset("Out of Fuel! Ejecting Thruster.");
+    }
+    this.x += this.xs;
+    this.y += this.ys;
+    this.r += this.rs;
+    if(!negateWind){
+        this.xs += wind/400;
+        this.rs += wind/200;
+    }
+    if(this.x <= leftBorder || this.x >= rightBorder){
+        
+        if(this.x < leftBorder){
+            this.r += 90;
+            this.x = leftBorder+15;
+        }else{
+            this.r -= 90;
+            this.x = rightBorder-15;
+        }
+        this.damage();
+        this.xs *= 2;
+    }
+    var tuchingGround = false;
+    if(this.y > groundLevel){
+        if(abs(this.ys) < 1){
+            this.y = groundLevel;
+            this.ys = 0;
+            tuchingGround = true;
+        }else{
+            this.damage();
+        }
+    }else{
+        if(round(this.y) !== groundLevel){
+            this.ys += ifTrue(this.ejected, this.probeWeight, this.weight)*1.05;
+        }
+        this.xs /= 1+ifTrue(this.ejected, this.probeWeight, this.weight);
+    }
+    this.rs /= 1.05;
+    if(!this.exploded && !this.outOfFuel && !this.controlsDisabled){
+        if(keys[UP] && enoughFuel){
+            this.weightedPower = ifTrue(this.ejected, this.probePower, this.power) - (ifTrue(this.ejected, this.probeWeight, this.weight) / 10);
+            this.engine = true;
+            this.xs += sin(this.r)*this.weightedPower;
+            this.ys -= cos(this.r)*this.weightedPower;
+            this.fuel -= this.consump;
+        }else{
+            this.engine = false;
+        }
+        if(keys[RIGHT]){
+            this.rs += 0.11;
+        }else if(keys[LEFT]){
+            this.rs -= 0.11;
+        }
+        if(this.fuel < 0.1 && this.ejected && this.ys > -2){
+            this.outOfFuel = true;
+            this.invincible = true;
+            this.deathTime = frameCount;
+        }
+    }
+};
+player.prototype.update = function(){
+    if(this.altitude < abs(this.y+groundLevel)){
+        this.altitude = abs(this.y+groundLevel);
+    }
+    if(this.topSpeed < -this.ys){
+        this.topSpeed = -this.ys;
+    }
+    this.remainingHealth = (this.hp_BACKUP/this.maxhp);
+};
+var ship = new player(200, 300);
+var shopTimer = null;
+var shopScroll = 0;
+var shopScrollDown = false;
+var shopScroller = function(){
+    this.amp = 1.26;
+    fill(255, 255, 255);
+    rect2(270, 325, 10, 300);
+    fill(158, 158, 158);
+    if(mouseX > 265 && mouseX < 275 && mouseY > (175 + shopScroll/this.amp) && mouseY < (225 + shopScroll/this.amp)){
+        fill(128, 128, 128);
+        if(mp){
+            shopScrollDown = true;
+        }
+    }
+    if(!mouseIsPressed){
+        shopScrollDown = false;
+    }
+    if(shopScrollDown){
+        fill(92, 92, 92);
+        if(mouseY > 199 && mouseY < 452){
+            shopScroll = (mouseY-200)*this.amp;
+        }else{
+            if(mouseY > 300){
+                mouseY = 451;
+            }else{
+                mouseY = 200;
+            }
+        }
+    }
+    rect2(270, (200+shopScroll/this.amp), 10, 50);
+};
+
+var shopItem = function(x, y, name, cost, tankSize, weight, agility, thrust, health, resistance, type){
+    this.cost = cost;
+    this.x = x;
+    this.y = y;
+    this.name = name;
+    this.tankSize = tankSize;
+    this.weight = weight;
+    this.agility = agility;
+    this.thrust = thrust;
+    this.health = health;
+    this.resistance = resistance;
+    this.mouseOver = false;
+    this.type = type;
+};
+shopItem.prototype.draw = function() {
+    this.mouseOver = false;
+    this.mouseHeld = false;
+    fill(138, 138, 138);
+    if(mouseX > (this.x + 100) && mouseX < (this.x + 200) && mouseY > (this.y-shopScroll - 50) && mouseY < (this.y-shopScroll + 50)){
+        fill(122, 122, 122);
+        this.mouseOver = true;
+        if(mouseIsPressed){
+            if(!this.mouseHeld){
+                this.mouseHeld = true;
+            }
+        }
+        if(mp){
+            shopTimer = frameCount + (confirmationSpeed);
+        }
+    }else{
+        this.mouseHeld = false;
+    }
+    pushMatrix();
+    translate(this.x, this.y);
+    if(this.y-shopScroll < 175){
+        scale(1, 0.5);
+        if(this.y-shopScroll < 150){
+            //Past the 'MENU' thing.
+            popMatrix();
+            return;
+        }
+    }
+    if(this.y-shopScroll > 425){
+        scale(1, 0.5);
+        if(this.y-shopScroll > 450){
+            //Past the 'MENU' thing.
+            popMatrix();
+            return;
+        }
+    }
+    rect2(0, 0, 100, 100);
+    fill(209, 209, 209);
+    rect2(0, -40, 100, 20);
+    textSize(13);
+    fill(0, 0, 0);
+    text(this.name, 0, -40);
+    textSize(13);
+    text( ifTrue((this.cost > 0), "$"+ this.cost, ifTrue((shipSpecs.probeFuel === this.tankSize) || (shipSpecs.tankSize === this.tankSize), "Equipped", "Bought")) , 0, 40);
+    if(this.mouseHeld){
+        if(money > this.cost){
+            fill(0, 255, 255, 50);
+            if(this.cost === 0){
+                fill(50, 255, 50, 50);
+            }
+            rect2(0, 0, 100, 100);
+            arc(0, 0, 50, 50, -90, shopTimer-frameCount-90);
+        }else{
+            fill(255, 0, 0, 50);
+            rect2(0, 0, 100, 100);
+            fill(0, 0, 0);
+            text("Insuffient\nfunds", 0, 0);
+        }
+        if(this.cost > 0){
+            if(money > this.cost){
+                fill(0, 0, 0);
+                text("Click\nand hold\nto buy", 0, 0);
+                if((shopTimer-frameCount) < 0 && this.cost > 0){
+                    money -= this.cost;
+                    this.cost = 0;
+                    shopTimer = frameCount + confirmationSpeed;
+                }
+            }
+        }else{
+            fill(0, 0, 0);
+            text("Click\nand hold\nto equip", 0, 0);
+            if((shopTimer-frameCount) < 0){
+                switch(this.type){
+                    case "probe":
+                        shipSpecs.probeFuel = this.tankSize;
+                        shipSpecs.probeWeight = this.weight;
+                        shipSpecs.probeThrust = this.thrust;
+                        shipSpecs.probeHealth = this.health;
+                        this.equipped = true;
+                    break;
+                    case "rocket":
+                        shipSpecs.tankSize = this.tankSize;
+                        shipSpecs.rocketWeight = this.weight;
+                        shipSpecs.thrust = this.thrust;
+                        shipSpecs.thrusterHealth = this.health;
+                    break;
+                }
+                
+                ship = new player(200, 300);
+                shopTimer = null;
+            }
+        }
+        
+    }
+    popMatrix();
+};
+shopItem.prototype.info = function() {
+    if(this.mouseOver){
+        pushMatrix();
+        resetMatrix();
+        fill(82, 82, 82, 160);
+        rect2(mouseX + ifTrue((this.x < 0), 65, -65), mouseY + 50, 130, 100);
+        fill(255, 255, 255);
+        textSize(12);
+        text(this.name + " Specs\n\nFuel: " + this.tankSize + " L\nWeight: " + this.weight*2000 + " lbs\nThrust: " + (this.thrust*10).toFixed(1) + " T\nHitpoints: " + this.health + " HP\nResistance: " + this.resistance + "%", mouseX + ifTrue((this.x < 0), 65, -65), mouseY + 50);
+        popMatrix();
+    }
+};
+
+//I really had no other more effient way. Sure I could've used a array or object, but that makes it harder to type out or just read. AND DONT CHEAT!! OK?
+var probe1 = new shopItem(-60, 240, "Probe MK-1", 450, 65, 0.05, 1.2, 0.1, 40, 0, "probe");
+var probe2 = new shopItem(55, 240, "Probe MK-2", 1200, 70, 0.045, 1.4, 0.1, 42, 1, "probe");
+var probe3 = new shopItem(-60, 360, "Probe MK-3", 4500, 80, 0.06, 1.6, 0.1, 50, 3, "probe");
+var probe4 = new shopItem(55, 360, "Probe MK-4", 9001, 100, 0.02, 1, 0.1, 20, 1, "probe");
+var probe5 = new shopItem(-60, 480, "Probe MK-5", 15000, 140, 0.12, 1.5, 0.14, 60, 6, "probe");
+var probe6 = new shopItem(55, 480, "Probe MK-6", 45000, 170, 0.2, 2, 1.3, 90, 8, "probe");
+var probe7 = new shopItem(-60, 600, "Probe MK-7", 90000, 210, 0.27, 2, 0.6, 140, 10, "probe");
+var probe8 = new shopItem(55, 600, "Probe MK-8", 500000, 260, 0.35, 4, 1, 180, 16, "probe");
+var probe9 = new shopItem(-60, 720, "Probe MK-9", 12000000, 300, 0.6, 5, 1.5, 240, 18, "probe");
+var probe10 = new shopItem(55, 720, "Probe MK-10", 40000000, 500, 0.9, 5, 2.1, 300, 20, "probe");
+var rocket1 = new shopItem(-60, 240, "Thruster MK-1", 745, 120, 0.35, 0.7, 0.5, 60, 1, "rocket");
+var rocket2 = new shopItem(55, 240, "Thruster MK-2", 2500, 150, 1, 0.7, 1.5, 100, 3, "rocket");
+var rocket3 = new shopItem(-60, 360, "Thruster MK-3", 8000, 180, 1.1, 1.5, 1.4, 150, 5, "rocket");
+var rocket4 = new shopItem(55, 360, "Thruster MK-4", 13370, 190, 1.2, 1.3, 1.75, 200, 8, "rocket");
+var rocket5 = new shopItem(-60, 480, "Thruster MK-5", 32000, 220, 2.1, 1.4, 2.7, 260, 10, "rocket");
+var rocket6 = new shopItem(55, 480, "Thruster MK-6", 65000, 260, 2.3, 1.2, 3, 300, 13, "rocket");
+var rocket7 = new shopItem(-60, 600, "Thruster MK-7", 100000, 290, 2.8, 1, 3.8, 400, 19, "rocket");
+var rocket8 = new shopItem(55, 600, "Thruster MK-8", 600000, 300, 3.2, 0.7, 4.5, 550, 25, "rocket");
+var rocket9 = new shopItem(-60, 720, "Thruster MK-9", 15000000, 500, 4.5, 0.6, 5.2, 700, 30, "rocket");
+var rocket10 = new shopItem(55, 720, "Thruster MK-10", 42000000, 750, 5, 0.4, 6.9, 1000, 40, "rocket");
+
+var hax = new shopItem(-60, 240, "Hax Thruster", pow(10, 30), 9999, 0, 1, 10, 9999, 100, "rocket");
+
+//My Logo from https://www.khanacademy.org/computer-programming/my-logo-v3/5215531694817280
+{
+var delay20 = 10;
+var frames2 = 0;
+var amount = 1;
+var zoom2 = 25;
+var zoomed = false;
+var dropmove = [];
+var begin = function(){
+    frames2 ++;
+    for(var i = 1; i < 74; i++){
+        if(dropmove.length < 74){
+            dropmove.push(400);
+        }
+    }
+};
+var pixel = function(x, y){
+    stroke(0, 0, 0);
+    fill(0, 0, 0);
+    rect((x * zoom2 - (zoom2 / 2)), (y-dropmove[amount]) * zoom2, zoom2, zoom2, 1);
+    if((amount * delay20) <= frames2){
+        dropmove[amount] /= 2;
+        if(dropmove[amount] < 0.5){
+            delay20 /= 1.0001;
+        }
+    }
+    amount ++;
+};
+var drawLetter = function(letter, x, y, size) {
+    letter = letter.toUpperCase();
+    
+    pushMatrix();
+    translate(x, y);
+    scale(size, size);
+    translate(-x, -y);
+    
+    noStroke();
+    switch(letter) {
+        case "A":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 8, y + 4, 4, 11);
+            rect(x + 6, y + 7, 3, 2);
+            break;
+        case "B":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 9, y, 4, 15);
+            break;
+        case "C":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "D":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x + 8, y + 4, 4, 5);
+            break;
+        case "E":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 6, 4, 3);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "F":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 4, 3);
+            break;
+        case "G":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 8, y + 5, 4, 6);
+            break;
+        case "H":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "I":
+            rect(x, y, 12, 4);
+            rect(x + 3, y + 4, 6, 8);
+            rect(x, y + 11, 12, 4);
+            break;
+        case "J":
+            rect(x, y, 12, 4);
+            rect(x + 6, y + 4, 6, 11);
+            rect(x, y + 12, 6, 3);
+            rect(x, y + 9, 3, 3);
+            break;
+        case "K":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 9, y + 2, 3, 4);
+            rect(x + 9, y + 9, 3, 6);
+            break;
+        case "L":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "M":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 2, 3, 6);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "N":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "0":
+        case "O":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "P":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 5, 3, 3);
+            rect(x + 8, y, 4, 8);
+            break;
+        case "Q":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            rect(x + 6, y + 15, 3, 2);
+            break;
+        case "R":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 8, y, 4, 7);
+            rect(x + 9, y + 9, 3, 6);
+            break;
+        case "S":
+            rect(x, y, 3, 6);
+            rect(x + 3, y, 9, 3);
+            rect(x, y + 6, 12, 3);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "T":
+            rect(x, y, 12, 5);
+            rect(x + 4, y + 5, 4, 10);
+            break;
+        case "U":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "V":
+            rect(x, y, 6, 12);
+            rect(x + 4, y + 10, 8, 5);
+            rect(x + 9, y, 3, 10);
+            break;
+        case "W":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 7, 3, 6);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "X":
+            rect(x, y, 6, 6);
+            rect(x + 3, y + 6, 6, 3);
+            rect(x, y + 9, 3, 6);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x + 9, y, 3, 6);
+            break;
+        case "Y":
+            rect(x, y, 6, 8);
+            rect(x + 6, y + 5, 6, 3);
+            rect(x + 9, y, 3, 5);
+            rect(x + 3, y + 8, 6, 7);
+            break;
+        case "Z":
+            rect(x, y, 12, 3);
+            rect(x + 6, y + 3, 6, 6);
+            rect(x, y + 6, 6, 3);
+            rect(x, y + 9, 6, 6);
+            rect(x + 6, y + 12, 6, 3);
+            break;
+        case ":":
+            rect(x + 3, y, 6, 6);
+            rect(x + 3, y + 9, 6, 6);
+            break;
+        case ".":
+            rect(x + 3, y + 9, 6, 6);
+            break;
+        case ",":
+            rect(x + 3, y + 9, 6, 9);
+            break;
+        case "1":
+            rect(x + 6, y, 6, 15);
+            break;
+        case "2":
+            rect(x, y, 12, 3);
+            rect(x, y + 3, 4, 3);
+            rect(x + 8, y + 3, 4, 3);
+            rect(x + 4, y + 6, 6, 3);
+            rect(x, y + 9, 6, 3);
+            rect(x, y + 11, 12, 4);
+            break;
+        case "3":
+            rect(x + 6, y, 6, 15);
+            rect(x, y, 6, 4);
+            rect(x + 1, y + 6, 5, 3);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "4":
+            rect(x + 6, y, 6, 15);
+            rect(x, y + 6, 6, 3);
+            rect(x, y, 3, 6);
+            break;
+        case "5":
+            rect(x, y, 3, 6);
+            rect(x + 3, y, 9, 3);
+            rect(x, y + 5, 12, 4);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "6":
+            rect(x, y, 12, 3);
+            rect(x, y + 3, 3, 12);
+            rect(x + 3, y + 12, 9, 3);
+            rect(x + 3, y + 6, 9, 3);
+            rect(x + 6, y + 9, 6, 3);
+            break;
+        case "7":
+            rect(x, y, 12, 3);
+            rect(x + 6, y + 3, 6, 6);
+            rect(x + 3, y + 6, 6, 8);
+            break;
+        case "8":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 8, y, 5, 15);
+            break;
+        case "9":
+            rect(x + 6, y, 6, 15);
+            rect(x, y, 6, 3);
+            rect(x, y + 3, 3, 6);
+            rect(x + 3, y + 6, 3, 3);
+            break;
+    }
+    popMatrix();
+};//Function copied from Virus™'s Super Hexagon
+var drawWord = function(text, x, y, size, alignment) {
+    var offset = 0;
+    if(alignment !== undefined) {
+        if(alignment === CENTER) {
+            offset = (14 * size) * text.length / 2;
+        } else if(alignment === RIGHT) {
+            offset = (14 * size) * text.length;
+        }
+    }
+   
+    for(var i = 0; i < text.length; i++) {
+        var character = text.charAt(i) + "";
+        drawLetter(character, (x + ((14 * size) * i)) - offset, y, size);
+    }
+};//Function copied from Virus™'s Super Hexagon
+var pixelpicture = function(){
+    pixel(-6, 9);
+    pixel(-5, 9);
+    pixel(-4, 9);
+    pixel(-3, 9);
+    pixel(-2, 9);
+    pixel(-1, 9);
+    pixel(0, 9);
+    pixel(1, 9);
+    pixel(2, 9);
+    pixel(3, 9);
+    pixel(4, 9);
+    pixel(5, 9);
+    pixel(6, 9);
+    pixel(-7, 8);
+    pixel(7, 8);
+    pixel(-7, 7);
+    pixel(7, 7);
+    pixel(-5, 7);
+    pixel(-2, 7);
+    pixel(1, 7);
+    pixel(-7, 6);
+    pixel(-5, 6);
+    pixel(-3, 6);
+    pixel(-1, 6);
+    pixel(1, 6);
+    pixel(2, 6);
+    pixel(3, 6);
+    pixel(4, 6);
+    pixel(7, 6);
+    pixel(-7, 5);
+    pixel(-5, 5);
+    pixel(-3, 5);
+    pixel(-1, 5);
+    pixel(1, 5);
+    pixel(5, 5);
+    pixel(7, 5);
+    pixel(-7, 4);
+    pixel(-5, 4);
+    pixel(-3, 4);
+    pixel(-1, 4);
+    pixel(1, 4);
+    pixel(5, 4);
+    pixel(7, 4);
+    pixel(-7, 3);
+    pixel(-5, 3);
+    pixel(-3, 3);
+    pixel(-1, 3);
+    pixel(1, 3);
+    pixel(5, 3);
+    pixel(7, 3);
+    pixel(-7, 2);
+    pixel(-4, 2);
+    pixel(-1, 2);
+    pixel(2, 2);
+    pixel(3, 2);
+    pixel(4, 2);
+    pixel(7, 2);
+    pixel(-7, 1);
+    pixel(7, 1);
+    pixel(-6, 0);
+    pixel(-5, 0);
+    pixel(-4, 0);
+    pixel(-3, 0);
+    pixel(-2, 0);
+    pixel(-1, 0);
+    pixel(0, 0);
+    pixel(1, 0);
+    pixel(2, 0);
+    pixel(3, 0);
+    pixel(4, 0);
+    pixel(5, 0);
+    pixel(6, 0);
+};
+var pixeltext = function(){
+    if(frames2 >= 351 && dropmove[72] < 0.001){
+        if(zoom2 >= 10 && !zoomed){
+            zoom2 /= 1.05;
+        }else{
+            zoom2 = 10;
+            zoomed = true;
+            fill(0, 0, 0, (frames2 - 370) * 5);
+            drawWord("Novice Programming", -120, 140, 1, 0);
+            if(frames2 >= 600){
+                if(skipLoading){
+                    state = 4;
+                    ground = [1];
+                    foreground = [1];
+                    clouds = {a:[1], b: [1], w: [1], h: [1], x: [1], y: [1]};
+                }else{
+                    state = 1;
+                }
+delay20 = 10;
+frames2 = 0;
+amount = 1;
+zoom2 = 25;
+zoomed = false;
+dropmove = [];
+            }
+        }
+    }
+};
+}
+
+var GUI = {
+    health: function(){
+        fill(255, 255, 255, 150);
+        stroke(255-(ship.hp/ship.maxhp*255), (ship.hp/ship.maxhp*255), 0);
+        arc(0, 580, 150, 150, 270, 360);
+        arc(0, 580, 130, 130, 360 - abs(90 * ship.hp/ship.maxhp), 360);
+        fill(255-(ship.hp/ship.maxhp*255), (ship.hp/ship.maxhp*255), 0);
+        text("Health", 30, 540);
+        textSize(25);
+        text(round(ship.hp/ship.maxhp*100) + "%", 30, 560);
+    },
+    fuel: function(){
+        pushMatrix();
+        translate(600 * (Graphics.tankSlider/Graphics.tankSlideMax), 0);
+        fill(ifTrue(!ship.ejected, 0, random(0, 255)), 0, 0);
+        text(ifTrue(!ship.ejected, "Main Fuel Tank", "Fuel Tank Depleted"), 80, 590);
+        noStroke();
+        fill(255, 255, 255, 70);
+        rect(ifTrue(!ship.ejected, 0, -600), 590, 1200 * (ship.fuel/ship.tankSize), 20);
+        pushMatrix();
+        resetMatrix();
+        translate(1+600 * (ship.fuel/ship.tankSize), 600);
+        fill(0, 0, 0, 150);
+        triangle(-5, 0, 5, 0, 0, -10);
+        stroke(0, 0, 0, 150);
+        line(0, -10, 0, -20);
+        textAlign(ifTrue(((ship.fuel/ship.tankSize) > 0.4), RIGHT, LEFT), CENTER);
+        textSize(10);
+        if(ship.fuel/ship.tankSize < 0.4){
+            resetMatrix();
+            translate(150, 600);
+        }
+        text("Fuel: " + ifTrue((ship.fuel < 0), "0.0", ship.fuel.toFixed(1)) + "/" + ship.tankSize, -2, -10);
+        textSize(15);
+        textAlign(CENTER, CENTER);
+        noStroke();
+        fill(255, 255, 255, 70);
+        popMatrix();
+        rect(300, 590, 600, 20);
+        translate(-600, 0);
+        fill(0, 0, 0);
+        text("Probe Fuel", 50, 590);
+        fill(255, 255, 255, 70);
+        noStroke();
+        rect(300, 590, 600, 20);
+        popMatrix();
+        strokeWeight(5);
+        stroke(0, 0, 0, 150);
+        line(-1, 580, 601, 580);
+        textSize(15);
+    },
+    speed: function(){
+        pushMatrix();
+        resetMatrix();
+        translate(-100, 0);
+        
+        strokeWeight(2);
+        rect2(550, 570, 100, 20);
+        var speed = ship.xs + ship.ys;
+        fill(82, 82, 82);
+        text(abs(speed).toFixed(1) + "m/s", 550, 570);
+        translate(515, 575);
+        rotate(270 + abs(speed)*3);
+        textSize(12);
+        text("^", 0, -8);
+        text("|", 0, -4);
+        text("o", 0, 0);
+        popMatrix();
+    },
+    altitude: function(){
+        pushMatrix();
+        resetMatrix();
+        strokeWeight(2);
+        stroke(77, 42, 0);
+        fill(0, 0, 0, 175);
+        rect2(550, 570, 100, 20);
+        var speed = ship.xs + ship.ys;
+        fill(82, 82, 82);
+        var altitudeY = abs(ship.y-groundLevel);
+        fill(255, 255, 255, 175);
+        text((ifTrue((altitudeY > 15000), 0.001, 1)*altitudeY).toFixed(1) + ifTrue((altitudeY > 15000), " km", " m"), 550, 570);
+        popMatrix();
+        //https://www.niwa.co.nz/sites/niwa.co.nz/files/styles/large/public/512px-Atmospheric_Layers.svg_.png?itok=HUgcKNKQ
+    },
+};
+
+var displayGUI = function(){
+    strokeWeight(1);
+    GUI.altitude();
+    GUI.health();
+    textSize(15);
+    GUI.fuel();
+    GUI.speed();
+};
+
+var resetGame = function(){
+    shopState = 1;
+    shopScroll = 0;
+    shopScrollDown = false;
+    ship = new player(200, 300);
+    dayAdded = false;
+    wind = round(random(-10, 10));
+    Graphics = {
+        transToShop: 0,
+        transToGame: 0,
+        tankSlider: 1,
+        tankSliding: false,
+        tankSlideMax: 600,
+        bars: {
+            bar1: new bar(150, "End of Day", color(0, 0, 0, 150), color(255, 255, 255), 0),
+            bar2: new bar(201, "Altitude", color(255, 0, 0, 150), color(255, 255, 255), 0),
+            bar3: new bar(252, "Top Speed", color(0, 255, 0, 150), color(255, 255, 255), 0),
+            bar4: new bar(303, "Remaining Health", color(0, 217, 255, 150), color(255, 255, 255), 0),
+            bar5: new bar(354, "Fuel Spent", color(0, 50, 255, 150), color(255, 255, 255), 0),
+            bar6: new bar(405, "Total Earned", color(0, 255, 140, 150), color(255, 255, 255), 0),
+        },
+    };
+    notif.reset("Day " + (daysPassed+1));
+};
+
+var draw = function() {
+    if(Graphics.tankSliding){
+        if(Graphics.tankSlider < Graphics.tankSlideMax){
+            Graphics.tankSlider *= 1.07;
+            ship.controlsDisabled = true;
+        }else{
+            Graphics.tankSlider = Graphics.tankSlideMax;
+            if(!ship.exploded){
+                ship.controlsDisabled = false;
+            }
+        }
+    }
+    switch(state){
+        case -1:
+            frameCount = 0;
+            /** #U WANT AWESOME LAG# **/
+            background(0, 0, 0);
+            textFont(createFont("monospace"));
+            textSize(45);
+            textAlign(CENTER, CENTER);
+            fill(255, 255, 255);
+            text("Lag Control", 300, 100);
+            textSize(12);
+            text("A message from the creator.", 300, 130);
+            textSize(15);
+            text("Before you begin, if you have a slower computer\nyou may probably want to skip the loading which\ngenerates a nice background which can cause\nlag.",300, 300);
+            textSize(17);
+            var mouseOverButtonSkip = false;
+            if(mouseX >= 78 && mouseX <= 220 && mouseY >= 435 && mouseY <= 460){
+                textSize(22);
+                mouseOverButtonSkip = true;
+                fill(173, 173, 173);
+                if(mp){
+                    state = 0;
+                    skipLoading = true;
+                }
+            }
+            text("Skip loading.", 150, 450);
+            textSize(12);
+            text("*get me to the game already!*", 150, ifTrue((mouseOverButtonSkip), 470, 465));
+            textSize(17);
+            fill(255, 255, 255);
+            var mouseOverButtonLag = false;
+            if(mouseX >= 340 && mouseX <= 550 && mouseY >= 435 && mouseY <= 460){
+                textSize(22);
+                mouseOverButtonLag = true;
+                fill(173, 173, 173);
+                if(mp){
+                    state = 0;
+                }
+            }
+            text("Bring on the lag!", 450, 450);
+            textSize(12);
+            text("*and fancy graphics*", 450, ifTrue((mouseOverButtonLag), 470, 465));
+            mouseOverButtonLag = false;
+            mouseOverButtonSkip = false;
+        break;
+        case 0:
+            fill(255, 255, 255, frameCount);
+            rect(300, 300, 700, 700);
+            if(frameCount > 40){
+                state = 0.1;
+            }
+        break;
+        case 0.1:
+            /** #Insert logo here# **/
+            rectMode(CORNER);
+            translate(300, 200);
+            background(255, 255, 255);
+            pixelpicture();
+            begin();
+            pixeltext();
+            amount = 1;
+            resetMatrix();
+        break;
+        case 1:
+            /** #ACTUAL loading here# **/
+            noStroke();
+            resetMatrix();
+            background(255, 255, 255);
+            fill(189, 189, 189, 100);
+            rect2(300, 400, 600, 50);
+            textFont(createFont("monospace"));
+            textSize(42);
+            fill(0, 0, 0);
+            text("LOADING", 300, 100);
+            textSize(12);
+            text("...please wait...", 300, 125);
+            textSize(17);
+            if(generate.ground.amt < (abs(generate.ground.start) + generate.ground.end)){
+                text("Rendering background... " + " (" + ground.length + " / " + (abs(generate.ground.start) + generate.ground.end) + ")", 300, 400);
+                for(var rate = 0; rate < abs(renderSpeed); rate ++){
+                    generate.ground.amt ++;
+                    ground.push(generate.ground.last);
+                    foreground.push(generate.ground.foregroundLast);
+                    generate.ground.last += round(random(-generate.ground.fluc, generate.ground.fluc));
+                }
+                fill(189, 189, 189, 100);
+                rect(300, 400, generate.ground.amt / (abs(generate.ground.start) + generate.ground.end) * 600, 52);
+            }else if(generate.clouds.amt < (abs(generate.clouds.start) + abs(generate.clouds.end))){
+                text("Rendering clouds... " + " (" + generate.clouds.amt + " / " + (abs(generate.clouds.start) + abs(generate.clouds.end)) + ")", 300, 400);
+                for(var rate = 0; rate < abs(renderSpeed); rate ++){
+                    generate.clouds.amt += 2; //Half clouds (For less lag)
+                    //Fog. (< 1 km)
+                    if(generate.clouds.amt < 1000){
+                        if(round(random(0, abs(500-generate.clouds.amt)/50)) === 0){
+                            clouds.y.push((generate.clouds.amt-groundLevel));
+                            clouds.x.push(random(leftBorder, rightBorder));
+                            var cloudWidth = random(100, 500);
+                            clouds.w.push(cloudWidth);
+                            clouds.h.push(random(1, cloudWidth/5));
+                            clouds.a.push(random(100, 200));
+                            clouds.b.push(random(0.1, 2)); //Fog moves slow.
+                        }
+                    }
+                }
+                fill(189, 189, 189, 100);
+                rect(300, 400, generate.clouds.amt / (abs(generate.clouds.start) + abs(generate.clouds.end)) * 600, 52);
+            }else{
+                state = 4;
+                println("Use the arrow keys to move.\nWatch your fuel because if you run out you cannot use thrusting.");
+            }
+        break;
+        case 2:
+            /** #Menu & stuffs# **/
+        break;
+        case 3:
+            /** #Save stuffs# **/
+        break;
+        case 4:
+            /** #DA GAME# **/
+            //Background objects.
+            pushMatrix();
+            translate(cam.x/1.2, cam.y/1.2);
+            background(56, 242, 255);
+            
+            var rangeMin = (player.x - width);
+            var rangeMax = (player.x + width);
+            for(var i = 0; i < ground.length; i ++){
+                pushMatrix();
+                //translate(ground.length*(round(ship.x / (ground.length/2))), 0);noLoop();
+                stroke(135, 59, 0);strokeWeight(2);
+                strokeWeight(3);
+                line(i*2+1 + generate.ground.start, ground[i], i*2+1 + generate.ground.start, 9999);
+                stroke(97, 54, 2);
+                line(i*2+1 + generate.ground.start, ground[i]+400, i*2+1 + generate.ground.start, 9999);
+                popMatrix();
+            }
+            translate(0, cam.y/1.2 - 10);
+            noStroke();
+            fill(0, 194, 0);
+            rect2(0, groundLevel+40, 2000, 80);
+            fill(122, 57, 0);
+            rect2(0, groundLevel+200, 2000, 300);
+            popMatrix();
+            
+            //Main-area objects.
+            pushMatrix();
+            ship.draw();
+            ship.move();
+            stroke(0, 0, 0);
+            //line(0, groundLevel, 400, groundLevel);
+            rectMode(CENTER);
+            fill(0, 0, 0, 175);
+            stroke(0, 0, 0, 175);
+            rect(leftBorder-300, 0, 600, 1000000);
+            rect(rightBorder+300, 0, 600, 1000000);
+            popMatrix();
+            
+            //Cloud objects.
+            pushMatrix();
+            
+            for(var i = 0; i < clouds.x.length; i ++){
+                translate(cam.x*1.2, cam.y*1.5);
+                translate(((frameCount *wind * clouds.b[i]) % 2000)-1000, 0);
+                if(dist(-cam.x+300, -cam.y+groundLevel, (cam.x*1.2+((frameCount*wind*clouds.b[i]) % 2000)), cam.y*1.5+clouds.y[i]) < 750){
+                    fill(255, 255, 255, clouds.a[i]);
+                    noStroke();
+                    ellipse(clouds.x[i], ifTrue((2.5*(clouds.y[i]-groundLevel) < groundLevel), 2.5*(clouds.y[i]-groundLevel), 0), clouds.w[i], clouds.h[i]);
+                    fill(255, 255, 255, clouds.a[i]);
+                    translate(((frameCount / 2 * clouds.b[i]) % 2000) - 1000, clouds.a[i]);
+                    ellipse(clouds.x[i], ifTrue((2.5*(clouds.y[i]-groundLevel) < groundLevel), 2.5*(clouds.y[i]-groundLevel), 0), clouds.w[i], clouds.h[i]);
+                    fill(255, 255, 255, clouds.a[i]);
+                    translate(((frameCount / 2 * clouds.b[i]) % 2000) - 500, clouds.a[i]);
+                    ellipse(clouds.x[i], ifTrue((2.5*(clouds.y[i]-groundLevel) < groundLevel), 2.5*(clouds.y[i]-groundLevel), 0), clouds.w[i], clouds.h[i]);
+                }
+                resetMatrix();
+            }
+            popMatrix();
+            //Foreground objects.
+            pushMatrix();
+            translate(cam.x*1.2, cam.y*1.2);
+            //scale(1.2, 1.2);
+            for(var i = 0; i < foreground.length; i ++){
+                stroke(77, 42, 0);
+                strokeWeight(2);
+                line(i*2+1 + generate.ground.start, ground[i]+600, i*2+1 + generate.ground.start, 9999);
+            }
+            popMatrix();
+            
+            //Fixed-position onscreen
+            displayGUI();
+            resetMatrix();
+            textSize(12);
+            strokeWeight(1);
+            
+            ship.update();
+            fuelExpended = (ifTrue(ship.ejected, (ship.FIRST_tankSize + ship.tankSize2) - ship.fuel, ship.tankSize - ship.fuel));
+            Graphics.bars.bar1.num.total = daysPassed;
+            Graphics.bars.bar1.num.amt = daysPassed;
+            Graphics.bars.bar2.num.total = (groundLevel+ship.altitude)/10;
+            Graphics.bars.bar3.num.total = ship.topSpeed*20;
+            Graphics.bars.bar4.num.total = ship.remainingHealth*100;
+            Graphics.bars.bar5.num.total = fuelExpended * fuelCost;
+            Graphics.bars.bar6.num.total = Graphics.bars.bar2.num.total + Graphics.bars.bar3.num.total + Graphics.bars.bar4.num.total + (Graphics.bars.bar5.num.total*fuelCost);
+            Graphics.bars.bar2.context = "Altitude: " + (ifTrue((abs(ship.altitude+groundLevel) > 15000), 0.001, 1)*abs(ship.altitude+groundLevel)).toFixed(1) + ifTrue((abs(ship.altitude) > 15000), " km", " m");
+            Graphics.bars.bar3.context = "Top Speed: " + ship.topSpeed.toFixed(1) + " m/s";
+            Graphics.bars.bar4.context = "Remaining Health: " + (ship.remainingHealth*100).toFixed(1) + "%";
+            Graphics.bars.bar5.context = "Fuel Spent: " + abs(round(fuelExpended)) + " x " + fuelCost;
+            if(ship.hp < 0){
+                Graphics.bars.bar4.num.total = 0;
+                Graphics.bars.bar4.num.amt = 0;
+                Graphics.bars.bar4.context = "Remaining Health: 0%";
+            }
+            if(isNaN(ship.x)){
+                frameCount = 90011337360420; //Bonus Points: Name the references.
+                ship = new player(200, -9999999);
+            }
+            if(frameCount > 90011337360420 || this.__frameRate < 1){
+                fill(255, 0, 0, 155);
+                rect(300, 300, 10000, 10000);
+                resetMatrix();
+                fill(255, 255, 255);
+                textSize(75);
+                if(!ship.exploded){
+                    textSize(50);
+                }
+                text("Sorry! We are\nexperiencing\ntechnical\ndifficulties.", 300, 300);
+                textSize(15);
+                text("RESTART THE GAME!", 300, 450);
+                if(frameCount === 99){
+                    ship = new player(200, 300);
+                    Graphics = {
+                        tankSlider: 1,
+                        tankSliding: false,
+                        tankSlideMax: 600,
+                        bars: {
+                            bar1: new bar(150, "End of Day", color(0, 0, 0, 150), color(255, 255, 255), 0),
+                            bar2: new bar(201, "Altitude", color(255, 0, 0, 150), color(255, 255, 255), 0),
+                            bar3: new bar(252, "Top Speed", color(0, 255, 0, 150), color(255, 255, 255), 0),
+                            bar4: new bar(303, "Remaining Health", color(0, 217, 255, 150), color(255, 255, 255), 0),
+                            bar5: new bar(354, "Fuel Spent", color(0, 50, 255, 150), color(255, 255, 255), 0),
+                            bar6: new bar(405, "Total Earned", color(0, 255, 140, 150), color(255, 255, 255), 0),
+                        },
+                    };
+                }
+                //Implemented to prevent your computer from crashing. Well, at least the browser.
+                throw {
+                    message: "Hey! I'm sorry to interrupt, but your computer seems to be running this game at a ridiculously slow frame rate. Please restart the program and do not try to cheat. If this is happening by default, your computer may not be able to handle these 2,100-ish lines of code."
+                };
+            }
+            //The death screen.
+            if(ship.exploded || (ship.outOfFuel && ship.ejected)){
+                
+                if(!dayAdded){
+                    daysPassed ++;
+                    dayAdded = true;
+                    money += Graphics.bars.bar6.num.total;
+                }
+                fill(0, 0, 0, maxOut((frameCount - ship.deathTime)*3, 150));
+                rect(height/2, height/2, 700, 700);
+                fill(255, 255, 255, 200);
+                textSize(45);
+                text("FLIGHT SUMMARY", 300, 70);
+                Graphics.bars.bar1.draw(1200);
+                Graphics.bars.bar2.draw(1500);
+                Graphics.bars.bar3.draw(1800);
+                Graphics.bars.bar4.draw(2100);
+                Graphics.bars.bar5.draw(2400);
+                Graphics.bars.bar6.draw(2700);
+                ship.controlsDisabled = true;
+                fill(255, 255, 255, 150);
+                textSize(25);
+                pushMatrix();
+                translate(300, 470);
+                scale(1.4, 1);
+                text("Click to Continue", 0, 0);
+                popMatrix();
+                if(mp){
+                    state = 4.9;
+                    Graphics.transToShop = frameCount+100;
+                }
+            }
+            
+            fill(255, 255, 255, ifTrue(frameCount < 255, abs(frameCount - 255), 0));
+            rect(300, 300, 900, 900);
+            
+            notif.draw();
+            
+            fill(0, 0, 0);
+            rect2(300, 440, 150, 35);
+            fill(255, 255, 255);
+            textSize(15);
+            text("Wind Direction", 300, 435);
+            if(wind > 0 || wind < 0){
+                for(var i = -round(abs(wind/3)); i <= round(abs(wind/3)); i++){
+                    pushMatrix();
+                    translate(300, 450);
+                    translate(i * 20, 0);
+                    fill(0, 0, 50+(frameCount+i*30)&200);
+                    if(wind < 0){
+                        scale(-1, 1);
+                        fill(50+(frameCount+i*30)&200, 0, 0);
+                    }
+                    noStroke();
+                    quad(-5, -5, 5, -5, 10, 0, 0, 0);
+                    quad(10, 0, 0, 0, -5, 5, 5, 5);
+                    popMatrix();
+                }
+            }else{
+                textSize(12);
+                text("No Wind", 300, 450);
+            }
+        break;
+        case 4.9:
+            fill(255, 255, 255, 5);
+            rect(300, 300, 900, 900);
+            if(frameCount > Graphics.transToShop){
+                state = 5;
+                resetGame();
+                frameCount = 0;
+            }
+        break;
+        case 4.8:
+            fill(255, 255, 255, 5);
+            rect(300, 300, 900, 900);
+            if(frameCount > Graphics.transToGame){
+                state = 4;
+                frameCount = 0;
+            }
+        break;
+        case 5:
+            /** #SHOPPEH# **/
+            resetMatrix();
+            noStroke();
+            fill(112, 112, 112);
+            rect2(300, 50, 600, 100);
+            textSize(60);
+            text("・ SHOP ・", 300, 50); //Lol the symbol breaks the line placement.(in code) XD
+            fill(165, 165, 165);
+            rect2(300, 350, 600, 500);
+            fill(195, 105, 0);
+            rect2(150, 537.5, 250, 75);
+            var suffix = "";
+            var suffixAcr = "";
+            var suffixValue = 1;
+            
+            //A time when memorizing all my powers of ten up to 30 has been useful.
+            if(money > (pow(10, 36)*9999.9999999)){
+                //NO MORE HOARDING FOR YOU
+                money = pow(10, 36)*9999.9999999;
+                suffix = "Decillion";
+                suffixAcr = "¿";
+                suffixValue = pow(10, 30);
+            }else if(money > (pow(10, 30)*1.1)){
+                suffix = "Decillion";
+                suffixAcr = "D";
+                suffixValue = pow(10, 30);
+            }else if(money > (pow(10, 27)*1.1)){
+                suffix = "Nonillion";
+                suffixAcr = "N";
+                suffixValue = pow(10, 27);
+            }else if(money > 110000000000000000000000000){
+                suffix = "Octillion";
+                suffixAcr = "O";
+                suffixValue = 100000000000000000000000000;
+            }else if(money > 110000000000000000000000){
+                suffix = "Septillion";
+                suffixAcr = "S";
+                suffixValue = 100000000000000000000000;
+            }else if(money > 110000000000000000000){
+                suffix = "Sexillion";
+                suffixAcr = "S";
+                suffixValue = 100000000000000000000;
+            }else if(money > 110000000000000000){
+                suffix = "Quintillion";
+                suffixAcr = "Q";
+                suffixValue = 100000000000000000;
+            }else if(money > 1100000000000000){
+                suffix = "Quadrillion";
+                suffixAcr = "Q";
+                suffixValue = 1000000000000000;
+            }else if(money > 1100000000000){
+                suffix = "Trillion";
+                suffixAcr = "T";
+                suffixValue = 1000000000000;
+            }else if(money > 1100000000){
+                suffix = "Billion";
+                suffixAcr = "B";
+                suffixValue = 1000000000;
+            }else if(money > 1100000){
+                suffix = "Million";
+                suffixAcr = "M";
+                suffixValue = 1000000;
+            }else if(money > 1100){
+                suffix = "Thousand";
+                suffixAcr = "K";
+                suffixValue = 1000;
+            }else{
+                suffix = "Dollars";
+            }
+            for(var i = 0; i < 7; i ++){
+                fill(170, 90, 0, frameCount);
+                rect2(45+i*35, 537.6, 25, 55);
+                textSize(35);
+                fill(50, 50, 50, frameCount);
+                if(i < 6){
+                    text(("$"+money/suffixValue).substring(i, i+1), 45+i*35, 537.6);
+                }else if(suffixAcr !== ""){
+                    text(suffixAcr, 45+i*35, 537.6);
+                }else{
+                    text(("$"+money/suffixValue).substring(i, i+1), 45+i*35, 537.6);
+                }
+            }
+            textSize(20);
+            textAlign(RIGHT, CENTER);
+            text((money/suffixValue).toFixed(1) + " " + suffix, 270, 586);
+            textAlign(CENTER, CENTER);
+            
+            fill(50, 209, 50);
+            if(mouseX > 375 && mouseX < 575 && mouseY > 515 && mouseY < 565){
+                fill(0, 150, 0);
+                if(mp){
+                    Graphics.transToGame = frameCount+100;
+                    state = 4.8;
+                }
+            }
+            rect2(475, 540, 200, 50);
+            textSize(45);
+            text("READY >", 475, 540);
+            textSize(24);
+            fill(0, 0, 0);
+            text("Day " + (daysPassed+1), 475, 500);
+            
+            fill(56, 56, 56);
+            rect2(475, 300, 200, 350);
+            fill(0, 255, 255);
+            rect2(475, 300, 150, 300);
+            fill(122, 57, 0);
+            rect2(475, 412.5, 150, 75);
+            fill(0, 194, 0);
+            rect2(475, 365, 150, 25);
+            fill(255, 255, 0);
+            ellipse2(428, 200, 40, 40);
+            
+            fill(184, 184, 184);
+            rect2(150, 300, 250, 350);
+            
+            switch(shopState){
+                case 1:
+                    fill(145, 145, 145);
+                    rect2(150, 150, 250, 50);
+                    textSize(25);
+                    fill(0, 0, 0);
+                    text("- Ship Stats -", 150, 150);
+                    textSize(14);
+                    text("Hull strength: " + round(ship.maxhp) + " HP", 150, 200);
+                    text("Thrust Power: " + (ship.power*10).toFixed(1) + " T", 150, 215);
+                    text("Fuel Capacity: " + round(ship.tankSize) + " L", 150, 230);
+                    text("Probe Capacity: " + round(ship.tankSize2) + " L", 150, 245);
+                    text("Fuel Consumption: " + ship.consump.toFixed(1) + " L/s", 150, 260);
+                    text("Total Weight: " + round(ship.weight*2000) + " lbs", 150, 275);
+                break;
+                case 2:
+                    pushMatrix();
+                    translate(150, -shopScroll);
+                    probe1.draw();
+                    probe2.draw();
+                    probe3.draw();
+                    probe4.draw();
+                    probe5.draw();
+                    probe6.draw();
+                    probe7.draw();
+                    probe8.draw();
+                    probe9.draw();
+                    probe10.draw();
+                    probe1.info();
+                    probe2.info();
+                    probe3.info();
+                    probe4.info();
+                    probe5.info();
+                    probe6.info();
+                    probe7.info();
+                    probe8.info();
+                    probe9.info();
+                    probe10.info();
+                    popMatrix();
+                    fill(145, 145, 145);
+                    rect2(150, 150, 250, 50);
+                    textSize(25);
+                    fill(0, 0, 0);
+                    text("- Probes -", 150, 150);
+                    
+                break;
+                case 3:
+                    pushMatrix();
+                    translate(150, -shopScroll);
+                    rocket1.draw();
+                    rocket2.draw();
+                    rocket3.draw();
+                    rocket4.draw();
+                    rocket5.draw();
+                    rocket6.draw();
+                    rocket7.draw();
+                    rocket8.draw();
+                    rocket9.draw();
+                    rocket10.draw();
+                    rocket1.info();
+                    rocket2.info();
+                    rocket3.info();
+                    rocket4.info();
+                    rocket5.info();
+                    rocket6.info();
+                    rocket7.info();
+                    rocket8.info();
+                    rocket9.info();
+                    rocket10.info();
+                    popMatrix();
+                    fill(145, 145, 145);
+                    rect2(150, 150, 250, 50);
+                    textSize(20);
+                    fill(0, 0, 0);
+                    text("- Main Thrusters -", 150, 150);
+                break;
+                case 4:
+                    fill(145, 145, 145);
+                    rect2(150, 150, 250, 50);
+                    textSize(25);
+                    fill(0, 0, 0);
+                    text("- Wings -", 150, 150);
+                    
+                    text("COMING SOON", 150, 250);
+                break;
+                case 5:
+                    fill(145, 145, 145);
+                    rect2(150, 150, 250, 50);
+                    textSize(25);
+                    fill(0, 0, 0);
+                    text("- Boosters -", 150, 150);
+                    
+                    text("COMING SOON", 150, 250);
+                break;
+                case 6:
+                    fill(0, 0, 0);
+                    textSize(12);
+                    text("Have the spacebar pressed and\nclick the INFO button to\naccess this easter egg menu.\n\nPress any other key to\naccess the real\nINFO menu.", 150, 350);
+                    pushMatrix();
+                    translate(150, -shopScroll);
+                    hax.draw();
+                    hax.info();
+                    popMatrix();
+                    fill(145, 145, 145);
+                    rect2(150, 150, 250, 50);
+                    textSize(25);
+                    fill(0, 0, 0);
+                    text("- WHOA OMG HAX -", 150, 150);
+                    
+                break;
+            }
+            if(shopState > 1 && shopState < 4){
+                shopScroller();
+            }
+            for(var i = 1; i < 6; i ++){
+                fill(156, 156, 156);
+                if(mouseX > 287.5 && mouseX < 362.5 && mouseY > 12.5 + i*100 && mouseY < 87.5 + i*100){
+                    fill(112, 112, 112);
+                    if(mp){
+                        shopState = i;
+                        shopScroll = 0;
+                        if(i === 1 && keyCode === 32){
+                            shopState = 6;
+                        }
+                    }
+                }
+                rect2(325, 50 + i*100, 75, 75);
+                //Icons
+                switch(i){
+                    case 1:
+                        fill(112, 112, 112);
+                        if(keyCode === 32){
+                            fill(125, 125, 125);
+                        }
+                        ellipse2(325, 150, 60, 60);
+                        fill(0, 0, 0);
+                        textSize(60);
+                        text("i", 325, 150);
+                    break;
+                    case 2:
+                        pushMatrix();
+                        translate(325, 250);
+                        rotate(45);
+                        fill(194, 194, 194);
+                        rect2(0, 0, 25, 50);
+                        fill(191, 191, 191);
+                        quad2(-10, 25, 10, 25, 15, 35, -15, 35);
+                        fill(138, 138, 138);
+                        rect2(0, -10, 15, 20);
+                        fill(0, 0, 0);
+                        rect(0, -10, 10, 15);
+                        fill(194, 194, 194);
+                        triangle(-12.5, -25, 12.5, -25, 0, -35);
+                        popMatrix();
+                    break;
+                    case 3:
+                        pushMatrix();
+                        translate(325, 350);
+                        scale(0.7);
+                        rotate(45);
+                        translate(-12.5, 0);
+                        fill(194, 194, 194);
+                        rect2(0, 0, 25, 50);
+                        fill(191, 191, 191);
+                        quad2(-10, 25, 10, 25, 15, 35, -15, 35);
+                        fill(194, 194, 194);
+                        translate(25, 0);
+                        fill(194, 194, 194);
+                        rect2(0, 0, 25, 50);
+                        fill(191, 191, 191);
+                        quad2(-10, 25, 10, 25, 15, 35, -15, 35);
+                        fill(194, 194, 194);
+                        popMatrix();
+                    break;
+                    case 4:
+                        pushMatrix();
+                        translate(320, 457);
+                        scale(1.5);
+                        rotate(10);
+                        fill(191, 191, 191);
+                        quad(-5, -17, 10, -20, 10, 0, 0, 10);
+                        triangle(-5, -17, 0, 10, -10, 10);
+                        fill(0, 0, 0, 50);
+                        quad(10, -20, 10, 0, 0, 10, -10, 10);
+                        popMatrix();
+                    break;
+                    case 5:
+                        pushMatrix();
+                        translate(325, 550);
+                        rotate(45);
+                        scale(0.6);
+                        scale(1, 1.4);
+                        fill(194, 194, 194);
+                        rect2(0, 0, 40, 15);
+                        translate(-20, 0);
+                        fill(194, 194, 194);
+                        rect2(0, 0, 25, 50);
+                        fill(191, 191, 191);
+                        quad2(-10, 25, 10, 25, 15, 35, -15, 35);
+                        fill(194, 194, 194);
+                        translate(40, 0);
+                        fill(194, 194, 194);
+                        rect2(0, 0, 25, 50);
+                        fill(191, 191, 191);
+                        quad2(-10, 25, 10, 25, 15, 35, -15, 35);
+                        
+                        popMatrix();
+                    break;
+                }
+            }
+            fill(255, 255, 255, ifTrue(frameCount < 255, abs(frameCount - 255), 0));
+            rect(300, 300, 900, 900);//money*=1.1;
+        break;
+    }
+    resetMatrix();
+    textAlign(CENTER, CENTER);
+    rectMode(CENTER);//noLoop();
+    mp = false;
+    fill(0, 0, 0, 175);
+    noStroke();
+    rectMode(CENTER);
+    rect(550, 50, 70, 30);
+    if(isNaN(money)){
+        money = 0;
+    }
+    if(this.__frameRate > 40){
+        fill(0, 255, 0);
+    }else if(this.__frameRate > 24){
+        fill(255, 255, 0);
+    }else if(this.__frameRate > 16){
+        fill(255, 102, 0);
+    }else{
+        fill(255, 0, 0);
+    }
+    textSize(13);
+    text("Fps: "+round(this.__frameRate), 550, 50);
+};

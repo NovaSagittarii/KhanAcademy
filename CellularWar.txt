@@ -1,0 +1,2035 @@
+/**
+ * 
+ * 
+ * BUILD 32: AUTO SAVE FEATURE! Restarting will NOT affect progress! Refreshing will. So save that save code! :P
+ * Build 33: Bugfixes. Multiattack fixed and broken SP fixed.. :I
+ * 
+ */ 
+
+var SAVE_DATA = ""; //Your save code?
+if(Program.SAVEDSTUFF!==undefined){SAVE_DATA=Program.SAVEDSTUFF;}
+var debugging = false; //Show AI thinking strategies.
+//I overslept sorry! .p.
+/**
+ * WHO WILL BE THE FIRST VIEWER?? (Comment in T&T)
+ * Winner: Stargazer @winstonWTF
+ * 
+[&]WHO WILL BE THE FIRST TO FIND THE EASTER EGGS (just comments in code) FIRST?? [and not a tester]
+1* Winner: Joshua Louie @joshualouie [Changelog]
+2* Winner: Joshua Louie @joshualouie [MLG Decimals]
+3* Winner: The_LEGO_Nerd@theLEGOnerd [break;]
+ * 
+ * Winner: T#1B12P @tn1b12p (But was a tester)
+ * 
+ *//* Subscribe to me here: https://www.khanacademy.org/computer-programming/subscribe-to-s-vc-gg/5852696933?qa_expand_key=kaencrypted_9bd31fe0c4500fb7b739588fff6bd89c_2a24c411c346d5426201ba500b26b5dc87330c5a252c6d5569161203ada242d0ff8d40b1b521819812be22f8709526d5d6770de7fcb78f4a9315d6cc8c79a3624866c7831deba1f69a92d1e73becf9e202e6968c42c48f70c4f68e80c7e4bba40854fe9e7c6e630dba7bdcf687d31018fdb0b869595f09df6b691f37e190197c614783c243a600a7eb5a91553900f212c7ad4e8b3f402f97a1c5d9da0441c67f9d26f80857bbeb4a5fd0fbb5bfd3a2f08ba5020db3992a8a428738ac2687154d
+ *//** 
+ * Thanks to every beta tester who helped test this! ^-^
+ * Stαrɢαzεr           @winstonWTF
+ * Photonic Symmetry   @Symmetry1
+ * Boltshock           @Boltshock
+ * KιngKhαn007         @KingKhan007
+ * TemporalFuzz        @Maxzman14
+ * T#1B12P             @tn1b12p
+ * SilverKiwi28        @LPearce28
+ * Tegoon              @Tegoon
+ * Joseph              @Quoror
+ * 𝕋𝕚𝕥𝕒𝕟𝕚𝕦𝕞 𝔽𝕝𝕒𝕞𝕖 @TitaniumProductions
+ * Cαptαιn™            @callmecap
+ * cbboss              @cbboss
+ * 
+ * Level Providers
+ * Boltshock           @Boltshock    [9 & 10]
+ * cbboss              @cbboss       [12 , 16 & 18]
+ * Photonic Symmetry   @Symmetry1    [13]  https://www.khanacademy.org/cs/a/4596228569825280
+ * Luc Teachout        @LucTeachout  [15]  https://www.khanacademy.org/cs/a/5718106206240768
+ * 
+ * *for some, i was unable to add to the credits screen. (i want nice margins)
+ */
+
+/*
+ * GAME_INFO
+ * Development Stage: Build 30
+ * Developers: Thomas Li (solo)
+ * Genre: Strategy
+ * Type: Cell
+ * Difficulty: [- - - - - =|= -]
+*/
+
+/**
+ * Changelog
+ * πα Release - Basics of Game Done.
+ * πα build 2 - Working AI... kind of.
+ * πα build 3 - AI learns to reinforce/transfer and attack at some point, kind of buggy. :P
+ * πα build 4 - AI is very very aggressive... o.O
+ * πα build 5 - AI will attempt to maintain a flow and neutral cells.
+ * πα build 6 - Chance of failed entry into cells. Determined by @def parameter.
+ * πα build 7 - Different AI added.
+ * πα build 8 - Added upper capacity to cells, cells lose material slowly if they are over they capacity. Added bank cells, slow regen, high capacity, high defense
+ * 
+ * build 9 - Cyan CPU reconfigured to aggressively attack player's cells.
+ * build 10 - Red CPU remade to be 'smarter.'
+ * build 11 - Modified Red CPU.
+ * build 12 - Continous sending of viruses and multi-attacking. Move over your cells and keep mouse pressed to launch a stronger attack.
+ * build 13 - Logo and non-plain background added.
+ * build 14 - Basic Menu. Only Play button functional. Blue AI readded! :)
+ * build 15 - Credits added!
+ * build 16 - Shop added! ^-^
+ * build 17 - Game transition for level select done. And more transitions added!
+ * build 18 - graphical Update. Lock image added. :P
+ * build 19 - level select will load levels.
+ * build 20 - bugfix- crashing program.
+ * 
+ * NOTICE: 1v1 cell battles with the Red AI crashes game...
+ * 
+ * build 21 - One more level, more visible 'stat pentagon.'
+ * build 22 - Working Upgrades. Tutorial text added.
+ * build 23 - Medium+ Difficulty gives AI buffs.
+ * build 24 - Achievements! *//*Like Takeoff, anyone read the Changlog? (Tell me in T&T if you are the first one.)*//**
+ * build 25 - Added more levels! Level select bugfix.
+ * build 26 - Implementing levels. (Ya testers are great!) Easy Mode isn't as easy.
+ * build 27 - Implementing more levels. @GUI_Update. Pause/Restart/Quit buttons added. Broken virus bug fixed.
+ * build 28 - NKC added. Defense buff works properly.
+ * build 29 - Balanced level 14. More levels.
+ * build 30 - Added final levels. Tested achievements.
+ * build 31 - Save feature working.
+ * 
+features{
+ - @done - achievements
+ * @PLANNED - more levels
+ - @done - no more placebo effects 
+ - @done - Medium difficulty.
+}
+ */
+
+var sys = {
+    mp: false,
+    mr: false,
+    selC: NaN,
+    selC2: [],
+    onCell: false,
+};
+var mousePressed = function(){
+    sys.mp = true;
+};
+var mouseReleased = function(){
+    sys.mp = false;
+    sys.mr = true;
+};
+
+var game = {
+    state: 0,
+    state2: 0,
+    state2T: 0,
+    changeState: false,
+    playerColor: color(0, 255, 0, 150),
+    playerStat: {
+        Sp: 1,
+        Df: 1,
+        Pr: 1,
+        Ak: 1,
+        Lr: 1,
+        allocate: 3, //No... just don't... Please don't change the game settings... 
+    },
+    RS: {
+        Sp: 1,
+        Df: 1,
+        Pr: 1,
+        Ak: 1,
+        Lr: 1,
+    },
+    //Haha no, not BS, blue stats. XD
+    BS: {
+        Sp: 1,
+        Df: 1,
+        Pr: 1,
+        Ak: 1,
+        Lr: 1,
+    },
+    focusX: 0,
+    focusY: 0,
+    bkgdRes: 100, //Low-sharp, High-dull. Negative or zero will crash game.
+    bkgdC: 50,
+    bkgdC2: 550,
+    whiteFill: 0,
+    currDiff: null,
+    lsY: 650,
+    lsD: null,
+    lsT: null,
+};
+var multiplier = {
+    S: [null, 1, 1.1, 1.15, 1.2, 1.35, 1.5, 1.8],
+    D: [null, 0, 5, 10, 12.5, 15, 20, 25],
+    P: [null, 1, 1.1, 1.25, 1.35, 1.5, 1.75, 2.75],
+    A: [null, 1, 1.2, 1.5, 1.8, 2, 2.4, 4],
+    L: [null, 1, 1.1, 1.2, 1.4, 1.8, 2, 5],
+    //Seventh value is NOT for you. It's for the immune system.
+    //Yes, YOU are the virus. :P
+};
+var getStat = function(stat, value){
+    var currArr;
+    if(value < 1 || value === null){
+        value = 1;
+    }
+    switch(stat){
+        case "S": currArr = multiplier.S; break;
+        case "D": currArr = multiplier.D; break;
+        case "P": currArr = multiplier.P; break;
+        case "A": currArr = multiplier.A; break;
+        case "L": currArr = multiplier.L; break;
+    }
+    return currArr[value];
+};
+var cells = [];
+var mainMenu_load = [
+{x: 500, y: 150, s: 100, c: 25, m: 250, r: 450, a: "E", def: 5},
+{x: 1200, y: 300, s: 100, c: 25, m: 10000, r: 10, a: "E", def: 100},
+{x: 500, y: 450, s: 125, c: 150, m: 500, r: 750, a: "E", def: 80},
+{x: 100, y: 150, s: 125, c: 150, m: 500, r: 750, a: "A", def: 80},
+{x: 100, y: 450, s: 100, c: 25, m: 250, r: 450, a: "A", def: 5},
+{x: -600, y: 300, s: 100, c: 25, m: 10000, r: 10, a: "A", def: 100},
+];
+
+var levels = [];
+
+var currDiff = 0;
+var levelInfo = [];
+for(var i = 0; i < 20; i ++){levelInfo.push([false, false, false, (i < 1) ? true : false]);}//true : true if you want all levels unlocked
+var levelName = ["Tutorial #1\nCapturing Cells", "Tutorial #2\nStrength in Numbers", "Competition", "Flanking the Enemy", "Lattice", "Tutorial #3: High Def Cell", "Cyan CPU", "1v1v1", "Cross Section", "Hexagon", "Inefficent Transfer", "Underdog Powerhouses", "Surrounded!", "Crusade", "Battleground", "The Ruins", "Natural Killer Cell", "Domination", "Well Guarded", "Last Stand"];
+
+var nanos = [];
+var add_nanos = function(x, y, a, DX, DY, ALIGNMENT, targetValue){
+    for(var REP = 0; REP <= a; REP ++){
+        nanos.push({x: x + random(-20, 20), y: y + random(-20, 20), i: DX + random(-5, 5), j: DY + random(-5, 5), a: ALIGNMENT, xs: 0, ys: 0, tV: targetValue});
+    }
+};
+var drawPent = function(x, y, s, statArr, highest){
+    pushMatrix();
+    translate(x, y);
+    for(var i = 0; i <= 4; i ++){
+        if(i === 0){
+            strokeWeight(5);
+            stroke(255, 255, 255, 50);
+            fill(0, 0, 0, 150);
+        }else{
+            strokeWeight(1);
+            stroke(0, 0, 0, 100);
+            fill(0, 0, 0, 40);
+        }
+        beginShape();
+            for(var j = 0; j <= statArr.length; j ++){
+                var Pdeg = degrees(j * 2 * PI / statArr.length);
+                if(i === 0){
+                    vertex(s * (statArr[j]/highest) * cos(Pdeg), s * (statArr[j]/highest) * sin(Pdeg));
+                }else{
+                    vertex(s * i/4 * cos(Pdeg), s * i/4 * sin(Pdeg));
+                }
+            }
+        endShape();
+    }
+    popMatrix();
+};
+var star = function(x, y, scaleMount) {
+    rectMode(CENTER);
+    noStroke();
+    pushMatrix();
+    translate(x, y);
+    scale(scaleMount);
+    beginShape();
+    for (var i = 0; i < 5; i++) {
+        vertex(cos(i*72+18)*48, sin(i*72+18)*45);
+        vertex(cos(i*72+54)*80, sin(i*72+52)*80);
+    }
+    endShape(2);
+    popMatrix();
+}; //Provided by Cai H. Starting concept by Stargazer.
+var lock = function(x, y, r, s) {
+    pushMatrix();
+    translate(x, y);
+    rotate(r);
+    scale(s);
+    stroke(0);
+    strokeWeight(10);
+    noFill();
+    rect(0, 0, 80, 80, 10);
+    strokeWeight(13);
+    line(0, -5, 0, 13);
+    strokeWeight(10);
+    line(-28, -40, -28, -53);
+    line(28, -40, 28, -53);
+    arc(0, -56, 2*28, 2*28, 180, 360);
+    noStroke();
+    fill(0);
+    ellipse(0, -5, 25, 25);
+    popMatrix();
+}; //Also provided by Stargazer.
+var number_notifs = [];
+var add_number_notif = function(txt, x, y, s, dur, r, g, b, ys){
+    number_notifs.push({txt: txt, x: x, y: y, size: s, dur: 255, r: r, g: g, b: b, dis: dur*2, yvmult: ys});
+};
+var run_number_notif = function(){
+    for(var i in number_notifs){
+        fill(number_notifs[i].r, number_notifs[i].g, number_notifs[i].b, number_notifs[i].dur);
+        textSize(number_notifs[i].size);
+        text(number_notifs[i].txt, number_notifs[i].x, number_notifs[i].y);
+        number_notifs[i].dur -= number_notifs[i].dis;
+        number_notifs[i].y -= number_notifs[i].dur / 150 * number_notifs[i].yvmult;
+        if(number_notifs[i].dur < 0){
+            number_notifs.splice(i, 1);
+        }
+    }
+};
+
+var achievement = function(name, info, val){
+    this.val = val;
+    this.unlocked = false;
+    //Dude. Don't try to cheat...
+    this.claimed = false;
+    this.info = info;
+    this.name = name;
+};
+achievement.prototype.checking = function(CONDITION){
+    if(CONDITION && !this.unlocked){
+        this.unlocked = true;
+        add_number_notif("Unlocked \"" + this.name + "\"", 300, 550, 25, 1, 255, 255, 255, 0.2);
+        add_number_notif("Claim your reward in the Awards menu", 300, 570, 12, 1, 255, 255, 255, 0.2);
+    }
+};
+achievement.prototype.draw = function(x, y) {
+    fill(100, 100, 100, 200);
+    stroke(0, 0, 0, 200);
+    strokeWeight(2);
+    rect(x, y, 275, 100);
+    textAlign(LEFT, CENTER);
+    textSize(20);
+    fill(255, 255, 255);
+    text(this.name, x - 120, y - 30);
+    textSize(12);
+    if(!this.unlocked){
+        text("???", x - 120, y);
+        fill(0, 0, 0, 150);
+        rect(x, y, 275, 100);
+        lock(x + 80, y + 10, 0, 0.5);
+    }else{
+        text(this.info, x - 120, y);
+        if(!this.claimed){
+            //More efficent method of buttons.
+            if(abs(mouseX - x) < 137.5 && abs(mouseY - y) < 50){
+                fill(255, 255, 255, 150);
+                rect(x, y, 275, 100);
+                fill(0, 0, 0);
+                textAlign(CENTER, CENTER);
+                textSize(20);
+                text("CLICK TO CLAIM", x, y);
+                if(sys.mp){
+                    game.playerStat.allocate += this.val;
+                    add_number_notif("+" + this.val + " SP", mouseX, mouseY, 15, 3, 0, 0, 0, 0.5);
+                    this.claimed = true;
+                }
+            }
+        }
+    }
+    textAlign(RIGHT, BOTTOM);
+    textSize(12);
+    fill(255, 255, 255);
+    text("Reward:\n" + this.val + " SP " + ((this.claimed) ? "\nDone! " : ""), x + 135, y + 45);
+};
+var Credits   = new achievement("Appreciation", "Look at the Credits.", 2);
+var HangTight = new achievement("Hang Tight", "Beat a level with 10 viruses\nleft, in total.", 5);
+var FullBank  = new achievement("Full Bank", "Have 500 or more viruses in a cell.", 5);
+var MaxStat   = new achievement("Maxed Stat", "Max out one stat in the upgrades", 10);
+var Veteran   = new achievement("Veteran", "\nComplete the game.\nAnd kill your host since you were\nthe virus who was infecting your\nhost's body. GJ!", 15);
+var Completion= new achievement("Completionist", "Beat every level (on Hard\nMode).", 15);
+
+var run_nanos = function(){
+    for(var i = 0; i < nanos.length; i ++){
+        var Sbuff = 1; //Speed buff
+        var Abuff = 1; //Attacking buff
+        var Dbuff = 0; //Defense buff (Cells)
+        //Why does it stand for "SAD?" (Anyone actually reading my code?)
+        switch(nanos[i].a){
+            case "P":
+                fill(game.playerColor);
+                Sbuff = getStat("S", game.playerStat.Sp);
+                Abuff = getStat("A", game.playerStat.Ak);
+            break;
+            case "N":
+                fill(219, 219, 219, 150);
+                Sbuff = getStat("S", 7);
+                Abuff = getStat("A", 7);
+            break;
+            case "E":
+                fill(255, 0, 0, 150);
+                Sbuff = getStat("S", game.RS.Sp);
+                Abuff = getStat("A", game.RS.Ak);
+            break;
+            case "A":
+                fill(0, 255, 255, 150);
+                Sbuff = getStat("S", game.BS.Sp);
+                Abuff = getStat("A", game.BS.Ak);
+            break;
+        }
+        if(game.currDiff === 1 && nanos[i].a !== "P"){
+            fill(150, 150, 150, 200);
+        }
+        ellipse(nanos[i].x, nanos[i].y, 5, 5);
+        nanos[i].x += nanos[i].xs;
+        nanos[i].y += nanos[i].ys;
+        nanos[i].xs /= 1.05;
+        nanos[i].ys /= 1.05;
+        if((round(frameCount + 30 * i / nanos.length) % round(50 / Sbuff)) === 0){
+            nanos[i].xs += cos(atan2(nanos[i].j - nanos[i].y, nanos[i].i - nanos[i].x)) * 3;
+            nanos[i].ys += sin(atan2(nanos[i].j - nanos[i].y, nanos[i].i - nanos[i].x)) * 3;
+        }
+        if(dist(nanos[i].x, nanos[i].y, nanos[i].i, nanos[i].j) < cells[nanos[i].tV].s / 2.5){
+            switch(cells[nanos[i].tV].a){
+                case "P": Dbuff = getStat("D", game.playerStat.Df); break;
+                case "E": Dbuff = getStat("D", game.RS.Df); break;
+                case "A": Dbuff = getStat("D", game.BS.Df); break;
+                //Oh noes! More Weird Acroyms. Pea now XD
+                case "N1": Dbuff = getStat("D", 7); break;
+            }
+            if(random(0, Abuff*100) > (cells[nanos[i].tV].def + Dbuff) || nanos[i].a === cells[nanos[i].tV].a){
+                if(nanos[i].a === cells[nanos[i].tV].a){
+                    cells[nanos[i].tV].c ++;
+                }else{
+                    cells[nanos[i].tV].c --;
+                    if(cells[nanos[i].tV].c < 0){
+                        cells[nanos[i].tV].c *= -1;
+                        cells[nanos[i].tV].a = nanos[i].a;
+                        add_number_notif("Converted!", cells[nanos[i].tV].x, cells[nanos[i].tV].y, 12, 2, 0, 0, 0, 0.4);
+                    }
+                }
+            }else{
+                add_number_notif("Blocked!", nanos[i].x, nanos[i].y, 12, 2, 0, 0, 0, 0.2);
+            }
+            nanos.splice(i, 1);
+        }
+    }
+};
+var run_CPU = function(){
+    for(var i = 0; i < cells.length; i ++){
+        pushMatrix();
+        translate(noise(cells[i].x / 50, cells[i].y / 50, frameCount / 100) * 20 - 10, noise(cells[i].y / 50, cells[i].x / 50, frameCount / 100) * 20 - 10);
+        strokeWeight(5);
+        if(sys.selC === i){
+            noFill();
+            stroke(0, 0, 0);
+            ellipse(cells[i].x, cells[i].y, cells[i].s*1.2, cells[i].s*1.2);
+            line(cells[i].x, cells[i].y, mouseX, mouseY);
+            fill(0, 0, 0);
+            text("Release to cancel.", cells[i].x, cells[i].y + cells[i].s/1.3);
+        }else{
+            for(var j = 0; j < sys.selC2.length; j ++){
+                if(sys.selC2[j] === i){
+                    if(cells[i].a !== "P"){
+                        sys.selC2[j] = sys.selC;
+                        continue;
+                    }
+                    noFill();
+                    stroke(0, 0, 0);
+                    strokeWeight(2);
+                    ellipse(cells[i].x, cells[i].y, cells[i].s*1.2, cells[i].s*1.2);
+                    line(cells[i].x, cells[i].y, mouseX, mouseY);
+                }
+            }
+        }
+        
+        fill(255, 255, 255, 50);
+        stroke(0, 0, 0, 50);
+        if(cells[i].m > 250 && cells[i].r > 400 && cells[i].def >= 50){
+            fill(0, 0, 0, 100);
+            text("High Def", cells[i].x, cells[i].y + cells[i].s / 1.6);
+            stroke(0, 0, 0, 150);
+            strokeWeight(10);
+            fill(0, 0, 0, 45);
+        }
+        //Lel. That decimal tho. [3rd Easter Egg] (Only if you know what I'm referring to)
+        if(cells[i].r === 45.1337 && cells[i].def === 36.0420){
+            fill(0, 0, 0, 150);
+            text("NKC", cells[i].x, cells[i].y + cells[i].s / 1.6);
+            stroke(0, 0, 0, 150);
+            strokeWeight(5);
+            fill(0, 0, 0, 45);
+        }
+        ellipse(cells[i].x, cells[i].y, cells[i].s + cos(i * 30 + frameCount) * 5, cells[i].s + sin(i * 30 + frameCount) * 5);
+        var Cbuff = 1; //Capacity buff
+        var Pbuff = 1; //Production buff
+        switch(cells[i].a){
+            case "P":
+                fill(game.playerColor);
+                if(debugging){
+                    for(var j = 0; j < cells.length; j ++){
+                        pushMatrix();
+                        resetMatrix();
+                        translate(game.focusX/40 + noise(cells[j].x / 50, cells[j].y / 50, frameCount / 100) * 20 - 10, game.focusY/40 + noise(cells[j].y / 50, cells[j].x / 50, frameCount / 100) * 20 - 10);
+                        text("PLAYER", cells[j].x, 5+cells[j].y+(i*10));
+                        popMatrix();
+                    }
+                }
+                Cbuff = getStat("L", game.playerStat.Lr);
+                Pbuff = getStat("P", game.playerStat.Pr);
+                FullBank.checking((cells[i].c >= 500));
+            break;
+            case "N":
+                fill(143, 143, 143, 200);
+                if(debugging){
+                    for(var j = 0; j < cells.length; j ++){
+                        pushMatrix();
+                        resetMatrix();
+                        translate(game.focusX/40 + noise(cells[j].x / 50, cells[j].y / 50, frameCount / 100) * 20 - 10, game.focusY/40 + noise(cells[j].y / 50, cells[j].x / 50, frameCount / 100) * 20 - 10);
+                        text("NEUTRAL", cells[j].x, 5+cells[j].y+(i*10));
+                        popMatrix();
+                    }
+                }
+            break;
+            case "E":
+                fill(255, 0, 0, 200);
+                //More advanced AI maps out cells and checks their priority via equation.
+                var thinkingArray = [];
+                var thinkingArray2 = [];
+                for(var j = 0; j < cells.length; j ++){
+                    var penalty = 0;
+                    var penalty2 = 0;
+                    if(cells[j].a === cells[i].a){
+                        penalty += 550;
+                        //My way of saying "DUDE STOP" to the AI/CPU trading with itself.
+                        if(i === j){
+                            //For some reason, AI sometimes like to literally send cells to the same cell. XD
+                            penalty += 1000;
+                            penalty2 += 1000;
+                        }
+                    }else{
+                        penalty2 += 1000;
+                        if(cells[i].m > 350){
+                            penalty2 += 300;
+                        }
+                    }
+                    thinkingArray.push(round((dist(cells[i].x, cells[i].y, cells[j].x, cells[j].y)/-10) + ((cells[i].c - cells[j].c*(cells[j].def/10))*1.2) - cells[j].r/30 + cells[i].m/10 - penalty));
+                    thinkingArray2.push(round((dist(cells[i].x, cells[i].y, cells[j].x, cells[j].y)/-20) + ((cells[i].m*(cells[j].def/10))*1.5) - penalty2));
+                    if(debugging){
+                        pushMatrix();
+                        resetMatrix();
+                        translate(game.focusX/40 + noise(cells[j].x / 50, cells[j].y / 50, frameCount / 100) * 20 - 10, game.focusY/40 + noise(cells[j].y / 50, cells[j].x / 50, frameCount / 100) * 20 - 10);
+                        text(thinkingArray[j]+":"+thinkingArray2[j], cells[j].x, 5+cells[j].y+(i*10));
+                        popMatrix();
+                    }
+                }
+                var target = null;
+                var targetPri = 0;
+                var target2 = null;
+                var targetPri2 = 0;
+                for(var j = 0; j < thinkingArray.length; j ++){
+                    if(targetPri < thinkingArray[j] || target === null){
+                        target = j;
+                        targetPri = thinkingArray[j];
+                    }
+                    if(targetPri2 < thinkingArray2[j] || target === null){
+                        target2 = j;
+                        targetPri2 = thinkingArray2[j];
+                    }
+                }
+                if((((frameCount + i*25) % ((game.lsD === 13) ? 750: 250) === 0) || cells[i].c > cells[i].m) && cells[i].c > 0){
+                    if(j > cells.length){
+                        continue;
+                    }
+                    if(targetPri > -200){
+                        add_number_notif("Sent " + floor(cells[i].c / 2) + " cells.", cells[i].x, cells[i].y, 12, 3, 0, 0, 0, 0.3);
+                        add_nanos(cells[i].x, cells[i].y, floor(cells[i].c / 2), cells[target].x, cells[target].y, cells[i].a, target);
+                        cells[i].c -= floor(cells[i].c / 2);
+                    }else{
+                        add_number_notif("Sent " + floor(cells[i].c / 2) + " cells.", cells[i].x, cells[i].y, 12, 3, 0, 0, 0, 0.3);
+                        add_nanos(cells[i].x, cells[i].y, floor(cells[i].c / 2), cells[target2].x, cells[target2].y, cells[i].a, target2);
+                        cells[i].c -= floor(cells[i].c / 2);
+                    }
+                }
+                Cbuff = getStat("L", game.RS.Lr);
+                Pbuff = getStat("P", game.RS.Pr);
+            break;
+            case "A":
+                fill(0, 255, 255, 200);
+                var thinkingArray = [];
+                var thinkingArray2 = [];
+                for(var j = 0; j < cells.length; j ++){
+                    var penalty = 0;
+                    var penalty2 = 0;
+                    if(cells[j].a === cells[i].a){
+                        penalty += 550;
+                        //My way of saying "DUDE STOP" to the AI/CPU trading with itself.
+                        if(i === j){
+                            //For some reason, AI sometimes like to literally send cells to the same cell. XD
+                            penalty += 1000;
+                            penalty2 += 1000;
+                        }
+                    }else{
+                        penalty2 += 1000;
+                        if(cells[i].m > 350){
+                            penalty2 += 300;
+                        }
+                    }
+                    thinkingArray.push(round((dist(cells[i].x, cells[i].y, cells[j].x, cells[j].y)/-15) + ((cells[i].c - cells[j].c*(cells[j].def/10))*1.5) - cells[j].r/20 + cells[i].m/20 - penalty));
+                    thinkingArray2.push(round((dist(cells[i].x, cells[i].y, cells[j].x, cells[j].y)/-20) + ((cells[i].m*(cells[j].def/10))*1.5) - penalty2));
+                    if(debugging){
+                        pushMatrix();
+                        resetMatrix();
+                        translate(game.focusX/40 + noise(cells[j].x / 50, cells[j].y / 50, frameCount / 100) * 20 - 10, game.focusY/40 + noise(cells[j].y / 50, cells[j].x / 50, frameCount / 100) * 20 - 10);
+                        text(thinkingArray[j]+":"+thinkingArray2[j], cells[j].x, 5+cells[j].y+(i*10));
+                        popMatrix();
+                    }
+                }
+                var target = null;
+                var targetPri = 0;
+                var target2 = null;
+                var targetPri2 = 0;
+                for(var j = 0; j < thinkingArray.length; j ++){
+                    if(targetPri < thinkingArray[j] || target === null){
+                        target = j;
+                        targetPri = thinkingArray[j];
+                    }
+                    if(targetPri2 < thinkingArray2[j] || target === null){
+                        target2 = j;
+                        targetPri2 = thinkingArray2[j];
+                    }
+                }
+                if((((frameCount + i*25) % 250 === 0) || cells[i].c > cells[i].m)){
+                    if(targetPri > -200){
+                        add_number_notif("Sent " + floor(cells[i].c / 2) + " cells.", cells[i].x, cells[i].y, 12, 3, 0, 0, 0, 0.3);
+                        add_nanos(cells[i].x, cells[i].y, floor(cells[i].c / 2), cells[target].x, cells[target].y, cells[i].a, target);
+                        cells[i].c -= floor(cells[i].c / 2);
+                    }else{
+                        add_number_notif("Sent " + floor(cells[i].c / 2) + " cells.", cells[i].x, cells[i].y, 12, 3, 0, 0, 0, 0.3);
+                        add_nanos(cells[i].x, cells[i].y, floor(cells[i].c / 2), cells[target2].x, cells[target2].y, cells[i].a, target2);
+                        cells[i].c -= floor(cells[i].c / 2);
+                    }
+                }
+                Cbuff = getStat("L", game.BS.Lr);
+                Pbuff = getStat("P", game.BS.Pr);
+            break;
+            case "N1":
+                fill(148, 142, 142, 200);
+                var thinkingArray = [];
+                var thinkingArray2 = [];
+                for(var j = 0; j < cells.length; j ++){
+                    var penalty = 0;
+                    var penalty2 = 0;
+                    if(cells[j].a !== cells[i].a){
+                        if(i === j || cells[j].a === "N"){
+                            penalty += 1000;
+                            penalty2 += 1000;
+                        }
+                    }else{
+                        penalty += 9999;
+                        penalty2 += 9999;
+                    }
+                    thinkingArray.push(round((dist(cells[i].x, cells[i].y, cells[j].x, cells[j].y)/-15) + ((cells[i].c - cells[j].c*(cells[j].def/10))*1.5) - cells[j].r/20 + cells[i].m/20 - penalty));
+                    thinkingArray2.push(round((dist(cells[i].x, cells[i].y, cells[j].x, cells[j].y)/-20) + ((cells[i].m*(cells[j].def/10))*1.5) - penalty2));
+                    if(debugging){
+                        pushMatrix();
+                        resetMatrix();
+                        translate(game.focusX/40 + noise(cells[j].x / 50, cells[j].y / 50, frameCount / 100) * 20 - 10, game.focusY/40 + noise(cells[j].y / 50, cells[j].x / 50, frameCount / 100) * 20 - 10);
+                        text(thinkingArray[j]+":"+thinkingArray2[j], cells[j].x, 5+cells[j].y+(i*10));
+                        popMatrix();
+                    }
+                }
+                var target = null;
+                var targetPri = 0;
+                var target2 = null;
+                var targetPri2 = 0;
+                for(var j = 0; j < thinkingArray.length; j ++){
+                    if(targetPri < thinkingArray[j] || target === null){
+                        target = j;
+                        targetPri = thinkingArray[j];
+                    }
+                    if(targetPri2 < thinkingArray2[j] || target === null){
+                        target2 = j;
+                        targetPri2 = thinkingArray2[j];
+                    }
+                }
+                if((((frameCount + i*25) % 500 === 0) || cells[i].c > cells[i].m)){
+                    if(targetPri > -200){
+                        add_number_notif("Sent " + floor(cells[i].c / 2) + " cells.", cells[i].x, cells[i].y, 12, 3, 0, 0, 0, 0.3);
+                        add_nanos(cells[i].x, cells[i].y, floor(cells[i].c / 2), cells[target].x, cells[target].y, "N", target);
+                        cells[i].c -= floor(cells[i].c / 2);
+                    }else{
+                        add_number_notif("Sent " + floor(cells[i].c / 2) + " cells.", cells[i].x, cells[i].y, 12, 3, 0, 0, 0, 0.3);
+                        add_nanos(cells[i].x, cells[i].y, floor(cells[i].c / 2), cells[target2].x, cells[target2].y, "N", target2);
+                        cells[i].c -= floor(cells[i].c / 2);
+                    }
+                }
+                Cbuff = getStat("L", 7);
+                Pbuff = getStat("P", 7);
+            break;
+        }
+        noStroke();
+        if(game.currDiff === 1 && cells[i].a !== "P"){
+            fill(150, 150, 150, 200);
+        }
+        ellipse(cells[i].x, cells[i].y, (cells[i].s + cos(i * 30 + frameCount) * 5) * constrain(cells[i].c / cells[i].m, 0.3, 1), (cells[i].s + sin(i * 30 + frameCount) * 5) * constrain(cells[i].c / cells[i].m, 0.3, 1));
+        fill(0, 0, 0, 100);
+        textSize(15);
+        if(cells[i].c > cells[i].m){
+            textSize(20);
+            fill(255, 0, 0, 200);
+            if(cells[i].c < (cells[i].m * Cbuff)){
+                fill(255, 120, 0, 200);
+            }
+        }
+        textSize(15);
+        if(game.currDiff !== 1 || cells[i].a === "P" || cells[i].a.substring(0, 1) === "N"){
+            text(cells[i].c, cells[i].x, cells[i].y);
+        }else{
+            text("??", cells[i].x, cells[i].y);
+        }
+        textSize(10);
+        fill(0, 255, 0, 200);
+        if(Cbuff > 1){
+            text("+ " + round(cells[i].m * (Cbuff-1)), cells[i].x + 10, cells[i].y - 30);
+        }
+        textSize(12);
+        fill(0, 0, 0, 200);
+        text("- " + cells[i].m + " -", cells[i].x, cells[i].y - 20);
+        if(cells[i].a !== "N"){
+            if(cells[i].c < (cells[i].m * Cbuff) && ((frameCount + i) % round(cells[i].r / Pbuff)) === 0){
+                cells[i].c ++;
+            }
+            if(((frameCount + i * 5) % 50) === 0){
+                if(cells[i].c > (cells[i].m * Cbuff)){
+                    add_number_notif("Lost " + round(cells[i].c/cells[i].m*3) + " cell (s).", cells[i].x, cells[i].y, 12, 3, 0, 0, 0, 0.3);
+                    cells[i].c -= round(cells[i].c / cells[i].m * (cells[i].m / 25));
+                }
+            }
+        }
+        if(dist(mouseX, mouseY, cells[i].x, cells[i].y) < cells[i].s / 2 && game.state === 6){
+            fill(255, 255, 255, 50);
+            noStroke();
+            ellipse(cells[i].x, cells[i].y, cells[i].s + sin(i * 30 + frameCount) * 5, cells[i].s + cos(i * 30 + frameCount) * 5);
+            if(isNaN(sys.selC)){
+                if(sys.mp && sys.selC !== i){
+                    if(cells[i].a !== "P"){
+                        add_number_notif("Cannot control!", mouseX, mouseY, 15, 3, 255, 0, 0, 0.3);
+                    }else{
+                        sys.selC = i;
+                    }
+                }
+            }else{
+                if(sys.selC !== i && mouseIsPressed && cells[i].a === "P"){
+                    sys.selC2.push(i);
+                }
+                if(sys.mr){
+                    for(var j = 0; j < sys.selC2.length; j ++){
+                        if(sys.selC2[j] !== i){
+                            var k = sys.selC2[j];
+                            add_number_notif("Sent " + floor(cells[k].c / 2) + " cells.", cells[k].x, cells[k].y, 12, 3, 0, 0, 0, 0.3);
+                            add_nanos(cells[k].x, cells[k].y, floor(cells[k].c / 2) - 1, cells[i].x, cells[i].y, cells[k].a, i);
+                            cells[k].c -= floor(cells[k].c / 2);
+                            continue;
+                        }
+                    }
+                    if(sys.selC !== i && cells[sys.selC].c > 0){
+                        add_number_notif("Sent " + floor(cells[sys.selC].c / 2) + " cells.", cells[sys.selC].x, cells[sys.selC].y, 12, 3, 0, 0, 0, 0.3);
+                        add_nanos(cells[sys.selC].x, cells[sys.selC].y, floor(cells[sys.selC].c / 2), cells[i].x, cells[i].y, cells[sys.selC].a, i);
+                        cells[sys.selC].c -= floor(cells[sys.selC].c / 2);
+                    }
+                }
+            }
+            sys.onCell = true;
+        }
+        popMatrix();
+    }
+};
+
+var text2 = function(TXT, x, y){
+    fill(0, 0, 0);
+    text(TXT, x, y);
+    fill(255, 255, 255);
+    text(TXT, x + 2, y + 2);
+};
+var button = function(e){
+    this.txtX = 250;
+    this.DOTHIS = e;
+    this.t = false;
+};
+button.prototype.draw = function(x, y, h, c){
+    
+    if(this.t){
+        this.DOTHIS();
+        if(frameCount > 255/2){
+            this.t = false;
+        }
+    }
+    
+    rectMode(CENTER);
+    this.topBorder = (y + (h / 2));
+    this.bottomBorder = (y - (h / 2));
+    if(mouseY < this.topBorder && mouseY > this.bottomBorder){
+        if(sys.mp){
+            this.t = true;
+        }
+        if(this.txtX > 5){
+            this.txtX /= 1.25;
+        }
+    }else if(this.txtX < 220){
+        this.txtX *= 1.125;
+    }else{
+        this.txtX = 255;
+    }
+    noStroke();
+    fill(0, 0, 0, (255 - this.txtX));
+    rect(x, y, 800, h*1.1);
+    textSize(h);
+    text2(c, x, y);
+    fill(255, 255, 255, (255 - this.txtX));
+    text(">", x - this.txtX*1.1 - c.length*h/2, y);
+    text("<", x + this.txtX*1.1 + c.length*h/2, y);
+};
+var Play = new button(function(){game.state2 = 2; game.bkgdC2 = 300; game.changeState = true;});
+var Upgd = new button(function(){game.state2 = 3; game.bkgdC2 = 400; game.changeState = true;});
+var Cred = new button(function(){game.state2 = 4; game.bkgdC2 = 100; game.changeState = true;});
+var Menu = new button(function(){game.state2 = 1; game.bkgdC2 = 200; game.changeState = true;});
+var Meda = new button(function(){game.state2 = 5; game.bkgdC2 = 500; game.changeState = true;});
+var Back = new button(function(){game.lsD = null;});
+
+//Logo Stuffs (please do not tamper with)
+{
+var delay20 = 10;
+var frames2 = 0;
+var amount = 1;
+var zoom2 = 25;
+var zoomed = false;
+var dropmove = [];
+var begin = function(){
+    frames2 ++;
+    for(var i = 1; i < 74; i++){
+        if(dropmove.length < 74){
+            dropmove.push(400);
+        }
+    }
+};
+var pixel = function(x, y){
+    stroke(0, 0, 0);
+    fill(0, 0, 0);
+    rect((x * zoom2 - (zoom2 / 2)), (y-dropmove[amount]) * zoom2, zoom2, zoom2, 1);
+    if((amount * delay20) <= frames2){
+        dropmove[amount] /= 2;
+        if(dropmove[amount] < 0.5){
+            delay20 /= 1.0001;
+        }
+    }
+    amount ++;
+};
+var drawLetter = function(letter, x, y, size) {
+    letter = letter.toUpperCase();
+    
+    pushMatrix();
+    translate(x, y);
+    scale(size, size);
+    translate(-x, -y);
+    
+    noStroke();
+    switch(letter) {
+        case "A":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 8, y + 4, 4, 11);
+            rect(x + 6, y + 7, 3, 2);
+            break;
+        case "B":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 9, y, 4, 15);
+            break;
+        case "C":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "D":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x + 8, y + 4, 4, 5);
+            break;
+        case "E":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 6, 4, 3);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "F":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 4, 3);
+            break;
+        case "G":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 8, y + 5, 4, 6);
+            break;
+        case "H":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "I":
+            rect(x, y, 12, 4);
+            rect(x + 3, y + 4, 6, 8);
+            rect(x, y + 11, 12, 4);
+            break;
+        case "J":
+            rect(x, y, 12, 4);
+            rect(x + 6, y + 4, 6, 11);
+            rect(x, y + 12, 6, 3);
+            rect(x, y + 9, 3, 3);
+            break;
+        case "K":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 9, y + 2, 3, 4);
+            rect(x + 9, y + 9, 3, 6);
+            break;
+        case "L":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 11, 6, 4);
+            break;
+        case "M":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 2, 3, 6);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "N":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "0":
+        case "O":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "P":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 5, 3, 3);
+            rect(x + 8, y, 4, 8);
+            break;
+        case "Q":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            rect(x + 6, y + 15, 3, 2);
+            break;
+        case "R":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 3, 3);
+            rect(x + 6, y + 6, 3, 3);
+            rect(x + 8, y, 4, 7);
+            rect(x + 9, y + 9, 3, 6);
+            break;
+        case "S":
+            rect(x, y, 3, 6);
+            rect(x + 3, y, 9, 3);
+            rect(x, y + 6, 12, 3);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "T":
+            rect(x, y, 12, 5);
+            rect(x + 4, y + 5, 4, 10);
+            break;
+        case "U":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 12, 3, 3);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "V":
+            rect(x, y, 6, 12);
+            rect(x + 4, y + 10, 8, 5);
+            rect(x + 9, y, 3, 10);
+            break;
+        case "W":
+            rect(x, y, 6, 15);
+            rect(x + 6, y + 7, 3, 6);
+            rect(x + 8, y, 4, 15);
+            break;
+        case "X":
+            rect(x, y, 6, 6);
+            rect(x + 3, y + 6, 6, 3);
+            rect(x, y + 9, 3, 6);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x + 9, y, 3, 6);
+            break;
+        case "Y":
+            rect(x, y, 6, 8);
+            rect(x + 6, y + 5, 6, 3);
+            rect(x + 9, y, 3, 5);
+            rect(x + 3, y + 8, 6, 7);
+            break;
+        case "Z":
+            rect(x, y, 12, 3);
+            rect(x + 6, y + 3, 6, 6);
+            rect(x, y + 6, 6, 3);
+            rect(x, y + 9, 6, 6);
+            rect(x + 6, y + 12, 6, 3);
+            break;
+        case ":":
+            rect(x + 3, y, 6, 6);
+            rect(x + 3, y + 9, 6, 6);
+            break;
+        case ".":
+            rect(x + 3, y + 9, 6, 6);
+            break;
+        case ",":
+            rect(x + 3, y + 9, 6, 9);
+            break;
+        case "1":
+            rect(x + 6, y, 6, 15);
+            break;
+        case "2":
+            rect(x, y, 12, 3);
+            rect(x, y + 3, 4, 3);
+            rect(x + 8, y + 3, 4, 3);
+            rect(x + 4, y + 6, 6, 3);
+            rect(x, y + 9, 6, 3);
+            rect(x, y + 11, 12, 4);
+            break;
+        case "3":
+            rect(x + 6, y, 6, 15);
+            rect(x, y, 6, 4);
+            rect(x + 1, y + 6, 5, 3);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "4":
+            rect(x + 6, y, 6, 15);
+            rect(x, y + 6, 6, 3);
+            rect(x, y, 3, 6);
+            break;
+        case "5":
+            rect(x, y, 3, 6);
+            rect(x + 3, y, 9, 3);
+            rect(x, y + 5, 12, 4);
+            rect(x + 6, y + 9, 6, 6);
+            rect(x, y + 11, 6, 4);
+            break;
+        case "6":
+            rect(x, y, 12, 3);
+            rect(x, y + 3, 3, 12);
+            rect(x + 3, y + 12, 9, 3);
+            rect(x + 3, y + 6, 9, 3);
+            rect(x + 6, y + 9, 6, 3);
+            break;
+        case "7":
+            rect(x, y, 12, 3);
+            rect(x + 6, y + 3, 6, 6);
+            rect(x + 3, y + 6, 6, 8);
+            break;
+        case "8":
+            rect(x, y, 6, 15);
+            rect(x + 6, y, 6, 3);
+            rect(x + 6, y + 5, 6, 4);
+            rect(x + 6, y + 11, 6, 4);
+            rect(x + 8, y, 5, 15);
+            break;
+        case "9":
+            rect(x + 6, y, 6, 15);
+            rect(x, y, 6, 3);
+            rect(x, y + 3, 3, 6);
+            rect(x + 3, y + 6, 3, 3);
+            break;
+    }
+    popMatrix();
+};//Function copied from Virus™'s Super Hexagon
+var drawWord = function(text, x, y, size, alignment) {
+    var offset = 0;
+    if(alignment !== undefined) {
+        if(alignment === CENTER) {
+            offset = (14 * size) * text.length / 2;
+        } else if(alignment === RIGHT) {
+            offset = (14 * size) * text.length;
+        }
+    }
+   
+    for(var i = 0; i < text.length; i++) {
+        var character = text.charAt(i) + "";
+        drawLetter(character, (x + ((14 * size) * i)) - offset, y, size);
+    }
+};//Function copied from Virus™'s Super Hexagon
+var pixelpicture = function(){
+    pixel(-6, 9);
+    pixel(-5, 9);
+    pixel(-4, 9);
+    pixel(-3, 9);
+    pixel(-2, 9);
+    pixel(-1, 9);
+    pixel(0, 9);
+    pixel(1, 9);
+    pixel(2, 9);
+    pixel(3, 9);
+    pixel(4, 9);
+    pixel(5, 9);
+    pixel(6, 9);
+    pixel(-7, 8);
+    pixel(7, 8);
+    pixel(-7, 7);
+    pixel(7, 7);
+    pixel(-5, 7);
+    pixel(-2, 7);
+    pixel(1, 7);
+    pixel(-7, 6);
+    pixel(-5, 6);
+    pixel(-3, 6);
+    pixel(-1, 6);
+    pixel(1, 6);
+    pixel(2, 6);
+    pixel(3, 6);
+    pixel(4, 6);
+    pixel(7, 6);
+    pixel(-7, 5);
+    pixel(-5, 5);
+    pixel(-3, 5);
+    pixel(-1, 5);
+    pixel(1, 5);
+    pixel(5, 5);
+    pixel(7, 5);
+    pixel(-7, 4);
+    pixel(-5, 4);
+    pixel(-3, 4);
+    pixel(-1, 4);
+    pixel(1, 4);
+    pixel(5, 4);
+    pixel(7, 4);
+    pixel(-7, 3);
+    pixel(-5, 3);
+    pixel(-3, 3);
+    pixel(-1, 3);
+    pixel(1, 3);
+    pixel(5, 3);
+    pixel(7, 3);
+    pixel(-7, 2);
+    pixel(-4, 2);
+    pixel(-1, 2);
+    pixel(2, 2);
+    pixel(3, 2);
+    pixel(4, 2);
+    pixel(7, 2);
+    pixel(-7, 1);
+    pixel(7, 1);
+    pixel(-6, 0);
+    pixel(-5, 0);
+    pixel(-4, 0);
+    pixel(-3, 0);
+    pixel(-2, 0);
+    pixel(-1, 0);
+    pixel(0, 0);
+    pixel(1, 0);
+    pixel(2, 0);
+    pixel(3, 0);
+    pixel(4, 0);
+    pixel(5, 0);
+    pixel(6, 0);
+};
+var pixeltext = function(){
+    if(frames2 >= 351 && dropmove[72] < 0.001){
+        if(zoom2 >= 10 && !zoomed){
+            zoom2 /= 1.05;
+        }else{
+            zoom2 = 10;
+            zoomed = true;
+            fill(0, 0, 0, (frames2 - 370) * 5);
+            drawWord("Novice Programming", -120, 140, 1, 0);
+            if(frames2 >= 600){
+                game.state2 = 1;
+                game.changeState = true;
+            }
+        }
+    }
+};
+}
+
+//Saving stuff from a SUPER OLD SPIN-OFF that I made a while back. Here's the program tho. <[ https://www.khanacademy.org/cs/a/4887548522659840 ]>
+{
+var keyS = "aljsadflekdloolswofwspqwinpiwmfdslkejfsdslkjfsdvnadpdsslnwfndffwekwejfkjsflsdfkljweffvlkwne";
+var alphabet = "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890,";
+var getIndex = function(c) {
+    for (var i = 0; i < alphabet.length; i++) {
+        if (alphabet[i] === c) {
+            return i;
+        }
+    }
+    return -1;
+};
+var encode = function(s, keyS) {
+    var letter;
+    var letterIndex = 0;
+    var cryptoText = "";
+    var index = 0;
+    
+    for (var i = 0; i < s.length; i++) {
+        letterIndex = getIndex(s[i]);
+        letterIndex += getIndex(keyS[index]);
+        index++;
+        if (index > keyS.length-1) {
+            index = 0;
+        }
+        while (letterIndex > alphabet.length-1) {
+            letterIndex -= (alphabet.length);
+        }
+        cryptoText = cryptoText + alphabet[letterIndex];
+    }
+    
+    return cryptoText;
+};
+var decode = function(s, keyS) {
+    var letter;
+    var letterIndex = 0;
+    var cryptoText = "";
+    var index = 0;
+    
+    for (var i = 0; i < s.length; i++) {
+        letterIndex = getIndex(s[i]);
+        letterIndex -= getIndex(keyS[index]);
+        index++;
+        if (index > keyS.length-1) {
+            index = 0;
+        }
+        while (letterIndex < 0) {
+            letterIndex += (alphabet.length);
+        }
+        cryptoText = cryptoText + alphabet[letterIndex];
+    }
+    
+    return cryptoText;
+};
+var generateSave = function() {
+    var save = "";
+    save += game.playerStat.Sp + "," + game.playerStat.Pr + "," + game.playerStat.Df + "," + game.playerStat.Ak + "," + game.playerStat.Lr +  "," + game.playerStat.allocate + "," + Credits.unlocked + "," + Credits.claimed + "," + HangTight.unlocked + "," + HangTight.claimed + "," + FullBank.unlocked + "," + FullBank.claimed + "," + MaxStat.unlocked + "," + MaxStat.claimed + "," + Veteran.unlocked + "," + Veteran.claimed + "," + Completion.unlocked + "," + Credits.claimed;
+    for(var i = 0; i < levelInfo.length; i ++){
+        var saveAmt = 0;
+        for(var j = 0; j < levelInfo[0].length; j ++){
+            if(levelInfo[i][j]){
+                saveAmt ++;
+            }
+        }
+        save += "," + saveAmt;
+    }
+    println(encode(save, keyS));
+    println("\n\nSave this for loading! *Scroll up*\nNote: Only works on KA.\nSave length: " + encode(save, keyS).length);
+};
+var generateSave2 = function() {
+    var save = "";
+    save += game.playerStat.Sp + "," + game.playerStat.Pr + "," + game.playerStat.Df + "," + game.playerStat.Ak + "," + game.playerStat.Lr +  "," + game.playerStat.allocate + "," + Credits.unlocked + "," + Credits.claimed + "," + HangTight.unlocked + "," + HangTight.claimed + "," + FullBank.unlocked + "," + FullBank.claimed + "," + MaxStat.unlocked + "," + MaxStat.claimed + "," + Veteran.unlocked + "," + Veteran.claimed + "," + Completion.unlocked + "," + Credits.claimed;
+    for(var i = 0; i < levelInfo.length; i ++){
+        var saveAmt = 0;
+        for(var j = 0; j < levelInfo[0].length; j ++){
+            if(levelInfo[i][j]){
+                saveAmt ++;
+            }
+        }
+        save += "," + saveAmt;
+    }
+    return encode(save, keyS);
+};
+var loadSave = function() {
+    if (SAVE_DATA === "") {
+        return;
+    }
+    var save = decode(SAVE_DATA, keyS);
+    var data = save.split(',');
+    if (data.length < 2){
+        println ("Bad save. Game not loaded.");
+        return;
+    }
+    game.playerStat.Sp = parseInt(data[0], "");
+    game.playerStat.Pr = parseInt(data[1], "");
+    game.playerStat.Df = parseInt(data[2], "");
+    game.playerStat.Ak = parseInt(data[3], "");
+    game.playerStat.Lr = parseInt(data[4], "");
+    game.playerStat.allocate = parseInt(data[5], "");
+    Credits.unlocked = parseInt(data[6], "");
+    Credits.claimed = parseInt(data[7], "");
+    HangTight.unlocked = parseInt(data[8], "");
+    HangTight.claimed = parseInt(data[9], "");
+    FullBank.unlocked = parseInt(data[10], "");
+    FullBank.claimed = parseInt(data[11], "");
+    MaxStat.claimed = parseInt(data[12], "");
+    MaxStat.unlocked = parseInt(data[13], "");
+    Veteran.unlocked = parseInt(data[14], "");
+    Veteran.claimed = parseInt(data[15], "");
+    Completion.unlocked = parseInt(data[16], "");
+    Completion.claimed = parseInt(data[17], "");
+    levelInfo = [];
+    for(var i = 18; i < 38; i ++){
+        var completion = parseInt(data[i], "");
+        if(completion > 3){
+            //I should've used numbers instead of booleans. :/
+            levelInfo.push([true, true, true, true]);
+        }else if(completion > 2){
+            levelInfo.push([true, true, false, true]);
+        }else if(completion > 1){
+            levelInfo.push([true, false, false, true]);
+        }else if(completion > 0){
+            levelInfo.push([false, false, false, true]);
+        }else{
+            levelInfo.push([false, false, false, (i < 1) ? true : false]);
+        }
+    }
+    println("Save loaded");
+};
+loadSave();
+}
+textAlign(CENTER, CENTER);
+textFont(createFont("monospace"));
+var draw = function() {
+//Less lag?
+if(frameCount % 10 === 0){
+    //Looping variable to prevent 'corruption.'
+    levels = [
+    /**LVL 1*/
+    [{x: 200, y: 200, s: 150, c: 100, m: 150, r: 70, a: "P", def: 35},
+    {x: 400, y: 450, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},],
+    /**LVL 2*/
+    [{x: 200, y: 200, s: 90, c: 80, m: 100, r: 90, a: "P", def: 5},
+    {x: 170, y: 300, s: 90, c: 80, m: 100, r: 90, a: "P", def: 5},
+    {x: 200, y: 400, s: 90, c: 80, m: 100, r: 90, a: "P", def: 5},
+    {x: 400, y: 300, s: 150, c: 100, m: 100, r: 150, a: "E", def: 5},],
+    /**LVL 3*/
+    [{x: 200, y: 200, s: 150, c: 100, m: 150, r: 70, a: "P", def: 35},
+    {x: 300, y: 450, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 500, y: 325, s: 100, c: 50, m: 100, r: 90, a: "E", def: 5},],
+    /**LVL 4*/
+    [{x: 300, y: 300, s: 120, c: 70, m: 120, r: 90, a: "E", def: 5},
+    {x: 200, y: 300, s: 100, c: 50, m: 100, r: 90, a: "P", def: 5},
+    {x: 400, y: 300, s: 100, c: 50, m: 100, r: 90, a: "P", def: 5},],
+    /**LVL 5*/
+    [{x: 150, y: 150, s: 150, c: 50, m: 120, r: 70, a: "P", def: 15},
+    {x: 450, y: 450, s: 150, c: 50, m: 120, r: 70, a: "E", def: 15},
+    {x: 300, y: 150, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 450, y: 150, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 150, y: 300, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 300, y: 300, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 450, y: 300, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 150, y: 450, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 300, y: 450, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    ],
+    /**LVL 6*/
+    [{x: 200, y: 200, s: 150, c: 100, m: 150, r: 70, a: "P", def: 35},
+    {x: 400, y: 300, s: 100, c: 50, m: 500, r: 501, a: "N", def: 50},],
+    /**LVL 7*/
+    [{x: 500, y: 150, s: 100, c: 5, m: 80, r: 50, a: "N", def: 5},
+    {x: 500, y: 450, s: 125, c: 150, m: 500, r: 750, a: "P", def: 80},
+    {x: 100, y: 150, s: 125, c: 150, m: 500, r: 750, a: "A", def: 80},
+    {x: 300, y: 300, s: 125, c: 20, m: 500, r: 750, a: "N", def: 80},
+    {x: 100, y: 450, s: 100, c: 5, m: 80, r: 50, a: "N", def: 5},],
+    /**LVL 8*/
+    [{x: 100, y: 300, s: 150, c: 100, m: 150, r: 60, a: "P", def: 35},
+    {x: 500, y: 150, s: 100, c: 70, m: 100, r: 80, a: "E", def: 10},
+    {x: 500, y: 450, s: 100, c: 70, m: 100, r: 80, a: "A", def: 10},
+    {x: 300, y: 500, s: 60, c: 5, m: 45, r: 150, a: "N", def: 5},
+    {x: 300, y: 100, s: 60, c: 5, m: 45, r: 150, a: "N", def: 5},
+    {x: 300, y: 250, s: 85, c: 5, m: 60, r: 90, a: "N", def: 5},
+    {x: 300, y: 350, s: 85, c: 5, m: 60, r: 90, a: "N", def: 5},
+    {x: 100, y: 150, s: 85, c: 5, m: 60, r: 90, a: "N", def: 5},
+    {x: 100, y: 450, s: 85, c: 5, m: 60, r: 90, a: "N", def: 5},
+    {x: 400, y: 300, s: 100, c: 50, m: 500, r: 501, a: "N", def: 50},],
+    /**LVL 9*/
+    [{x: 100, y: 500, s: 170, c: 50, m: 800, r: 100, a: "P", def: 30},
+    {x: 100, y: 100, s: 100, c: 15, m: 150, r: 60, a: "N", def: 10},
+    {x: 500, y: 500, s: 100, c: 15, m: 150, r: 60, a: "N", def: 10},
+    {x: 300, y: 300, s: 100, c: 50, m: 250, r: 80, a: "A", def: 30},
+    {x: 400, y: 200, s: 100, c: 15, m: 75, r: 70, a: "N", def: 10},
+    {x: 200, y: 400, s: 100, c: 15, m: 75, r: 70, a: "N", def: 10},
+    {x: 500, y: 100, s: 170, c: 20, m: 800, r: 120, a: "E", def: 30},
+    ],
+    /**LVL 10*/
+    [{x:200, y: 150, s: 100, c: 50, m: 150, r: 60, a: "P", def: 20},
+    {x: 200, y: 450, s: 100, c: 50, m: 150, r: 80, a: "E", def: 20},
+    {x: 400, y: 150, s: 100, c: 50, m: 150, r: 60, a: "A", def: 5},
+    {x: 400, y: 450, s: 100, c: 50, m: 150, r: 70, a: "P", def: 20},
+    {x: 100, y: 300, s: 100, c: 50, m: 150, r: 80, a: "E", def: 20},
+    {x: 500, y: 300, s: 100, c: 50, m: 150, r: 60, a: "A", def: 5},
+    {x: 300, y: 300, s: 200, c: 50, m: 300, r: 50, a: "N", def: 20},],
+    /**LVL 11*/
+    [{x: 300, y: 300, s: 120, c: 150, m: 650, r: 501, a: "P", def: 65},
+    {x: 200, y: 200, s: 100, c: 50, m: 500, r: 501, a: "E", def: 65},
+    {x: 400, y: 200, s: 100, c: 50, m: 500, r: 501, a: "N", def: 65},
+    {x: 400, y: 400, s: 100, c: 50, m: 500, r: 501, a: "N", def: 65},
+    {x: 200, y: 400, s: 100, c: 50, m: 500, r: 501, a: "E", def: 65},
+    {x: 100, y: 300, s: 50, c: 20, m: 100, r: 50, a: "N", def: 5},
+    {x: 500, y: 300, s: 50, c: 20, m: 100, r: 50, a: "P", def: 5},],
+    /**LVL 12*/
+    [{x: 300, y: 115, s: 150, c: 20, m: 100, r: 100, a: "P", def: 35},
+    {x: 100, y: 500, s: 100, c: 6, m: 100, r: 80, a: "N", def: 10},
+    {x: 60, y: 60, s: 130, c: 50, m: 300, r: 80, a: "A", def: 50},
+    {x: 470, y: 530, s: 100, c: 6, m: 100, r: 80, a: "N", def: 10},
+    {x: 500, y: 150, s: 180, c: 70, m: 400, r: 80, a: "E", def: 35},
+    {x: 370, y: 280, s: 60, c: 7, m: 30, r: 50, a: "N", def: 5},
+    {x: 300, y: 410, s: 85, c: 28, m: 60, r: 70, a: "E", def: 5},
+    {x: 90, y: 270, s: 85, c: 5, m: 60, r: 70, a: "N", def: 15},
+    {x: 415, y: 390, s: 85, c: 5, m: 60, r: 70, a: "N", def: 5},
+    {x: 190, y:290, s: 60, c: 9, m: 30, r: 100, a: "N", def: 5},
+    ],
+    /**LVL 13*/
+    [{x: 300, y: 300, s: 175, c: 90, m: 175, r: 50, a: "P", def: 35},
+    {x: 300, y: 100, s: 100, c: 20, m: 100, r: 70, a: "E", def: 5},
+    {x: 300, y: 500, s: 100, c: 20, m: 100, r: 70, a: "E", def: 5},
+    {x: 100, y: 300, s: 100, c: 20, m: 100, r: 70, a: "E", def: 5},
+    {x: 500, y: 300, s: 100, c: 20, m: 100, r: 70, a: "E", def: 5},
+    {x: 100, y: 100, s: 75, c: 15, m: 75, r: 80, a: "N", def: 5},
+    {x: 500, y: 100, s: 75, c: 15, m: 75, r: 80, a: "N", def: 5},
+    {x: 500, y: 500, s: 75, c: 15, m: 75, r: 80, a: "N", def: 5},
+    {x: 100, y: 500, s: 75, c: 15, m: 75, r: 80, a: "N", def: 5},],
+    /**LVL 14*/
+    [{x: 200, y: 200, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 200, y: 300, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 200, y: 400, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 300, y: 200, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 300, y: 300, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 300, y: 400, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 400, y: 200, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 400, y: 300, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 400, y: 400, s: 50, c: 5, m: 75, r: 70, a: "N", def: 10},
+    {x: 150, y: 150, s: 70, c: 40, m: 100, r: 50, a: "P", def: 20},
+    {x: 450, y: 450, s: 70, c: 40, m: 100, r: 50, a: "E", def: 20},],
+    /**LVL 15: aka Longest Level array ever*/
+    [{x: 300, y: 115, s: 150, c: 80, m: 100, r: 100, a: "P", def: 35},
+    {x: 100, y: 500, s: 100, c: 60, m: 100, r: 80, a: "E", def: 10},
+    {x: 500, y: 500, s: 100, c: 56, m: 100, r: 80, a: "A", def: 10},
+    {x: 300, y: 400, s: 60, c: 10, m: 30, r: 50, a: "N", def: 5},
+    {x: 300, y: 290, s: 85, c: 10, m: 60, r: 70, a: "N", def: 5},
+    {x: 190, y: 390, s: 85, c: 5, m: 60, r: 70, a: "N", def: 5},
+    {x: 415, y: 390, s: 85, c: 5, m: 60, r: 70, a: "N", def: 5},
+    {x: 190, y:290, s: 60, c: 10, m: 30, r: 100, a: "N", def: 5},
+    {x: 415, y:290, s: 60, c: 10, m: 30, r: 100, a: "N", def: 5},
+    {x: 380, y:210, s: 60, c: 10, m: 30, r: 100, a: "N", def: 5},
+    {x: 220, y:210, s: 60, c: 10, m: 30, r: 100, a: "N", def: 5},
+    {x: 80, y:325, s: 100, c: 5, m: 30, r: 200, a: "A", def: 5},
+    {x: 525, y:325, s: 100, c: 5, m: 30, r: 200, a: "A", def: 5},
+    {x: 300, y: 500, s: 85, c: 5, m: 30, r: 300, a: "P", def: 5},
+    {x: 100, y: 150, s: 110, c: 10, m: 50, r: 100, a: "N", def: 5},
+    {x: 500, y: 150, s: 110, c: 10, m: 50, r: 100, a: "N", def: 5},],
+    /**LVL 16*/
+    [{x: 80, y: 270, s: 150, c: 10, m: 150, r: 60, a: "P", def: 5},
+    {x: 500, y: 130, s: 100, c: 0, m: 100, r: 80, a: "E", def: 10},
+    {x: 500, y: 310, s: 100, c: 0, m: 100, r: 80, a: "A", def: 10},
+    {x: 350, y: 520, s: 60, c: 5, m: 45, r: 150, a: "N", def: 5},
+    {x: 350, y: 250, s: 60, c: 5, m: 45, r: 150, a: "N", def: 5},
+    {x: 300, y: 350, s: 85, c: 5, m: 60, r: 90, a: "N", def: 5},
+    {x: 200, y: 450, s: 85, c: 5, m: 60, r: 90, a: "A", def: 5},
+    {x: 150, y: 150, s: 85, c: 5, m: 60, r: 90, a: "N", def: 5},
+    {x: 50, y: 400, s: 85, c: 5, m: 60, r: 90, a: "E", def: 5},
+    {x: 530, y: 420, s: 100, c: 50, m: 500, r: 501, a: "N", def: 50},],
+    /**LVL 17*/
+    [{x: 200, y: 200, s: 150, c: 100, m: 150, r: 70, a: "P", def: 35},
+    {x: 300, y: 450, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 500, y: 325, s: 100, c: 50, m: 100, r: 90, a: "E", def: 5},
+    {x: 300, y: 300, s: 100, c: 50, m: 100, r: 45.1337, a: "N1", def: 36.0420},],
+    /**LVL 18*/
+    [{x: 200, y: 200, s: 150, c: 150, m: 150, r: 40, a: "P", def: 35},
+    {x: 300, y: 450, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 200, y: 550, s: 100, c: 10, m: 100, r: 90, a: "N", def: 5},
+    {x: 200, y: 350, s: 100, c: 80, m: 100, r: 60, a: "E", def: 5},
+    {x: 500, y: 325, s: 100, c: 80, m: 100, r: 60, a: "E", def: 5},
+    {x: 400, y: 500, s: 100, c: 10, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 100, y: 450, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 300, y: 300, s: 100, c: 50, m: 100, r: 45.1337, a: "N1", def: 36.0420},],
+    /**LVL 19*/
+    [{x: 400, y: 300, s: 130, c: 180, m: 600, r: 500, a: "P", def: 50},
+    {x: 200, y: 300, s: 130, c: 180, m: 600, r: 500, a: "E", def: 50},
+    {x: 300, y: 125, s: 100, c: 5, m: 100, r: 60, a: "N", def: 5},
+    {x: 300, y: 250, s: 100, c: 5, m: 100, r: 60, a: "N", def: 5},
+    {x: 300, y: 350, s: 100, c: 5, m: 100, r: 60, a: "N", def: 5},
+    {x: 300, y: 475, s: 100, c: 5, m: 100, r: 60, a: "N", def: 5},
+    {x: 100, y: 200, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 100, y: 400, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 500, y: 200, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 500, y: 400, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},],
+    /**LVL 20*/
+    [{x: 300, y: 300, s: 200, c: 200, m: 750, r: 50, a: "P", def: 35},
+    {x: 100, y: 150, s: 35, c: 100, m: 250, r: 80, a: "E", def: 5},
+    {x: 100, y: 100, s: 35, c: 100, m: 250, r: 80, a: "E", def: 5},
+    {x: 150, y: 100, s: 35, c: 100, m: 250, r: 80, a: "E", def: 5},
+    {x: 500, y: 450, s: 35, c: 100, m: 250, r: 80, a: "A", def: 5},
+    {x: 500, y: 500, s: 35, c: 100, m: 250, r: 80, a: "A", def: 5},
+    {x: 450, y: 500, s: 35, c: 100, m: 250, r: 80, a: "A", def: 5},
+    {x: 500, y: 150, s: 35, c: 10, m: 250, r: 80, a: "N", def: 5},
+    {x: 500, y: 100, s: 35, c: 10, m: 250, r: 80, a: "N", def: 5},
+    {x: 450, y: 100, s: 35, c: 10, m: 250, r: 80, a: "N", def: 5},
+    {x: 100, y: 450, s: 35, c: 10, m: 250, r: 80, a: "N", def: 5},
+    {x: 100, y: 500, s: 35, c: 10, m: 250, r: 80, a: "N", def: 5},
+    {x: 150, y: 500, s: 35, c: 10, m: 250, r: 80, a: "N", def: 5},
+    {x: 200, y: 200, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 400, y: 200, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 200, y: 400, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},
+    {x: 400, y: 400, s: 100, c: 70, m: 100, r: 45.1337, a: "N1", def: 36.0420},],
+    ];
+}
+
+    noStroke();
+    if(game.state > -1){
+        if(!game.changeState){
+            game.bkgdC -= (game.bkgdC - game.bkgdC2) / 50;
+        }
+        game.focusX += (mouseX - game.focusX) / 10;
+        game.focusY += (mouseY - game.focusY) / 10;
+        translate(-game.focusX / 10 + 21, -game.focusY / 10 + 21);
+        for(var i = -100; i < 700; i += game.bkgdRes){
+            for(var j = -100; j < 700; j += game.bkgdRes){
+                
+                fill(constrain(game.bkgdC * noise(i / 50, j / 50, frameCount / 200), 0, 255));
+                rect(i, j, game.bkgdRes, game.bkgdRes);
+            }
+        }
+        resetMatrix();
+        if((game.state < 5 && game.state > 3) || game.state === 1 && cells.length > 0){
+            run_nanos();
+            run_CPU();
+        }
+        translate(game.focusX/40 - 5, game.focusY/40 - 5);
+    }
+    //background(255, 255, 255);
+    switch(game.state){
+        /**# LOGO #**/
+        case 0:
+            rectMode(CORNER);
+            translate(300, 200);
+            strokeWeight(1);
+            //background(255, 255, 255);
+            pixelpicture();
+            begin();
+            pixeltext();
+            amount = 1;
+        break;
+        /**# MENU #**/
+        case 1:
+            game.currDiff = -1;
+            game.bkgdC2 = 250;
+            textSize(70);
+            text2("Cellular War", 300, 100);
+            Play.draw(300, 350, 65, "PLAY");
+            Upgd.draw(300, 410, 45, "SHOP");
+            Cred.draw(300, 454, 35, "CREDITS");
+            Meda.draw(300, 488, 25, "Awards");
+        break;
+        /**# LVL SELECT #**/
+        case 2:
+            textSize(25);
+            strokeWeight(2);
+            for(var i = 0; i < 20; i ++){
+                fill(255, 255, 255, 200);
+                stroke(0, 0, 0);
+                rect(100 + (i % 5) * 100, 170 + 100 * floor(i / 5), 70, 70);
+                noStroke();
+                fill(153, 153, 153, 200);
+                rect(100 + (i % 5) * 100, 195 + 100 * floor(i / 5), 70, 20);
+                if(!levelInfo[i][3]){
+                    lock(100 + (i % 5) * 100, 170 + 100 * floor(i / 5), 45, 0.4);
+                    strokeWeight(1);
+                    fill(0, 0, 0, 100);
+                    rect(100 + (i % 5) * 100, 170 + 100 * floor(i / 5), 70, 70);
+                    if(i > 0 && i < 20){
+                        if(levelInfo[i-1][0]){
+                            levelInfo[i][3] = true;
+                        }
+                    }
+                }else{
+                    if(abs(mouseX - (100 + (i % 5) * 100)) < 35 && abs(mouseY - (170 + 100 * floor(i / 5))) < 35){
+                        fill(0, 0, 0, 80);
+                        rect(100 + (i % 5) * 100, 170 + 100 * floor(i / 5), 70, 70);
+                        if(sys.mp && game.lsD === null){
+                            sys.mp = false;
+                            game.lsD = i;
+                        }
+                    }
+                    fill(0, 0, 0, 180);
+                    text(i + 1, 100 + (i % 5) * 100, 165 + 100 * floor(i / 5));
+                }
+                for(var j = 0; j < 3; j ++){
+                    fill(0, 0, 0, 80);
+                    if(levelInfo[i][j]){
+                        fill(255, 255, 0, 180);
+                    }
+                    star(80 + (i % 5) * 100 + j * 20, 195 + 100 * floor(i / 5), 0.1);
+                }
+            }
+            if(game.lsD !== null || game.lsY < 650){
+                game.bkgdC2 = 150;
+                if(game.lsD !== null && game.lsY > 1){
+                    game.lsY /= 1.05;
+                }else if(game.lsD === null){
+                    game.lsY *= 1.18;
+                    if(game.lsY > 650){
+                        game.lsD = null;
+                        game.bkgdC2 = 300;
+                    }
+                }
+            }
+            resetMatrix();
+            translate(0, -game.lsY);
+            fill(255, 255, 255, 200);
+            rect(300, 350, 400, 500);
+            fill(0, 0, 0);
+            textSize(45);
+            text("Level " + (game.lsD+1), 300, 200);
+            textSize(15);
+            text(levelName[game.lsD], 300, 240);
+            if(levelName[game.lsD] === undefined){
+                text("NONEXISTANT LEVEL!!! DO NOT LOAD!!!", 300, 240);
+            }
+            textSize(30);
+            for(var i = -1; i < 2; i ++){
+                fill(0, 0, 0);
+                switch(i){
+                    case -1: text("Easy", 300, 300); drawPent(230, 300, 40, [ceil(game.lsD / 6), ceil(game.lsD / 6), ceil(game.lsD / 6), ceil(game.lsD / 6), ceil(game.lsD / 6)], 6);break;
+                    case 0: text("Normal", 300, 370); drawPent(400, 370, 50, [ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i], 6); break;
+                    case 1: text("Hard", 300, 440); drawPent(220, 440, 50, [ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i, ceil(game.lsD / 4) + i], 6);break;
+                }
+                if(abs(mouseY - (370 + i * 70) + game.lsY) < 35){
+                    fill(255, 255, 255, 150);
+                    rect(300, (370 + i * 70), 400, 70);
+                    if(sys.mp){
+                        game.currDiff = i;
+                        game.state2 = 6;
+                        game.bkgdC2 = 380;
+                        game.changeState = true;
+                        nanos = [];
+                        game.lsY = 600;
+                        if(i > -1){
+                            game.RS = {
+                                Sp: ceil(game.lsD / 4) + i,
+                                Df: ceil(game.lsD / 4) + i,
+                                Pr: ceil(game.lsD / 4) + i,
+                                Ak: ceil(game.lsD / 4) + i,
+                                Lr: ceil(game.lsD / 4) + i,
+                            };
+                            game.BS = {
+                                Sp: ceil(game.lsD / 4) + i,
+                                Df: ceil(game.lsD / 4) + i,
+                                Pr: ceil(game.lsD / 4) + i,
+                                Ak: ceil(game.lsD / 4) + i,
+                                Lr: ceil(game.lsD / 4) + i,
+                            };
+                        }else{
+                            game.RS = {
+                                Sp: ceil(game.lsD / 6),
+                                Df: ceil(game.lsD / 6),
+                                Pr: ceil(game.lsD / 6),
+                                Ak: ceil(game.lsD / 6),
+                                Lr: ceil(game.lsD / 6),
+                            };
+                            game.BS = {
+                                Sp: ceil(game.lsD / 6),
+                                Df: ceil(game.lsD / 6),
+                                Pr: ceil(game.lsD / 6),
+                                Ak: ceil(game.lsD / 6),
+                                Lr: ceil(game.lsD / 6),
+                            };
+                        }
+                    }
+                }
+            }
+            resetMatrix();
+            textSize(50);
+            text2("Level Select", 300, 70 + (game.lsY / 5 - 130));
+            Menu.draw(300, 550 - (game.lsY / 5 - 130), 45, "BACK");
+            Back.draw(300, 550 - game.lsY, 40, "Cancel");
+        break;
+        /**# UPGRADE #**/
+        case 3:
+            fill(255, 255, 255, 190);
+            stroke(0, 0, 0, 190);
+            strokeWeight(5);
+            rect(150, 300, 270, 240);
+            textSize(50);
+            text2("Upgrades", 300, 100);
+            textSize(18);
+            text2("Making life easier since 1999.", 300, 145);
+            drawPent(150, 300, 100, [game.playerStat.Sp, game.playerStat.Df, game.playerStat.Pr, game.playerStat.Ak, game.playerStat.Lr], 6);
+            textSize(15);
+            fill(0, 0, 0);
+            text("Speed", 250, 300);
+            text("Defense", 180, 400);
+            text("Production", 70, 350);
+            text("Attack", 50, 240);
+            text("Capacity", 180, 200);
+            fill(0, 0, 0, 100);
+            strokeWeight(2.5);
+            stroke(0, 0, 0, 150);
+            rect(520, 110, 100, 40);
+            textSize(20);
+            fill(255, 255, 255);
+            text("SP: " + game.playerStat.allocate, 520, 110);
+            for(var i = 0; i < 5; i ++){
+                textAlign(LEFT, CENTER);
+                var name, cost, currLvl, nextLvl, unit, txt;
+                switch(i){
+                    case 0: name = "Speed"; cost = game.playerStat.Sp; currLvl = getStat("S", cost); nextLvl = getStat("S", cost+1); unit = 100; txt = "%"; break;
+                    case 1: name = "Defense"; cost = game.playerStat.Df; currLvl = getStat("D", cost); nextLvl = getStat("D", cost+1); unit = 1; txt = " Def"; break;
+                    case 2: name = "Production"; cost = game.playerStat.Pr; currLvl = getStat("P", cost); nextLvl = getStat("P", cost+1); unit = 100; txt = "%"; break;
+                    case 3: name = "Attack"; cost = game.playerStat.Ak; currLvl = getStat("A", cost); nextLvl = getStat("A", cost+1); unit = 100; txt = "%"; break;
+                    case 4: name = "Capacity"; cost = game.playerStat.Lr; currLvl = getStat("L", cost); nextLvl = getStat("L", cost+1); unit = 100; txt = "%"; break;
+                }
+                //Quite some messy code. lol
+                fill(120, 120, 120, 100);
+                if(abs(mouseX - 450) < 125 && abs(mouseY - (200 + i * 55)) < 25){
+                    fill(180, 180, 180, 100);
+                    if(cost <= game.playerStat.allocate && cost < 6){
+                        if(sys.mp){
+                            game.playerStat.allocate -= cost;
+                            Program.SAVEDSTUFF = generateSave2();
+                            game.whiteFill = 200;
+                            switch(i){
+                                case 0: game.playerStat.Sp ++; break;
+                                case 1: game.playerStat.Df ++; break;
+                                case 2: game.playerStat.Pr ++; break;
+                                case 3: game.playerStat.Ak ++; break;
+                                case 4: game.playerStat.Lr ++; break;
+                            }
+                        }
+                    }else{
+                        fill(255, 0, 0, 100);
+                    }
+                }
+                if(cost > 5){
+                    fill(255, 255, 255, 100);
+                }
+                rect(450, 200 + i * 55, 250, 50);
+                fill(0, 0, 0, 230);
+                textSize(20);
+                text(name, 340, 200 + i * 55);
+                textSize(12);
+                textAlign(RIGHT, CENTER);
+                text((cost < 6) ? (round(currLvl * unit) + txt + " > " + round(nextLvl * unit)) + txt : round(currLvl * unit) + txt, 560, 190 + i * 55);
+                text((cost < 6) ? ("SP needed: " + cost) : "Maxed out!", 560, 210 + i * 55);
+                MaxStat.checking((cost > 5));
+            }
+            textAlign(CENTER, CENTER);
+            Menu.draw(300, 550, 45, "BACK");
+            fill(255, 255, 255, game.whiteFill);
+            rect(0, 0, 9999, 9999);
+        break;
+        /**# CREDITS #**/
+        case 4:
+            textSize(50);
+            text2("Credits", 300, 80);
+            textAlign(CENTER, TOP);
+            textSize(25);
+            text2("Programming\n\n\nGraphics\n\n\nBeta Testers", 300, 130);
+            textSize(20);
+            text2("Level Creators                   More Testers", 300, 230);
+            textSize(15);
+            text2("тнσмαs Lι (ησvιcε ρяσgяαммιηg)\n\n\n\n\nStαrɢαzεr\n\n\n\n\nStαrɢαzεr\nPhotonic Symmetry\nBoltshock\nKιngKhαn007\nTemporalFuzz\nT#1B12P\nSilverKiwi28\nTegoon\nJoseph\n𝕋𝕚𝕥𝕒𝕟𝕚𝕦𝕞 𝔽𝕝𝕒𝕞𝕖", 300, 170);
+            text2("Boltshock\ncbboss\nPhotonic Symmetry\nLuc Teachout", 115, 260);
+            text2("cbboss\nCaptain", 485, 260);
+            textAlign(CENTER, CENTER);
+            Menu.draw(300, 550, 45, "BACK");
+            Credits.checking(true);
+        break;
+        /**# ACHIEVEMENTS #**/
+        case 5:
+            textSize(50);
+            text2("Achievements", 300, 70);
+            textSize(18);
+            text2("Click to claim", 300, 115);
+            pushStyle();
+            Credits.draw(150, 200);
+            HangTight.draw(450, 200);
+            FullBank.draw(150, 330);
+            MaxStat.draw(450, 330);
+            Veteran.draw(150, 460);
+            Completion.draw(450, 460);
+            popStyle();
+            Menu.draw(300, 550, 45, "BACK");
+            if(sys.mp){
+                Program.SAVEDSTUFF = generateSave2();
+            }
+        break;
+        /**# GAME #**/
+        case 6:
+            var levelDone = true;
+            var lostLevel = true;
+            var playerAmt = 0;
+            textSize(45);
+            text2("Level " + (game.lsD+1), 300, 50);
+            textSize(15);
+            text(levelName[game.lsD], 300, 100);
+            textSize(12);
+            run_nanos();
+            run_CPU();
+            fill(255, 255, 255);
+            switch(game.lsD){
+                //Tutorial Text Stuff
+                case 0:
+                    text("< Click to select a cell.", 400, 200);
+                    text("Release (or click on) empty\nspace to cancel selection.", 200, 350);
+                    text("Release (or click on) another\ncell to send viruses.  >", 200, 450);
+                    text("Beating a level in\nEasy gives a star.\nMedium gives 2 stars.\nAnd Hard gives 3.", 500, 350);
+                break;
+                case 1:
+                    text("Click and drag\nto other cells >\nto select multiple ones.", 100, 300);
+                    text("Playing in Hard Mode\nenables fog of war.\n\nBeating a level in Hard Mode\nfor the first time\nalso rewards one Skill Point.", 450, 400);
+                break;
+                case 5:
+                    text("The High Def Cell has\nthick membrane that makes\nattacking it very difficult.\n\nHowever, it has a very slow\nrecovery rate with a high\ncapacity. Use them for storage.", 400, 400);
+                break;
+                case 2:
+                    text("To complete a level,\nyou must reprogram all\ncells in an area.", 400, 300);
+                break;
+                case 6:
+                    text("In the main menu, there is a shop\nyou can upgrade your cells there.\n\nThis makes levels easier to beat. ;)", 300, 450);
+                break;
+                case 16:
+                    //Of course you thought the tutorials were over. :P
+                    text("As you infected more and more\nof your host's cells, you became\na bigger threat.\n\nThese sectors have NKC's that are\npart of your host's immune system.\nThey have fast production so\ninfecting them is quite an investment", 150, 350);
+                break;
+            }
+            if((sys.mp || sys.mr) && !sys.onCell){
+                sys.selC = NaN;
+                sys.selC2 = [];
+            }
+            for(var i = 0; i < cells.length; i ++){
+                if(cells[i].a !== "P"){
+                    levelDone = false;
+                }else{
+                    lostLevel = false;
+                    playerAmt += cells[i].c;
+                }
+            }
+            for(var i = 0; i < nanos.length; i ++){
+                if(nanos[i].a !== "P"){
+                    levelDone = false;
+                }else{
+                    lostLevel = false;
+                }
+            }
+            if(levelDone){
+                HangTight.checking(((nanos.length + playerAmt) <= 10));
+                game.lsT = 0;
+                if(game.lsT !== null || game.lsY < 650){
+                    game.bkgdC2 = 150;
+                    if(game.lsT !== null && game.lsY > 1){
+                        game.lsY /= 1.05;
+                    }else if(game.lsT === null){
+                        game.lsY *= 1.18;
+                        if(game.lsY > 650){
+                            game.lsY = 650;
+                            game.bkgdC2 = 300;
+                        }
+                    }
+                }
+                resetMatrix();
+                translate(0, -game.lsY);
+                fill(255, 255, 255, 200);
+                rect(300, 350, 400, 500);
+                fill(0, 0, 0);
+                textSize(45);
+                text("Level\nComplete!", 300, 200);
+                textSize(30);
+                text("Continue", 300, 400);
+                if(game.currDiff > 0 && !levelInfo[game.lsD][2]){
+                    textSize(20);
+                    text2("Skill point earned!", 300, 300);
+                    var done = true;
+                    for(var i = 0; i < levelInfo.length; i ++){
+                        for(var j = 0; j < levelInfo[0].length; j ++){
+                            if(!levelInfo[i][j]){
+                                done = false;
+                            }
+                        }
+                    }
+                    Completion.checking(done);
+                }
+                Veteran.checking((game.lsD > 18));
+                if(abs(mouseY - 400) < 35){
+                    fill(255, 255, 255, 150);
+                    rect(300, 400, 400, 70);
+                    if(sys.mp){
+                        levelInfo[game.lsD][3] = true;
+                        levelInfo[game.lsD][0] = true;
+                        if(game.currDiff > -1){
+                            levelInfo[game.lsD][1] = true;
+                            if(game.currDiff > 0){
+                                if(!levelInfo[game.lsD][2]){
+                                    game.playerStat.allocate ++;
+                                }
+                                levelInfo[game.lsD][2] = true;
+                            }
+                        }
+                        nanos = [];
+                        game.currDiff = null;
+                        game.state2 = 2;
+                        game.bkgdC2 = 380;
+                        game.changeState = true;
+                        game.lsT = null;
+                        game.lsD = null;
+                        game.RS = {
+                            Sp: 1,
+                            Df: 1,
+                            Pr: 1,
+                            Ak: 1,
+                            Lr: 1,
+                        };
+                        game.BS = {
+                            Sp: 1,
+                            Df: 1,
+                            Pr: 1,
+                            Ak: 1,
+                            Lr: 1,
+                        };
+                    }
+                }
+            }
+            if(lostLevel && !game.changeState){
+                game.lsT = 0;
+                if(game.lsT !== null || game.lsY < 650){
+                    game.bkgdC2 = 150;
+                    if(game.lsT !== null && game.lsY > 1){
+                        game.lsY /= 1.05;
+                    }else if(game.lsT === null){
+                        game.lsY *= 1.18;
+                        if(game.lsY > 650){
+                            game.lsY = 650;
+                            game.bkgdC2 = 300;
+                        }
+                    }
+                }
+                resetMatrix();
+                translate(0, -game.lsY);
+                fill(255, 255, 255, 200);
+                rect(300, 350, 400, 500);
+                fill(0, 0, 0);
+                textSize(45);
+                text("Level\nFailed!", 300, 200);
+                textSize(30);
+                text("Retry", 300, 400);
+                if(abs(mouseY - 400) < 35){
+                    fill(255, 255, 255, 150);
+                    rect(300, 400, 400, 70);
+                    if(sys.mp){
+                        game.currDiff = null;
+                        game.lsT = null;
+                        game.currDiff = i;
+                        game.state2 = 6;
+                        game.bkgdC2 = 380;
+                        game.changeState = true;
+                        var levelLayout = levels[game.lsD];
+                        cells = levelLayout;
+                        nanos = [];
+                        game.lsY = 600;
+                    }
+                }
+                Play.draw(300, 550, 45, "BACK");
+            }
+            resetMatrix();
+            //No actual button functions, just for loops. Lol. (Except for the Button Object)
+            for(var i = 0; i < 3; i ++){
+                fill(255, 255, 255);
+                ellipse(30 + i * 45, 570, 35, 35);
+                fill(0, 0, 0);
+                textSize(15);
+                switch(i){
+                    case 0: text("▌▌", 32, 568); break;
+                    case 1: textSize(30); text("↻", 75, 567); break;
+                    case 2: text("❌", 120, 570); break;
+                }
+                if(dist(30 + i * 45, 570, mouseX, mouseY) < 17.5){
+                    fill(0, 0, 0, 100);
+                    ellipse(30 + i * 45, 570, 38, 38);
+                    if(sys.mp){
+                        switch(i){
+                            case 0: game.state = "Pause4AFrame"; break;
+                            case 1: game.currDiff = null; game.lsT = null; game.state2 = 6; game.changeState = true; var levelLayout = levels[game.lsD]; cells = levelLayout; nanos = []; game.lsY = 600; /*Messy code, but c'mon... give me a*/break;
+                            //Haha, did you get the pun? No? Well. Read the comment then code. (Comment in T&T if you are the first one to find this.) :P
+                            case 2: Play.DOTHIS(); break;
+                        }
+                    }
+                }
+                
+                
+            }
+        break;
+        case "Pause4AFrame":
+            fill(0, 0, 0, 150);
+            rect(0, 0, 9999, 9999);
+            fill(255, 255, 255);
+            textSize(50);
+            text("- PAUSED -", 300, 270);
+            textSize(15);
+            text("Click anywhere to unpause", 300, 320);
+            game.state = "nothingButCheckingForClick";
+        break;
+        case "nothingButCheckingForClick":
+            if(sys.mp){
+                game.state = 6;
+            }
+        break;
+    }
+    fill(0, 0, 0, game.state2T);
+    rect(-999, -999, 9999, 9999);
+    if(game.changeState === true){
+        if(game.state2T < 255){
+            game.state2T += 4;
+        }else{
+            game.state = game.state2;
+            game.changeState = null;
+            game.lsY = 600;
+            Program.SAVEDSTUFF = generateSave2();
+        }
+    }
+    if(game.changeState === null && game.state === game.state2){
+        if(game.state2T > 0){
+            game.state2T -= 4;
+            if(game.state2 === 1){
+                cells = mainMenu_load;
+            }
+            if(game.state2 === 2){
+                cells = [];
+            }
+            if(game.state2 === 6){
+                var levelLayout = levels[game.lsD];
+                cells = levelLayout;
+            }
+        }else{
+            game.changeState = false;
+        }
+    }
+    resetMatrix();
+    textSize(12);
+    fill(255, 255, 255, 150);
+    if(dist(mouseX, mouseY, 570, 570) < 22){
+        fill(255, 255, 255, 200);
+        if(sys.mp){
+            Program.SAVEDSTUFF = generateSave2();
+            generateSave();
+        }
+    }
+    ellipse(570, 570, 45, 45);
+    fill(0, 0, 0, 200);
+    text("Save", 570, 570);
+    
+    sys.mp = false;
+    sys.mr = false;
+    sys.onCell = false;
+    run_number_notif();
+    game.whiteFill -= 5;
+    
+    //FPS METER
+    fill(255, 255, 255, 175);
+    noStroke();
+    rectMode(CENTER);
+    rect(550, 50, 70, 30);
+    if(this.__frameRate > 40){
+        fill(0, 255, 0);
+    }else if(this.__frameRate > 24){
+        fill(255, 255, 0);
+    }else if(this.__frameRate > 16){
+        fill(255, 102, 0);
+    }else{
+        fill(255, 0, 0);
+    }
+    textSize(13);
+    text("Fps: "+round(this.__frameRate), 550, 50);
+};
